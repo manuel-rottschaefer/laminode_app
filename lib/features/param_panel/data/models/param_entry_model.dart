@@ -1,3 +1,4 @@
+import 'package:laminode_app/core/domain/entities/cam_param.dart';
 import 'package:laminode_app/features/param_panel/domain/entities/param_entry.dart';
 
 class CamParamEntryModel extends CamParamEntry {
@@ -12,7 +13,7 @@ class CamParamEntryModel extends CamParamEntry {
     return CamParamEntryModel(
       paramName: json['paramName'],
       paramTitle: json['paramTitle'],
-      quantity: json['quantity'],
+      quantity: ParamQuantity.fromJson(json['quantity']),
       value: json['value'],
     );
   }
@@ -21,7 +22,7 @@ class CamParamEntryModel extends CamParamEntry {
     return {
       'paramName': paramName,
       'paramTitle': paramTitle,
-      'quantity': quantity,
+      'quantity': quantity.toJson(),
       'value': value,
     };
   }

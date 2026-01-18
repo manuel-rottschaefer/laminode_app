@@ -1,10 +1,26 @@
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
+import 'package:laminode_app/features/schema_shop/domain/entities/base_param.dart';
 
-// A CAM Base Parameter serves as a translation base for parameters of the same technology
-class CamBaseParam extends CamParameter {
-  CamBaseParam({
+class CamBaseParamModel extends CamBaseParam {
+  CamBaseParamModel({
     required super.paramName,
     required super.paramTitle,
     required super.quantity,
   });
+
+  factory CamBaseParamModel.fromJson(Map<String, dynamic> json) {
+    return CamBaseParamModel(
+      paramName: json['paramName'],
+      paramTitle: json['paramTitle'],
+      quantity: ParamQuantity.fromJson(json['quantity']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'paramName': paramName,
+      'paramTitle': paramTitle,
+      'quantity': quantity.toJson(),
+    };
+  }
 }

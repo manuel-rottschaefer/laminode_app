@@ -27,7 +27,8 @@ class LayerEntryModel extends LamiLayerEntry {
   Map<String, dynamic> toJson() {
     return {
       'layerName': layerName,
-      'parameters': parameters?.map((e) => e.toJson()).toList(),
+      'parameters':
+          parameters?.map((e) => (e as CamParamEntryModel).toJson()).toList(),
       'layerAuthor': layerAuthor,
       'layerDescription': layerDescription,
       'isActive': isActive,

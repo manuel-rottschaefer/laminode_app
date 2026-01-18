@@ -1,31 +1,19 @@
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
+import 'package:laminode_app/features/profile_editor/domain/entities/param_relation_entry.dart';
 
 // A Parameter entry is a stateful representation of a CamParameter in a Profile
 class CamParamEntry extends CamParameter {
   final dynamic value;
+
+  final ParamRelationEntry? defaultValue;
+  final ParamRelationEntry? suggestValue;
 
   CamParamEntry({
     required super.paramName,
     required super.paramTitle,
     required super.quantity,
     required this.value,
+    this.defaultValue,
+    this.suggestValue,
   });
-
-  factory CamParamEntry.fromJson(Map<String, dynamic> json) {
-    return CamParamEntry(
-      paramName: json['paramName'],
-      paramTitle: json['paramTitle'],
-      quantity: ParamQuantity.fromJson(json['quantity']),
-      value: json['value'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'paramName': paramName,
-      'paramTitle': paramTitle,
-      'quantity': quantity.toJson(),
-      'value': value,
-    };
-  }
 }
