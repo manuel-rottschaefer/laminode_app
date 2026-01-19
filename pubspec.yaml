@@ -21,6 +21,7 @@ dependencies:
   window_manager: ^0.5.1
   lucide_icons: ^0.257.0
   google_fonts: ^7.0.2
+  dio: ^5.7.0
 
 dev_dependencies:
   flutter_test:

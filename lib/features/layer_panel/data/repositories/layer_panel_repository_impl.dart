@@ -31,14 +31,7 @@ class LayerPanelRepositoryImpl implements LayerPanelRepository {
 
   @override
   Future<void> exportLayer(LamiLayerEntry layer, String filePath) async {
-    final model = LayerEntryModel(
-      layerName: layer.layerName,
-      parameters: layer.parameters,
-      layerAuthor: layer.layerAuthor,
-      layerDescription: layer.layerDescription,
-      isActive: layer.isActive,
-      isLocked: layer.isLocked,
-    );
+    final model = LayerEntryModel.fromEntity(layer);
     final jsonString = jsonEncode(model.toJson());
     final file = File(filePath);
     await file.writeAsString(jsonString);
@@ -50,6 +43,6 @@ class LayerPanelRepositoryImpl implements LayerPanelRepository {
     if (!await file.exists()) return null;
     final jsonString = await file.readAsString();
     final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
-    return LayerEntryModel.fromJson(jsonMap);
+    return LayerEntryModel.fromJson(jsonMap).toEntity();
   }
 }

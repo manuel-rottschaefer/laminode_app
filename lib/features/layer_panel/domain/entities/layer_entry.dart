@@ -1,14 +1,14 @@
-import 'package:laminode_app/core/domain/entities/lami_layer.dart';
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
+import 'package:laminode_app/core/domain/entities/lami_layer.dart';
 
 // A layer entry is a stateful representation of a LamiLayer in a Profile
 class LamiLayerEntry extends LamiLayer<CamParamEntry> {
   final String layerAuthor;
-  String layerDescription;
-  bool isActive;
-  bool isLocked;
+  final String layerDescription;
+  final bool isActive;
+  final bool isLocked;
 
-  LamiLayerEntry({
+  const LamiLayerEntry({
     required super.layerName,
     required super.parameters,
     required this.layerAuthor,
@@ -16,4 +16,22 @@ class LamiLayerEntry extends LamiLayer<CamParamEntry> {
     this.isActive = true,
     this.isLocked = false,
   });
+
+  LamiLayerEntry copyWith({
+    String? layerName,
+    List<CamParamEntry>? parameters,
+    String? layerAuthor,
+    String? layerDescription,
+    bool? isActive,
+    bool? isLocked,
+  }) {
+    return LamiLayerEntry(
+      layerName: layerName ?? this.layerName,
+      parameters: parameters ?? this.parameters,
+      layerAuthor: layerAuthor ?? this.layerAuthor,
+      layerDescription: layerDescription ?? this.layerDescription,
+      isActive: isActive ?? this.isActive,
+      isLocked: isLocked ?? this.isLocked,
+    );
+  }
 }

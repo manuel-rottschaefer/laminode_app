@@ -30,52 +30,34 @@ final updateLayerNameUseCaseProvider = Provider((ref) {
 });
 
 // Notifier
-class LayerPanelNotifier extends StateNotifier<List<LamiLayerEntry>> {
-  final GetLayersUseCase _getLayers;
-  final AddEmptyLayerUseCase _addEmptyLayer;
-  final RemoveLayerUseCase _removeLayer;
-  final UpdateLayerNameUseCase _updateLayerName;
-
-  LayerPanelNotifier({
-    required GetLayersUseCase getLayers,
-    required AddEmptyLayerUseCase addEmptyLayer,
-    required RemoveLayerUseCase removeLayer,
-    required UpdateLayerNameUseCase updateLayerName,
-  }) : _getLayers = getLayers,
-       _addEmptyLayer = addEmptyLayer,
-       _removeLayer = removeLayer,
-       _updateLayerName = updateLayerName,
-       super([]) {
-    _refresh();
+class LayerPanelNotifier extends Notifier<List<LamiLayerEntry>> {
+  @override
+  List<LamiLayerEntry> build() {
+    return ref.watch(getLayersUseCaseProvider)();
   }
 
   void _refresh() {
-    state = _getLayers();
+    state = ref.read(getLayersUseCaseProvider)();
   }
 
   void addEmptyLayer() {
-    _addEmptyLayer();
+    ref.read(addEmptyLayerUseCaseProvider)();
     _refresh();
   }
 
   void removeLayer(int index) {
-    _removeLayer(index);
+    ref.read(removeLayerUseCaseProvider)(index);
     _refresh();
   }
 
   void updateLayerName(int index, String newName) {
-    _updateLayerName(index, newName);
+    ref.read(updateLayerNameUseCaseProvider)(index, newName);
     _refresh();
   }
 }
 
 // State Provider
 final layerPanelProvider =
-    StateNotifierProvider<LayerPanelNotifier, List<LamiLayerEntry>>((ref) {
-      return LayerPanelNotifier(
-        getLayers: ref.watch(getLayersUseCaseProvider),
-        addEmptyLayer: ref.watch(addEmptyLayerUseCaseProvider),
-        removeLayer: ref.watch(removeLayerUseCaseProvider),
-        updateLayerName: ref.watch(updateLayerNameUseCaseProvider),
-      );
-    });
+    NotifierProvider<LayerPanelNotifier, List<LamiLayerEntry>>(
+      () => LayerPanelNotifier(),
+    );
