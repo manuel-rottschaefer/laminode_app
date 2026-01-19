@@ -1,5 +1,5 @@
-import 'package:laminode_app/features/param_panel/data/models/param_entry_model.dart';
-import 'package:laminode_app/features/schema_editor/data/models/cam_category_entry_model.dart';
+import 'package:laminode_app/core/data/models/param_entry_model.dart';
+import 'package:laminode_app/core/data/models/cam_category_entry_model.dart';
 import 'package:laminode_app/features/schema_editor/domain/entities/cam_schema_entry.dart';
 
 class CamSchemaEntryModel extends CamSchemaEntry {

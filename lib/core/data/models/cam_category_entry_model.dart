@@ -1,4 +1,4 @@
-import 'package:laminode_app/features/schema_editor/domain/entities/cam_category_entry.dart';
+import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 
 class CamCategoryEntryModel extends CamCategoryEntry {
   CamCategoryEntryModel({

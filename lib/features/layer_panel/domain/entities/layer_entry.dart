@@ -1,5 +1,5 @@
 import 'package:laminode_app/core/domain/entities/lami_layer.dart';
-import 'package:laminode_app/features/param_panel/domain/entities/param_entry.dart';
+import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 
 // A layer entry is a stateful representation of a LamiLayer in a Profile
 class LamiLayerEntry extends LamiLayer<CamParamEntry> {

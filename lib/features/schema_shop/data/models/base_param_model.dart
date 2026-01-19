@@ -1,5 +1,5 @@
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
-import 'package:laminode_app/features/schema_editor/data/models/cam_category_entry_model.dart';
+import 'package:laminode_app/core/data/models/cam_category_entry_model.dart';
 import 'package:laminode_app/features/schema_shop/domain/entities/base_param.dart';
 
 class CamBaseParamModel extends CamBaseParam {

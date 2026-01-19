@@ -1,4 +1,4 @@
-import 'package:laminode_app/features/param_panel/data/models/param_entry_model.dart';
+import 'package:laminode_app/core/data/models/param_entry_model.dart';
 import 'package:laminode_app/features/profile_editor/domain/entities/param_relation_entry.dart';
 
 class ParamRelationModel extends ParamRelationEntry {

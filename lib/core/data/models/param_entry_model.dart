@@ -1,6 +1,6 @@
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
-import 'package:laminode_app/features/param_panel/domain/entities/param_entry.dart';
-import 'package:laminode_app/features/schema_editor/domain/entities/cam_category_entry.dart';
+import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
+import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 
 class CamParamEntryModel extends CamParamEntry {
   CamParamEntryModel({

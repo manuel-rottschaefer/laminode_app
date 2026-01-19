@@ -46,11 +46,13 @@ abstract class CamParameter {
   final String paramTitle;
   final ParamQuantity quantity;
   final CamParamCategory category;
+  final String? baseParam;
 
   CamParameter({
     required this.paramName,
     required this.paramTitle,
     required this.quantity,
     required this.category,
+    this.baseParam,
   });
 }
