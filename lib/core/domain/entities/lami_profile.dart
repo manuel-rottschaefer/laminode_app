@@ -1,8 +1,8 @@
 import 'package:laminode_app/core/domain/entities/lami_layer.dart';
 
-abstract class LamiProfile {
+class LamiProfile<T extends LamiLayer> {
   final String profileName;
-  final List<LamiLayer> layers;
+  final List<T> layers;
 
-  LamiProfile({required this.profileName, required this.layers});
+  const LamiProfile({required this.profileName, required this.layers});
 }

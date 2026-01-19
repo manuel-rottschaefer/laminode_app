@@ -4,7 +4,7 @@ class ParamQuantity {
   final String quantityUnit;
   final String quantitySymbol;
 
-  ParamQuantity({
+  const ParamQuantity({
     required this.quantityName,
     required this.quantityUnit,
     required this.quantitySymbol,
@@ -33,7 +33,7 @@ abstract class CamParamCategory {
   final String categoryTitle;
   final String categoryColorName;
 
-  CamParamCategory({
+  const CamParamCategory({
     required this.categoryName,
     required this.categoryTitle,
     required this.categoryColorName,
@@ -48,7 +48,7 @@ abstract class CamParameter {
   final CamParamCategory category;
   final String? baseParam;
 
-  CamParameter({
+  const CamParameter({
     required this.paramName,
     required this.paramTitle,
     required this.quantity,

@@ -5,5 +5,5 @@ abstract class CamRelation {
   final CamParameter targetParam;
   final String expression;
 
-  CamRelation({required this.targetParam, required this.expression});
+  const CamRelation({required this.targetParam, required this.expression});
 }

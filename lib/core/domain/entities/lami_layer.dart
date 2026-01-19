@@ -4,5 +4,5 @@ abstract class LamiLayer<T extends CamParameter> {
   final String layerName;
   final List<T>? parameters;
 
-  LamiLayer({required this.layerName, required this.parameters});
+  const LamiLayer({required this.layerName, required this.parameters});
 }

@@ -2,14 +2,40 @@ import 'package:laminode_app/core/domain/entities/cam_param.dart';
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 
-class CamParamEntryModel extends CamParamEntry {
+class CamParamEntryModel {
+  final String paramName;
+  final String paramTitle;
+  final ParamQuantity quantity;
+  final CamCategoryEntry category;
+  final dynamic value;
+
   CamParamEntryModel({
-    required super.paramName,
-    required super.paramTitle,
-    required super.quantity,
-    required super.category,
-    required super.value,
+    required this.paramName,
+    required this.paramTitle,
+    required this.quantity,
+    required this.category,
+    required this.value,
   });
+
+  factory CamParamEntryModel.fromEntity(CamParamEntry entity) {
+    return CamParamEntryModel(
+      paramName: entity.paramName,
+      paramTitle: entity.paramTitle,
+      quantity: entity.quantity,
+      category: entity.category as CamCategoryEntry,
+      value: entity.value,
+    );
+  }
+
+  CamParamEntry toEntity() {
+    return CamParamEntry(
+      paramName: paramName,
+      paramTitle: paramTitle,
+      quantity: quantity,
+      category: category,
+      value: value,
+    );
+  }
 
   factory CamParamEntryModel.fromJson(Map<String, dynamic> json) {
     return CamParamEntryModel(
@@ -30,6 +56,11 @@ class CamParamEntryModel extends CamParamEntry {
       'paramName': paramName,
       'paramTitle': paramTitle,
       'quantity': quantity.toJson(),
+      'category': {
+        'categoryName': category.categoryName,
+        'categoryTitle': category.categoryTitle,
+        'categoryColorName': category.categoryColorName,
+      },
       'value': value,
     };
   }

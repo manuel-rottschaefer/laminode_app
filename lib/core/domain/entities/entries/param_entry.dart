@@ -8,7 +8,7 @@ class CamParamEntry extends CamParameter {
   final ParamRelationEntry? defaultValue;
   final ParamRelationEntry? suggestValue;
 
-  CamParamEntry({
+  const CamParamEntry({
     required super.paramName,
     required super.paramTitle,
     required super.quantity,
@@ -18,4 +18,26 @@ class CamParamEntry extends CamParameter {
     this.defaultValue,
     this.suggestValue,
   });
+
+  CamParamEntry copyWith({
+    String? paramName,
+    String? paramTitle,
+    ParamQuantity? quantity,
+    CamParamCategory? category,
+    String? baseParam,
+    dynamic value,
+    ParamRelationEntry? defaultValue,
+    ParamRelationEntry? suggestValue,
+  }) {
+    return CamParamEntry(
+      paramName: paramName ?? this.paramName,
+      paramTitle: paramTitle ?? this.paramTitle,
+      quantity: quantity ?? this.quantity,
+      category: category ?? this.category,
+      baseParam: baseParam ?? this.baseParam,
+      value: value ?? this.value,
+      defaultValue: defaultValue ?? this.defaultValue,
+      suggestValue: suggestValue ?? this.suggestValue,
+    );
+  }
 }
