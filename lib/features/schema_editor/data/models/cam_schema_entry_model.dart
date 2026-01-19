@@ -26,7 +26,11 @@ class CamSchemaEntryModel extends CamSchemaEntry {
       'schemaName': schemaName,
       'categories': categories
           .map(
-            (e) => CamCategoryEntryModel(categoryName: e.categoryName).toJson(),
+            (e) => CamCategoryEntryModel(
+              categoryName: e.categoryName,
+              categoryTitle: e.categoryTitle,
+              categoryColorName: e.categoryColorName,
+            ).toJson(),
           )
           .toList(),
       'availableParameters': availableParameters

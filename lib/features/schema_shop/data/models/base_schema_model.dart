@@ -25,6 +25,7 @@ class CamBaseSchemaModel extends CamBaseSchema {
               paramName: e.paramName,
               paramTitle: e.paramTitle,
               quantity: e.quantity,
+              category: e.category,
             ).toJson(),
           )
           .toList(),

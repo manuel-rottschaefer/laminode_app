@@ -12,6 +12,7 @@ class CamParamEntry extends CamParameter {
     required super.paramName,
     required super.paramTitle,
     required super.quantity,
+    required super.category,
     required this.value,
     this.defaultValue,
     this.suggestValue,

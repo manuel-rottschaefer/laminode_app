@@ -30,8 +30,14 @@ class ParamQuantity {
 // Parameters are grouped into categories for better organization
 abstract class CamParamCategory {
   final String categoryName;
+  final String categoryTitle;
+  final String categoryColorName;
 
-  CamParamCategory({required this.categoryName});
+  CamParamCategory({
+    required this.categoryName,
+    required this.categoryTitle,
+    required this.categoryColorName,
+  });
 }
 
 // A CamParameter is the atomic unit of configuration for a CAM profile
@@ -39,10 +45,12 @@ abstract class CamParameter {
   final String paramName;
   final String paramTitle;
   final ParamQuantity quantity;
+  final CamParamCategory category;
 
   CamParameter({
     required this.paramName,
     required this.paramTitle,
     required this.quantity,
+    required this.category,
   });
 }
