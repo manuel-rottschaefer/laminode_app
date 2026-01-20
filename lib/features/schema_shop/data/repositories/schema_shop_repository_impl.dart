@@ -1,19 +1,96 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:laminode_app/features/schema_editor/data/models/cam_schema_entry_model.dart';
 import 'package:laminode_app/features/schema_editor/domain/entities/cam_schema_entry.dart';
+import 'package:laminode_app/features/schema_shop/data/datasources/schema_shop_local_data_source.dart';
+import 'package:laminode_app/features/schema_shop/data/datasources/schema_shop_remote_data_source.dart';
+import 'package:laminode_app/features/schema_shop/data/models/plugin_manifest_model.dart';
+import 'package:laminode_app/features/schema_shop/data/models/plugin_schema_model.dart';
+import 'package:laminode_app/features/schema_shop/domain/entities/plugin_manifest.dart';
 import 'package:laminode_app/features/schema_shop/domain/repositories/schema_shop_repository.dart';
 
 class SchemaShopRepositoryImpl implements SchemaShopRepository {
-  @override
-  Future<CamSchemaEntry?> loadSchema(String filePath) async {
-    final file = File(filePath);
-    if (!await file.exists()) return null;
-    final jsonString = await file.readAsString();
-    final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
+  final SchemaShopRemoteDataSource _remoteDataSource;
+  final SchemaShopLocalDataSource _localDataSource;
 
-    // Check if it's a regular schema entry or a base schema (if needed)
-    // For now assuming CamSchemaEntry as it was defined for .lmds
-    return CamSchemaEntryModel.fromJson(jsonMap);
+  SchemaShopRepositoryImpl(this._remoteDataSource, this._localDataSource);
+
+  @override
+  Future<List<PluginManifest>> getAvailablePlugins() async {
+    return await _remoteDataSource.getAvailablePlugins();
+  }
+
+  @override
+  Future<void> installPlugin(PluginManifest plugin, String schemaId) async {
+    final pluginId = plugin.plugin.pluginID;
+
+    List<int>? adapterBytes;
+    if (plugin.pluginType == 'application') {
+      adapterBytes = await _remoteDataSource.downloadAdapter(pluginId);
+    }
+
+    final schemaJson = await _remoteDataSource.downloadSchema(
+      pluginId,
+      schemaId,
+    );
+
+    await _localDataSource.savePlugin(
+      plugin as PluginManifestModel,
+      adapterBytes,
+      schemaId,
+      schemaJson,
+    );
+  }
+
+  @override
+  Future<void> installManualSchema(File file) async {
+    final content = await file.readAsString();
+    final json = jsonDecode(content);
+
+    // Basic validation of schema structure
+    if (json['manifest'] == null) {
+      throw const FormatException("Invalid schema format: missing manifest");
+    }
+
+    final targetAppName = json['manifest']['targetAppName'];
+    if (targetAppName == null) {
+      throw const FormatException(
+        "Invalid schema format: missing targetAppName",
+      );
+    }
+
+    // Verify application existence in app support dir
+    if (!await _localDataSource.applicationExists(targetAppName)) {
+      throw Exception(
+        "Application '$targetAppName' is not installed in the system.",
+      );
+    }
+
+    final schemaId = json['manifest']['schemaVersion'] ?? 'manual';
+
+    await _localDataSource.saveManualSchema(targetAppName, schemaId, json);
+  }
+
+  @override
+  Future<void> uninstallPlugin(String pluginId) async {
+    await _localDataSource.removePlugin(pluginId);
+  }
+
+  @override
+  Future<CamSchemaEntry?> loadInstalledSchema(String schemaId) async {
+    final schemaJson = await _localDataSource.getInstalledSchema(schemaId);
+    if (schemaJson != null) {
+      return PluginSchemaModel.fromJson(schemaJson).toEntity();
+    }
+    return null;
+  }
+
+  @override
+  Future<List<String>> getInstalledSchemaIds() async {
+    return await _localDataSource.getInstalledSchemaIds();
+  }
+
+  @override
+  Future<List<PluginManifest>> getInstalledPlugins() async {
+    return await _localDataSource.getInstalledPlugins();
   }
 }

@@ -63,6 +63,7 @@ class PluginSchemaModel {
     return CamParamEntry(
       paramName: p['name'],
       paramTitle: p['title'],
+      paramDescription: p['description'],
       baseParam: p['baseParam'],
       quantity: ParamQuantity(
         quantityName: p['quantity']?['name'] ?? 'generic',

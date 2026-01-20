@@ -18,6 +18,20 @@ class PluginManifest {
   bool get isBasePlugin => pluginType == 'sector';
 }
 
+class ApplicationGroup {
+  final String appName;
+  final String vendor;
+  final String sector;
+  final List<PluginManifest> appVersions;
+
+  ApplicationGroup({
+    required this.appName,
+    required this.vendor,
+    required this.sector,
+    required this.appVersions,
+  });
+}
+
 class SchemaRef {
   final String id;
   final String version;
