@@ -1,17 +1,22 @@
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 import 'package:laminode_app/features/layer_panel/domain/repositories/layer_panel_repository.dart';
 
-class AddEmptyLayerUseCase {
+class AddLayerUseCase {
   final LayerPanelRepository repository;
 
-  AddEmptyLayerUseCase(this.repository);
+  AddLayerUseCase(this.repository);
 
-  void call() {
+  void call({
+    required String name,
+    required String description,
+    required String category,
+  }) {
     final newLayer = LamiLayerEntry(
-      layerName: "New Layer",
+      layerName: name,
       parameters: [],
-      layerAuthor: 'Me',
-      layerDescription: "",
+      layerAuthor: 'Me', // Placeholder
+      layerDescription: description,
+      layerCategory: category,
     );
     repository.addLayer(newLayer);
   }

@@ -6,6 +6,7 @@ class LayerEntryModel {
   final List<CamParamEntryModel>? parameters;
   final String layerAuthor;
   final String layerDescription;
+  final String? layerCategory;
   final bool isActive;
   final bool isLocked;
 
@@ -14,6 +15,7 @@ class LayerEntryModel {
     this.parameters,
     required this.layerAuthor,
     required this.layerDescription,
+    this.layerCategory,
     this.isActive = true,
     this.isLocked = false,
   });
@@ -26,6 +28,7 @@ class LayerEntryModel {
           .toList(),
       layerAuthor: entity.layerAuthor,
       layerDescription: entity.layerDescription,
+      layerCategory: entity.layerCategory,
       isActive: entity.isActive,
       isLocked: entity.isLocked,
     );
@@ -37,6 +40,7 @@ class LayerEntryModel {
       parameters: parameters?.map((e) => e.toEntity()).toList(),
       layerAuthor: layerAuthor,
       layerDescription: layerDescription,
+      layerCategory: layerCategory,
       isActive: isActive,
       isLocked: isLocked,
     );
@@ -50,6 +54,7 @@ class LayerEntryModel {
           .toList(),
       layerAuthor: json['layerAuthor'],
       layerDescription: json['layerDescription'] ?? '',
+      layerCategory: json['layerCategory'],
       isActive: json['isActive'] ?? true,
       isLocked: json['isLocked'] ?? false,
     );
@@ -61,6 +66,7 @@ class LayerEntryModel {
       'parameters': parameters?.map((e) => e.toJson()).toList(),
       'layerAuthor': layerAuthor,
       'layerDescription': layerDescription,
+      'layerCategory': layerCategory,
       'isActive': isActive,
       'isLocked': isLocked,
     };

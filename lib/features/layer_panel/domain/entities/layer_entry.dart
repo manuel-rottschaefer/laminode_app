@@ -5,6 +5,7 @@ import 'package:laminode_app/core/domain/entities/lami_layer.dart';
 class LamiLayerEntry extends LamiLayer<CamParamEntry> {
   final String layerAuthor;
   final String layerDescription;
+  final String? layerCategory;
   final bool isActive;
   final bool isLocked;
 
@@ -13,6 +14,7 @@ class LamiLayerEntry extends LamiLayer<CamParamEntry> {
     required super.parameters,
     required this.layerAuthor,
     required this.layerDescription,
+    this.layerCategory,
     this.isActive = true,
     this.isLocked = false,
   });
@@ -22,6 +24,7 @@ class LamiLayerEntry extends LamiLayer<CamParamEntry> {
     List<CamParamEntry>? parameters,
     String? layerAuthor,
     String? layerDescription,
+    String? layerCategory,
     bool? isActive,
     bool? isLocked,
   }) {
@@ -30,6 +33,7 @@ class LamiLayerEntry extends LamiLayer<CamParamEntry> {
       parameters: parameters ?? this.parameters,
       layerAuthor: layerAuthor ?? this.layerAuthor,
       layerDescription: layerDescription ?? this.layerDescription,
+      layerCategory: layerCategory ?? this.layerCategory,
       isActive: isActive ?? this.isActive,
       isLocked: isLocked ?? this.isLocked,
     );
