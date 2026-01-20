@@ -1,0 +1,28 @@
+{
+    "schemaName": "fdm_basic_schema",
+    "categories": [
+        {
+            "categoryName": "quality",
+            "categoryTitle": "Quality",
+            "categoryColorName": "0xFF2196F3"
+        }
+    ],
+    "availableParameters": [
+        {
+            "paramName": "layer_height",
+            "paramTitle": "Layer Height",
+            "paramDescription": "The height of each layer.",
+            "quantity": {
+                "quantityName": "length",
+                "quantityUnit": "millimeters",
+                "quantitySymbol": "mm"
+            },
+            "category": {
+                "categoryName": "quality",
+                "categoryTitle": "Quality",
+                "categoryColorName": "0xFF2196F3"
+            },
+            "value": 0.2
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "layerName": "Test Layer",
+    "layerAuthor": "Admin",
+    "layerDescription": "A test layer description",
+    "isActive": true,
+    "isLocked": false,
+    "parameters": [
+        {
+            "paramName": "speed_print",
+            "paramTitle": "Print Speed",
+            "quantity": {
+                "quantityName": "speed",
+                "quantityUnit": "mm/s",
+                "quantitySymbol": "v"
+            },
+            "category": {
+                "categoryName": "speed",
+                "categoryTitle": "Speed",
+                "categoryColorName": "blue"
+            },
+            "value": 60.0
+        }
+    ]
+}
