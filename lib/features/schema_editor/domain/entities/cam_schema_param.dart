@@ -1,12 +1,13 @@
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
 
 class CamSchemaParam extends CamParameter {
-  final String description;
-  CamSchemaParam({
+  const CamSchemaParam({
     required super.paramName,
     required super.paramTitle,
-    required this.description,
+    required String description,
     required super.category,
     required super.quantity,
-  });
+  }) : super(paramDescription: description);
+
+  String get description => paramDescription ?? '';
 }
