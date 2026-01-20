@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_panel.dart';
 import 'package:laminode_app/core/presentation/widgets/fog_effect.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
+import 'package:laminode_app/core/presentation/dialog/lami_dialog_widgets.dart';
 
 class LamiDialogModel {
   final String title;
@@ -32,18 +33,44 @@ class LamiDialog extends StatelessWidget {
       elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
+        constraints: const BoxConstraints(maxWidth: 550),
         child: FogEffect(
-          padding: AppSpacing.l,
+          padding: AppSpacing.xl,
           color: colorScheme.surfaceContainer,
           child: LamiPanel(
-            baseRadius: 12,
-            borderWidth: 3,
-            internalPadding: const EdgeInsets.all(AppSpacing.l),
+            baseRadius: 24,
+            borderWidth: 5,
+            internalPadding: const EdgeInsets.all(AppSpacing.xl),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [model.content],
+              children: [
+                LamiDialogHeader(
+                  title: model.title,
+                  dismissible: model.dismissible,
+                ),
+                Flexible(child: model.content),
+                if (model.actions != null && model.actions!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.l),
+                  Row(
+                    children: [
+                      model.actions!.first,
+                      const Spacer(),
+                      if (model.actions!.length > 1)
+                        ...model.actions!
+                            .sublist(1)
+                            .map(
+                              (a) => Padding(
+                                padding: const EdgeInsets.only(
+                                  left: AppSpacing.s,
+                                ),
+                                child: a,
+                              ),
+                            ),
+                    ],
+                  ),
+                ],
+              ],
             ),
           ),
         ),

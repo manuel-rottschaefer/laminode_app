@@ -5,6 +5,7 @@ import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dar
 class CamParamEntryModel {
   final String paramName;
   final String paramTitle;
+  final String? paramDescription;
   final ParamQuantity quantity;
   final CamCategoryEntry category;
   final dynamic value;
@@ -12,6 +13,7 @@ class CamParamEntryModel {
   CamParamEntryModel({
     required this.paramName,
     required this.paramTitle,
+    this.paramDescription,
     required this.quantity,
     required this.category,
     required this.value,
@@ -21,6 +23,7 @@ class CamParamEntryModel {
     return CamParamEntryModel(
       paramName: entity.paramName,
       paramTitle: entity.paramTitle,
+      paramDescription: entity.paramDescription,
       quantity: entity.quantity,
       category: entity.category as CamCategoryEntry,
       value: entity.value,
@@ -31,6 +34,7 @@ class CamParamEntryModel {
     return CamParamEntry(
       paramName: paramName,
       paramTitle: paramTitle,
+      paramDescription: paramDescription,
       quantity: quantity,
       category: category,
       value: value,
@@ -41,6 +45,7 @@ class CamParamEntryModel {
     return CamParamEntryModel(
       paramName: json['paramName'],
       paramTitle: json['paramTitle'],
+      paramDescription: json['paramDescription'] ?? json['description'],
       quantity: ParamQuantity.fromJson(json['quantity']),
       category: CamCategoryEntry(
         categoryName: json['category']['categoryName'],
@@ -55,6 +60,7 @@ class CamParamEntryModel {
     return {
       'paramName': paramName,
       'paramTitle': paramTitle,
+      'paramDescription': paramDescription,
       'quantity': quantity.toJson(),
       'category': {
         'categoryName': category.categoryName,

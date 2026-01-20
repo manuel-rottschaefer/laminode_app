@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
-import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
 
 class LamiDialogHeader extends StatelessWidget {
   final String title;
@@ -18,25 +17,25 @@ class LamiDialogHeader extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.m),
+      padding: const EdgeInsets.only(bottom: AppSpacing.l),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(
-              title.toUpperCase(),
-              style: theme.textTheme.titleSmall?.copyWith(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-                fontSize: 11,
+                color: colorScheme.onSurface,
               ),
             ),
           ),
           if (dismissible)
-            LamiIcon(
+            IconButton(
               onPressed: () => Navigator.of(context).pop(),
-              icon: Icons.close_rounded,
-              size: 20,
+              icon: const Icon(Icons.close, size: 20),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
             ),
         ],
       ),
@@ -51,6 +50,7 @@ class LamiDialogInput extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool autofocus;
   final int maxLines;
+  final Widget? prefixIcon;
 
   const LamiDialogInput({
     super.key,
@@ -60,6 +60,7 @@ class LamiDialogInput extends StatelessWidget {
     this.validator,
     this.autofocus = false,
     this.maxLines = 1,
+    this.prefixIcon,
   });
 
   @override
@@ -73,11 +74,10 @@ class LamiDialogInput extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
+        prefixIcon: prefixIcon,
         alignLabelWithHint: maxLines > 1,
         filled: true,
-        fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
-          alpha: 0.3,
-        ),
+        fillColor: Colors.transparent,
         labelStyle: theme.textTheme.bodyMedium?.copyWith(
           color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
         ),
@@ -88,13 +88,13 @@ class LamiDialogInput extends StatelessWidget {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: theme.colorScheme.outline.withValues(alpha: 0.2),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: theme.colorScheme.outline.withValues(alpha: 0.2),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -124,14 +124,8 @@ class LamiDialogForm extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: children
-          .map(
-            (child) => Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.m),
-              child: child,
-            ),
-          )
-          .toList(),
+      spacing: AppSpacing.m,
+      children: children,
     );
   }
 }

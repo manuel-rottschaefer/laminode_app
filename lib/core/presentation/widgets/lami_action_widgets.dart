@@ -5,18 +5,20 @@ class LamiButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
+  final bool inactive;
 
   const LamiButton({
     super.key,
     required this.icon,
     required this.label,
     this.onPressed,
+    this.inactive = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final enabled = onPressed != null;
+    final enabled = onPressed != null && !inactive;
 
     return LamiBox(
       padding: EdgeInsets.zero,
@@ -24,10 +26,10 @@ class LamiButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          onTap: onPressed,
+          onTap: enabled ? onPressed : null,
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
+              vertical: 12.0,
               horizontal: 14.0,
             ),
             child: Row(
@@ -53,7 +55,7 @@ class LamiButton extends StatelessWidget {
                           : theme.disabledColor,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
-                      fontSize: 12,
+                      fontSize: 11,
                     ),
                   ),
                 ),
@@ -199,7 +201,7 @@ class _LamiSearchState extends State<LamiSearch> {
                 ),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
           ),

@@ -11,6 +11,7 @@ class CamParamEntry extends CamParameter {
   const CamParamEntry({
     required super.paramName,
     required super.paramTitle,
+    super.paramDescription,
     required super.quantity,
     required super.category,
     super.baseParam,
@@ -22,6 +23,7 @@ class CamParamEntry extends CamParameter {
   CamParamEntry copyWith({
     String? paramName,
     String? paramTitle,
+    String? paramDescription,
     ParamQuantity? quantity,
     CamParamCategory? category,
     String? baseParam,
@@ -32,6 +34,7 @@ class CamParamEntry extends CamParameter {
     return CamParamEntry(
       paramName: paramName ?? this.paramName,
       paramTitle: paramTitle ?? this.paramTitle,
+      paramDescription: paramDescription ?? this.paramDescription,
       quantity: quantity ?? this.quantity,
       category: category ?? this.category,
       baseParam: baseParam ?? this.baseParam,

@@ -44,6 +44,7 @@ abstract class CamParamCategory {
 abstract class CamParameter {
   final String paramName;
   final String paramTitle;
+  final String? paramDescription;
   final ParamQuantity quantity;
   final CamParamCategory category;
   final String? baseParam;
@@ -51,6 +52,7 @@ abstract class CamParameter {
   const CamParameter({
     required this.paramName,
     required this.paramTitle,
+    this.paramDescription,
     required this.quantity,
     required this.category,
     this.baseParam,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:laminode_app/core/presentation/widgets/lami_section_header.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
 
 class LamiPanel extends StatelessWidget {
@@ -33,12 +34,7 @@ class LamiPanel extends StatelessWidget {
             ),
           ),
           child: Container(
-            padding:
-                internalPadding ??
-                const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s,
-                  vertical: AppSpacing.m,
-                ),
+            padding: internalPadding ?? const EdgeInsets.all(AppSpacing.s),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.only(
@@ -70,31 +66,10 @@ class LamiPanelHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: AppSpacing.m, right: 4),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 18,
-            color: colorScheme.primary.withValues(alpha: 0.9),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            title,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w500,
-              fontSize: 13,
-              letterSpacing: 0.8,
-              color: colorScheme.onSurface.withValues(alpha: 0.8),
-            ),
-          ),
-          if (trailing != null) ...[const Spacer(), trailing!],
-        ],
-      ),
+    return LamiSectionHeader.small(
+      title: title,
+      icon: icon,
+      trailing: trailing,
     );
   }
 }
