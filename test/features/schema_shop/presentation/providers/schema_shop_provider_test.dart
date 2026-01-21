@@ -8,6 +8,7 @@ import 'package:laminode_app/features/profile_manager/presentation/providers/pro
 import 'package:laminode_app/features/profile_manager/domain/repositories/profile_repository.dart';
 
 class MockSchemaShopRepository extends Mock implements SchemaShopRepository {}
+
 class MockProfileRepository extends Mock implements ProfileRepository {}
 
 void main() {
@@ -42,14 +43,17 @@ void main() {
   setUp(() async {
     mockRepository = MockSchemaShopRepository();
     mockProfileRepository = MockProfileRepository();
-    
+
     // Default stubs
-    when(() => mockRepository.getAvailablePlugins())
-        .thenAnswer((_) async => [tPlugin]);
-    when(() => mockRepository.getInstalledPlugins())
-        .thenAnswer((_) async => [tPlugin]);
-    when(() => mockRepository.getInstalledSchemaIds())
-        .thenAnswer((_) async => ['schema_1']);
+    when(
+      () => mockRepository.getAvailablePlugins(),
+    ).thenAnswer((_) async => [tPlugin]);
+    when(
+      () => mockRepository.getInstalledPlugins(),
+    ).thenAnswer((_) async => [tPlugin]);
+    when(
+      () => mockRepository.getInstalledSchemaIds(),
+    ).thenAnswer((_) async => ['schema_1']);
 
     container = ProviderContainer(
       overrides: [
@@ -74,11 +78,12 @@ void main() {
     });
 
     test('fetchPlugins updates state on error', () async {
-      when(() => mockRepository.getAvailablePlugins())
-          .thenThrow(Exception('fetch error'));
-      
+      when(
+        () => mockRepository.getAvailablePlugins(),
+      ).thenThrow(Exception('fetch error'));
+
       await container.read(schemaShopProvider.notifier).fetchPlugins();
-      
+
       expect(container.read(schemaShopProvider).error, contains('fetch error'));
     });
   });
@@ -90,11 +95,16 @@ void main() {
       expect(installed.first.plugin.pluginID, 'test_plugin');
     });
 
-    test('installedSchemasForAppProvider should filter by installed schema IDs', () {
-      final schemas = container.read(installedSchemasForAppProvider('test_plugin'));
-      expect(schemas.length, 1);
-      expect(schemas.first.id, 'schema_1');
-    });
+    test(
+      'installedSchemasForAppProvider should filter by installed schema IDs',
+      () {
+        final schemas = container.read(
+          installedSchemasForAppProvider('test_plugin'),
+        );
+        expect(schemas.length, 1);
+        expect(schemas.first.id, 'schema_1');
+      },
+    );
 
     test('schemaByIdProvider should find the correct schema', () {
       final schema = container.read(schemaByIdProvider('schema_2'));
@@ -102,9 +112,11 @@ void main() {
     });
 
     test('filteredAndGroupedPluginsProvider should filter by search query', () {
-      final results = container.read(filteredAndGroupedPluginsProvider('Nonexistent'));
+      final results = container.read(
+        filteredAndGroupedPluginsProvider('Nonexistent'),
+      );
       expect(results, isEmpty);
-      
+
       final found = container.read(filteredAndGroupedPluginsProvider('Test'));
       expect(found, isNotEmpty);
       expect(found.first, isA<ApplicationGroup>());

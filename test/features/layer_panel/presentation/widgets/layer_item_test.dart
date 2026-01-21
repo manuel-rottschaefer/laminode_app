@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 import 'package:laminode_app/features/layer_panel/presentation/widgets/layer_item.dart';
+import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 
 void main() {
   const tEntry = LamiLayerEntry(
@@ -13,8 +14,9 @@ void main() {
   );
 
   Widget createWidgetUnderTest() {
-    return const ProviderScope(
-      child: MaterialApp(
+    return ProviderScope(
+      overrides: [activeSchemaCategoriesProvider.overrideWithValue([])],
+      child: const MaterialApp(
         home: Scaffold(body: LayerItem(entry: tEntry, index: 0)),
       ),
     );

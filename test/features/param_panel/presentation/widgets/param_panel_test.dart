@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
 import 'package:laminode_app/features/param_panel/presentation/widgets/param_panel.dart';
 import 'package:laminode_app/features/param_panel/presentation/widgets/param_list_item.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
@@ -128,7 +129,13 @@ void main() {
     expect(find.text('Banana'), findsOneWidget);
 
     // Enter search text
-    await tester.enterText(find.byType(TextField), 'app');
+    await tester.enterText(
+      find.descendant(
+        of: find.byType(LamiSearch),
+        matching: find.byType(TextField),
+      ),
+      'app',
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Apple'), findsOneWidget);

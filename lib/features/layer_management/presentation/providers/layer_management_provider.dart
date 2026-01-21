@@ -44,11 +44,14 @@ class LayerManagementNotifier
     state = state.copyWith(searchQuery: query);
   }
 
-  Future<void> importLayer(String filePath) async {
+  Future<bool> importLayer(String filePath) async {
     state = state.copyWith(isImporting: true);
     try {
       await ref.read(layerManagementRepositoryProvider).importLayer(filePath);
       ref.invalidate(storedLayersProvider);
+      return true;
+    } catch (e) {
+      return false;
     } finally {
       state = state.copyWith(isImporting: false);
     }

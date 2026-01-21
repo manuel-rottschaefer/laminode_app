@@ -8,6 +8,7 @@ import 'package:laminode_app/features/layer_panel/domain/usecases/add_layer.dart
 import 'package:laminode_app/features/layer_panel/domain/usecases/add_empty_layer.dart';
 import 'package:laminode_app/features/layer_panel/domain/usecases/remove_layer.dart';
 import 'package:laminode_app/features/layer_panel/domain/usecases/update_layer_name.dart';
+import 'package:laminode_app/features/schema_shop/domain/repositories/schema_shop_repository.dart';
 
 class MockLayerPanelRepository extends Mock implements LayerPanelRepository {}
 
@@ -28,3 +29,5 @@ class MockRemoveLayerUseCase extends Mock implements RemoveLayerUseCase {}
 
 class MockUpdateLayerNameUseCase extends Mock
     implements UpdateLayerNameUseCase {}
+
+class MockSchemaShopRepository extends Mock implements SchemaShopRepository {}
