@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/presentation/dialog/lami_dialog.dart';
+import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_box.dart';
 import 'package:laminode_app/core/theme/app_colors.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
@@ -190,7 +191,7 @@ class _LayerItemState extends ConsumerState<LayerItem> {
                     children: [
                       Row(
                         children: [
-                          _ActionIconButton(
+                          LamiIconButton(
                             icon: widget.entry.isLocked
                                 ? Icons.lock_rounded
                                 : Icons.lock_open_rounded,
@@ -199,9 +200,10 @@ class _LayerItemState extends ConsumerState<LayerItem> {
                                   .read(layerPanelProvider.notifier)
                                   .toggleLayerLocked(widget.index);
                             },
+                            size: 16,
                           ),
                           const SizedBox(width: AppSpacing.m),
-                          _ActionIconButton(
+                          LamiIconButton(
                             icon: Icons.edit_rounded,
                             onPressed: () {
                               showLamiDialog(
@@ -215,9 +217,10 @@ class _LayerItemState extends ConsumerState<LayerItem> {
                                 ),
                               );
                             },
+                            size: 16,
                           ),
                           const SizedBox(width: AppSpacing.m),
-                          _ActionIconButton(
+                          LamiIconButton(
                             icon: Icons.delete_outline_rounded,
                             onPressed: () {
                               ref
@@ -225,27 +228,30 @@ class _LayerItemState extends ConsumerState<LayerItem> {
                                   .removeLayer(widget.index);
                             },
                             color: colorScheme.error,
+                            size: 16,
                           ),
                         ],
                       ),
                       Row(
                         children: [
-                          _ActionIconButton(
+                          LamiIconButton(
                             icon: Icons.arrow_upward_rounded,
                             onPressed: () {
                               ref
                                   .read(layerPanelProvider.notifier)
                                   .moveLayerUp(widget.index);
                             },
+                            size: 16,
                           ),
                           const SizedBox(width: AppSpacing.s),
-                          _ActionIconButton(
+                          LamiIconButton(
                             icon: Icons.arrow_downward_rounded,
                             onPressed: () {
                               ref
                                   .read(layerPanelProvider.notifier)
                                   .moveLayerDown(widget.index);
                             },
+                            size: 16,
                           ),
                         ],
                       ),
@@ -254,43 +260,6 @@ class _LayerItemState extends ConsumerState<LayerItem> {
                 ),
               ],
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionIconButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onPressed;
-  final Color? color;
-
-  const _ActionIconButton({required this.icon, this.onPressed, this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return LamiBox(
-      padding: EdgeInsets.zero,
-      borderRadius: 6,
-      borderWidth: 1.0,
-      backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(
-        alpha: 0.3,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(6),
-          child: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Icon(
-              icon,
-              size: 16,
-              color:
-                  color ?? theme.colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
           ),
         ),
       ),

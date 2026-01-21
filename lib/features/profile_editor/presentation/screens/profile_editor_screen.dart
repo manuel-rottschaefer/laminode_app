@@ -5,8 +5,10 @@ import 'package:laminode_app/core/presentation/widgets/lami_panel.dart';
 import 'package:laminode_app/core/presentation/widgets/fog_effect.dart';
 import 'package:laminode_app/core/presentation/widgets/app_bar/lami_app_bar.dart';
 import 'package:laminode_app/features/layer_panel/presentation/widgets/layer_panel.dart';
+import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
 import 'package:laminode_app/features/param_panel/presentation/widgets/param_panel.dart';
 import 'package:laminode_app/features/profile_manager/presentation/widgets/profile_panel.dart';
+import 'package:laminode_app/features/profile_manager/presentation/providers/profile_manager_provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class ProfileEditorScreen extends ConsumerStatefulWidget {
@@ -22,6 +24,13 @@ class _ProfileEditorScreenState extends ConsumerState<ProfileEditorScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final fogColor = colorScheme.surfaceContainer;
+
+    final hasProfile = ref.watch(
+      profileManagerProvider.select((s) => s.currentProfile != null),
+    );
+    final hasLayers = ref.watch(
+      layerPanelProvider.select((s) => s.layers.isNotEmpty),
+    );
 
     return Scaffold(
       backgroundColor: fogColor,
@@ -65,38 +74,40 @@ class _ProfileEditorScreenState extends ConsumerState<ProfileEditorScreen> {
                             showTop: false,
                             child: const ProfilePanel(),
                           ),
-                          Expanded(
-                            child: FogEffect(
-                              padding: AppSpacing.m,
-                              color: fogColor,
-                              showLeft: false,
-                              showBottom: false,
-                              child: const LamiPanel(
-                                baseRadius: 12,
-                                borderWidth: 3,
-                                child: LayerPanel(),
+                          if (hasProfile)
+                            Expanded(
+                              child: FogEffect(
+                                padding: AppSpacing.m,
+                                color: fogColor,
+                                showLeft: false,
+                                showBottom: false,
+                                child: const LamiPanel(
+                                  baseRadius: 12,
+                                  borderWidth: 3,
+                                  child: LayerPanel(),
+                                ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
 
                     // Right Sidebar
-                    _Sidebar(
-                      width: 360,
-                      child: FogEffect(
-                        padding: AppSpacing.m,
-                        color: fogColor,
-                        showRight: false,
-                        showTop: false,
-                        child: const LamiPanel(
-                          baseRadius: 12,
-                          borderWidth: 3,
-                          child: ParamPanel(),
+                    if (hasLayers)
+                      _Sidebar(
+                        width: 360,
+                        child: FogEffect(
+                          padding: AppSpacing.m,
+                          color: fogColor,
+                          showRight: false,
+                          showTop: false,
+                          child: const LamiPanel(
+                            baseRadius: 12,
+                            borderWidth: 3,
+                            child: ParamPanel(),
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ],

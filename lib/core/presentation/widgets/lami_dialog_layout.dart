@@ -18,7 +18,7 @@ class LamiDialogLayout extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpacing.m,
+              spacing: AppSpacing.l,
               children: children,
             ),
           ),

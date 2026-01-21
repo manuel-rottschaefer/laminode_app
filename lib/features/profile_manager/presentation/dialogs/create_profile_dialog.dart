@@ -92,72 +92,39 @@ class _CreateProfileDialogState extends ConsumerState<CreateProfileDialog> {
             hintText: "What is this profile for?",
             prefixIcon: const Icon(LucideIcons.fileText, size: 18),
           ),
-          DropdownButtonFormField<PluginManifest>(
-            initialValue: _selectedApplication,
-            decoration: InputDecoration(
-              labelText: "Application",
-              prefixIcon: const Icon(LucideIcons.layers, size: 18),
-              isDense: true,
-              filled: true,
-              fillColor: Colors.transparent,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: theme.colorScheme.primary,
-                  width: 2,
-                ),
-              ),
-            ),
-            hint: const Text("Select an application"),
+          LamiDialogDropdown<PluginManifest>(
+            label: "Application",
+            value: _selectedApplication,
+            prefixIcon: const Icon(LucideIcons.layers, size: 18),
+            hintText: "Select an application",
             items: installedApps.map((app) {
               return DropdownMenuItem(value: app, child: Text(app.displayName));
             }).toList(),
             onChanged: (val) => setState(() => _selectedApplication = val),
             validator: (v) => v == null ? "Application is required" : null,
           ),
-          InkWell(
-            onTap: _pickLocation,
-            child: InputDecorator(
-              decoration: InputDecoration(
-                labelText: "Save Location",
-                filled: true,
-                fillColor: Colors.transparent,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.1),
-                  ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.l),
+            child: InkWell(
+              onTap: _pickLocation,
+              borderRadius: BorderRadius.circular(8),
+              child: InputDecorator(
+                decoration: LamiDialogInput.decoration(
+                  context,
+                  label: "Save Location",
+                  prefixIcon: const Icon(LucideIcons.folder, size: 18),
+                  suffixIcon: const Icon(LucideIcons.search, size: 18),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.1),
-                  ),
+                child: Text(
+                  _locationController.text.isEmpty
+                      ? "Select folder..."
+                      : _locationController.text,
+                  style: _locationController.text.isEmpty
+                      ? theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.hintColor,
+                        )
+                      : theme.textTheme.bodyMedium,
                 ),
-                prefixIcon: const Icon(LucideIcons.folder, size: 18),
-                suffixIcon: const Icon(LucideIcons.search, size: 18),
-              ),
-              child: Text(
-                _locationController.text.isEmpty
-                    ? "Select folder..."
-                    : _locationController.text,
-                style: _locationController.text.isEmpty
-                    ? theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.hintColor,
-                      )
-                    : theme.textTheme.bodyMedium,
               ),
             ),
           ),

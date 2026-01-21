@@ -107,6 +107,58 @@ class LamiIcon extends StatelessWidget {
   }
 }
 
+class LamiIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final Color? color;
+  final double size;
+  final double padding;
+  final double borderRadius;
+  final double borderWidth;
+  final Color? backgroundColor;
+
+  const LamiIconButton({
+    super.key,
+    required this.icon,
+    this.onPressed,
+    this.color,
+    this.size = 18,
+    this.padding = 6.0,
+    this.borderRadius = 6.0,
+    this.borderWidth = 1.0,
+    this.backgroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return LamiBox(
+      padding: EdgeInsets.zero,
+      borderRadius: borderRadius,
+      borderWidth: borderWidth,
+      backgroundColor:
+          backgroundColor ??
+          theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: Padding(
+            padding: EdgeInsets.all(padding),
+            child: Icon(
+              icon,
+              size: size,
+              color:
+                  color ?? theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class LamiToggleIcon extends StatelessWidget {
   final bool value;
   final IconData icon;

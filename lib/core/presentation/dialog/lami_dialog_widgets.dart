@@ -51,6 +51,7 @@ class LamiDialogInput extends StatelessWidget {
   final bool autofocus;
   final int maxLines;
   final Widget? prefixIcon;
+  final Widget? suffixIcon;
 
   const LamiDialogInput({
     super.key,
@@ -61,55 +62,120 @@ class LamiDialogInput extends StatelessWidget {
     this.autofocus = false,
     this.maxLines = 1,
     this.prefixIcon,
+    this.suffixIcon,
   });
+
+  static InputDecoration decoration(
+    BuildContext context, {
+    required String label,
+    String? hintText,
+    Widget? prefixIcon,
+    Widget? suffixIcon,
+    bool isDense = false,
+    bool alignLabelWithHint = false,
+  }) {
+    final theme = Theme.of(context);
+    return InputDecoration(
+      labelText: label,
+      hintText: hintText,
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      isDense: isDense,
+      alignLabelWithHint: alignLabelWithHint,
+      filled: true,
+      fillColor: Colors.transparent,
+      labelStyle: theme.textTheme.bodyMedium?.copyWith(
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+      ),
+      floatingLabelStyle: theme.textTheme.bodyMedium?.copyWith(
+        color: theme.colorScheme.primary,
+        fontWeight: FontWeight.w500,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return TextFormField(
-      controller: controller,
-      autofocus: autofocus,
-      maxLines: maxLines,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hintText,
-        prefixIcon: prefixIcon,
-        alignLabelWithHint: maxLines > 1,
-        filled: true,
-        fillColor: Colors.transparent,
-        labelStyle: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.l),
+      child: TextFormField(
+        controller: controller,
+        autofocus: autofocus,
+        maxLines: maxLines,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        decoration: decoration(
+          context,
+          label: label,
+          hintText: hintText,
+          prefixIcon: prefixIcon,
+          suffixIcon: suffixIcon,
+          alignLabelWithHint: maxLines > 1,
         ),
-        floatingLabelStyle: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.primary,
-          fontWeight: FontWeight.w500,
+        style: theme.textTheme.bodyLarge?.copyWith(
+          color: theme.colorScheme.onSurface,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
+        validator: validator,
       ),
-      style: theme.textTheme.bodyLarge?.copyWith(
-        color: theme.colorScheme.onSurface,
+    );
+  }
+}
+
+class LamiDialogDropdown<T> extends StatelessWidget {
+  final String label;
+  final T? value;
+  final List<DropdownMenuItem<T>> items;
+  final ValueChanged<T?> onChanged;
+  final String? Function(T?)? validator;
+  final Widget? prefixIcon;
+  final String? hintText;
+
+  const LamiDialogDropdown({
+    super.key,
+    required this.label,
+    required this.items,
+    required this.onChanged,
+    this.value,
+    this.validator,
+    this.prefixIcon,
+    this.hintText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.l),
+      child: DropdownButtonFormField<T>(
+        value: value,
+        items: items,
+        onChanged: onChanged,
+        validator: validator,
+        decoration: LamiDialogInput.decoration(
+          context,
+          label: label,
+          hintText: hintText,
+          prefixIcon: prefixIcon,
+          isDense: true,
+        ),
+        hint: hintText != null ? Text(hintText!) : null,
       ),
-      validator: validator,
     );
   }
 }
