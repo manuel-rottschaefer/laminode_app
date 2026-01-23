@@ -1,6 +1,7 @@
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
+import 'package:laminode_app/features/profile_editor/data/models/param_relation_model.dart';
 
 class CamParamEntryModel {
   final String paramName;
@@ -9,6 +10,10 @@ class CamParamEntryModel {
   final ParamQuantity quantity;
   final CamCategoryEntry category;
   final dynamic value;
+  final bool isLocked;
+  final bool isEdited;
+  final ParamRelationModel? defaultValue;
+  final ParamRelationModel? suggestValue;
 
   CamParamEntryModel({
     required this.paramName,
@@ -17,6 +22,10 @@ class CamParamEntryModel {
     required this.quantity,
     required this.category,
     required this.value,
+    this.isLocked = false,
+    this.isEdited = false,
+    this.defaultValue,
+    this.suggestValue,
   });
 
   factory CamParamEntryModel.fromEntity(CamParamEntry entity) {
@@ -27,6 +36,10 @@ class CamParamEntryModel {
       quantity: entity.quantity,
       category: entity.category as CamCategoryEntry,
       value: entity.value,
+      isLocked: entity.isLocked,
+      isEdited: entity.isEdited,
+      defaultValue: entity.defaultValue != null ? ParamRelationModel.fromEntity(entity.defaultValue!) : null,
+      suggestValue: entity.suggestValue != null ? ParamRelationModel.fromEntity(entity.suggestValue!) : null,
     );
   }
 
@@ -38,6 +51,10 @@ class CamParamEntryModel {
       quantity: quantity,
       category: category,
       value: value,
+      isLocked: isLocked,
+      isEdited: isEdited,
+      defaultValue: defaultValue?.toEntity(),
+      suggestValue: suggestValue?.toEntity(),
     );
   }
 
@@ -53,6 +70,10 @@ class CamParamEntryModel {
         categoryColorName: json['category']['categoryColorName'],
       ),
       value: json['value'],
+      isLocked: json['isLocked'] ?? false,
+      isEdited: json['isEdited'] ?? false,
+      defaultValue: json['defaultValue'] != null ? ParamRelationModel.fromJson(json['defaultValue']) : null,
+      suggestValue: json['suggestValue'] != null ? ParamRelationModel.fromJson(json['suggestValue']) : null,
     );
   }
 
@@ -68,6 +89,10 @@ class CamParamEntryModel {
         'categoryColorName': category.categoryColorName,
       },
       'value': value,
+      'isLocked': isLocked,
+      'isEdited': isEdited,
+      'defaultValue': defaultValue?.toJson(),
+      'suggestValue': suggestValue?.toJson(),
     };
   }
 }

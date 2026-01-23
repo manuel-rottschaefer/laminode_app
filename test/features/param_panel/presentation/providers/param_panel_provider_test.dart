@@ -8,8 +8,7 @@ import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
 import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 
-class FakeSchemaShopNotifier extends StateNotifier<SchemaShopState>
-    implements SchemaShopNotifier {
+class FakeSchemaShopNotifier extends StateNotifier<SchemaShopState> implements SchemaShopNotifier {
   FakeSchemaShopNotifier() : super(SchemaShopState());
 
   @override
@@ -36,13 +35,10 @@ final testParamQuantity = const ParamQuantity(
   quantityName: 'length',
   quantityUnit: 'mm',
   quantitySymbol: 'L',
+  quantityType: QuantityType.numeric,
 );
 
-final testCategory = CamCategoryEntry(
-  categoryName: 'extrusion',
-  categoryTitle: 'Extrusion',
-  categoryColorName: 'blue',
-);
+final testCategory = CamCategoryEntry(categoryName: 'extrusion', categoryTitle: 'Extrusion', categoryColorName: 'blue');
 
 void main() {
   group('ParamPanelNotifier', () {
@@ -51,11 +47,7 @@ void main() {
 
     setUp(() {
       fakeSchemaShopNotifier = FakeSchemaShopNotifier();
-      container = ProviderContainer(
-        overrides: [
-          schemaShopProvider.overrideWith((ref) => fakeSchemaShopNotifier),
-        ],
-      );
+      container = ProviderContainer(overrides: [schemaShopProvider.overrideWith((ref) => fakeSchemaShopNotifier)]);
     });
 
     tearDown(() {
@@ -68,31 +60,24 @@ void main() {
       expect(state.searchQuery, '');
     });
 
-    test(
-      'should show schema items when schema is present and search is empty',
-      () {
-        final param = CamParamEntry(
-          paramName: 'test_param',
-          paramTitle: 'Test Parameter',
-          quantity: testParamQuantity,
-          category: testCategory,
-          value: 1.0,
-        );
+    test('should show schema items when schema is present and search is empty', () {
+      final param = CamParamEntry(
+        paramName: 'test_param',
+        paramTitle: 'Test Parameter',
+        quantity: testParamQuantity,
+        category: testCategory,
+        value: 1.0,
+      );
 
-        final schema = CamSchemaEntry(
-          schemaName: 'Test Schema',
-          categories: [],
-          availableParameters: [param],
-        );
+      final schema = CamSchemaEntry(schemaName: 'Test Schema', categories: [], availableParameters: [param]);
 
-        fakeSchemaShopNotifier.setSchema(schema);
+      fakeSchemaShopNotifier.setSchema(schema);
 
-        final state = container.read(paramPanelProvider);
-        expect(state.items.length, 1);
-        expect(state.items.first.param.paramName, 'test_param');
-        expect(state.items.first.state, ParamItemState.schema);
-      },
-    );
+      final state = container.read(paramPanelProvider);
+      expect(state.items.length, 1);
+      expect(state.items.first.param.paramName, 'test_param');
+      expect(state.items.first.state, ParamItemState.schema);
+    });
 
     test('should show search items when search query matches', () {
       final param1 = CamParamEntry(
@@ -110,11 +95,7 @@ void main() {
         value: 2.0,
       );
 
-      final schema = CamSchemaEntry(
-        schemaName: 'Test Schema',
-        categories: [],
-        availableParameters: [param1, param2],
-      );
+      final schema = CamSchemaEntry(schemaName: 'Test Schema', categories: [], availableParameters: [param1, param2]);
 
       fakeSchemaShopNotifier.setSchema(schema);
 
@@ -135,11 +116,7 @@ void main() {
         value: 1.0,
       );
 
-      final schema = CamSchemaEntry(
-        schemaName: 'Test Schema',
-        categories: [],
-        availableParameters: [param1],
-      );
+      final schema = CamSchemaEntry(schemaName: 'Test Schema', categories: [], availableParameters: [param1]);
 
       fakeSchemaShopNotifier.setSchema(schema);
 

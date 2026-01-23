@@ -11,8 +11,7 @@ import 'package:laminode_app/core/domain/entities/cam_param.dart';
 
 import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 
-class FakeSchemaShopNotifier extends StateNotifier<SchemaShopState>
-    implements SchemaShopNotifier {
+class FakeSchemaShopNotifier extends StateNotifier<SchemaShopState> implements SchemaShopNotifier {
   FakeSchemaShopNotifier() : super(SchemaShopState());
 
   @override
@@ -39,13 +38,10 @@ final testParamQuantity = const ParamQuantity(
   quantityName: 'length',
   quantityUnit: 'mm',
   quantitySymbol: 'L',
+  quantityType: QuantityType.numeric,
 );
 
-final testCategory = CamCategoryEntry(
-  categoryName: 'extrusion',
-  categoryTitle: 'Extrusion',
-  categoryColorName: 'blue',
-);
+final testCategory = CamCategoryEntry(categoryName: 'extrusion', categoryTitle: 'Extrusion', categoryColorName: 'blue');
 
 void main() {
   late FakeSchemaShopNotifier fakeSchemaShopNotifier;
@@ -56,23 +52,17 @@ void main() {
 
   Widget createWidgetUnderTest() {
     return ProviderScope(
-      overrides: [
-        schemaShopProvider.overrideWith((ref) => fakeSchemaShopNotifier),
-      ],
+      overrides: [schemaShopProvider.overrideWith((ref) => fakeSchemaShopNotifier)],
       child: const MaterialApp(home: Scaffold(body: ParamPanel())),
     );
   }
 
-  testWidgets('should display message when no schema is active', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('should display message when no schema is active', (WidgetTester tester) async {
     await tester.pumpWidget(createWidgetUnderTest());
     expect(find.text('No parameters available in schema.'), findsOneWidget);
   });
 
-  testWidgets('should display parameters from schema', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('should display parameters from schema', (WidgetTester tester) async {
     final param = CamParamEntry(
       paramName: 'test_param',
       paramTitle: 'Test Parameter',
@@ -81,11 +71,7 @@ void main() {
       value: 1.0,
     );
 
-    final schema = CamSchemaEntry(
-      schemaName: 'Test Schema',
-      categories: [],
-      availableParameters: [param],
-    );
+    final schema = CamSchemaEntry(schemaName: 'Test Schema', categories: [], availableParameters: [param]);
 
     fakeSchemaShopNotifier.setSchema(schema);
 
@@ -96,9 +82,7 @@ void main() {
     expect(find.byType(ParamListItem), findsOneWidget);
   });
 
-  testWidgets('should filter parameters when searching', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('should filter parameters when searching', (WidgetTester tester) async {
     final param1 = CamParamEntry(
       paramName: 'p1',
       paramTitle: 'Apple',
@@ -115,11 +99,7 @@ void main() {
     );
 
     fakeSchemaShopNotifier.setSchema(
-      CamSchemaEntry(
-        schemaName: 'Test',
-        categories: [],
-        availableParameters: [param1, param2],
-      ),
+      CamSchemaEntry(schemaName: 'Test', categories: [], availableParameters: [param1, param2]),
     );
 
     await tester.pumpWidget(createWidgetUnderTest());
@@ -129,13 +109,7 @@ void main() {
     expect(find.text('Banana'), findsOneWidget);
 
     // Enter search text
-    await tester.enterText(
-      find.descendant(
-        of: find.byType(LamiSearch),
-        matching: find.byType(TextField),
-      ),
-      'app',
-    );
+    await tester.enterText(find.descendant(of: find.byType(LamiSearch), matching: find.byType(TextField)), 'app');
     await tester.pumpAndSettle();
 
     expect(find.text('Apple'), findsOneWidget);

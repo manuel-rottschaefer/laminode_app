@@ -8,11 +8,7 @@ class ParamPanelState {
   final List<ParamPanelItem> items;
   final String? expandedParamName;
 
-  ParamPanelState({
-    this.searchQuery = '',
-    this.items = const [],
-    this.expandedParamName,
-  });
+  ParamPanelState({this.searchQuery = '', this.items = const [], this.expandedParamName});
 
   ParamPanelState copyWith({
     String? searchQuery,
@@ -23,9 +19,7 @@ class ParamPanelState {
     return ParamPanelState(
       searchQuery: searchQuery ?? this.searchQuery,
       items: items ?? this.items,
-      expandedParamName: clearExpansion
-          ? null
-          : (expandedParamName ?? this.expandedParamName),
+      expandedParamName: clearExpansion ? null : (expandedParamName ?? this.expandedParamName),
     );
   }
 }
@@ -34,9 +28,7 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
   @override
   ParamPanelState build() {
     // Watch schema changes to refresh items automatically
-    final activeSchema = ref.watch(
-      schemaShopProvider.select((s) => s.activeSchema),
-    );
+    final activeSchema = ref.watch(schemaShopProvider.select((s) => s.activeSchema));
 
     // We want to preserve the search query if it was already set
     // In Notifier, build() can be called multiple times.
@@ -52,16 +44,9 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
 
     final currentQuery = _getCurrentQuery();
 
-    final List<ParamPanelItem> filteredItems = _getFilteredItems(
-      activeSchema,
-      currentQuery,
-    );
+    final List<ParamPanelItem> filteredItems = _getFilteredItems(activeSchema, currentQuery);
 
-    return ParamPanelState(
-      searchQuery: currentQuery,
-      items: filteredItems,
-      expandedParamName: _getExpandedName(),
-    );
+    return ParamPanelState(searchQuery: currentQuery, items: filteredItems, expandedParamName: _getExpandedName());
   }
 
   String _getCurrentQuery() {
@@ -83,11 +68,7 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
   void setSearchQuery(String query) {
     if (state.searchQuery != query) {
       final activeSchema = ref.read(schemaShopProvider).activeSchema;
-      state = state.copyWith(
-        searchQuery: query,
-        items: _getFilteredItems(activeSchema, query),
-        clearExpansion: true,
-      );
+      state = state.copyWith(searchQuery: query, items: _getFilteredItems(activeSchema, query), clearExpansion: true);
     }
   }
 
@@ -99,35 +80,72 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
     }
   }
 
-  List<ParamPanelItem> _getFilteredItems(
-    CamSchemaEntry? activeSchema,
-    String query,
-  ) {
+  List<ParamPanelItem> _getFilteredItems(CamSchemaEntry? activeSchema, String query) {
     if (activeSchema == null) return const [];
 
     final normalizedQuery = query.toLowerCase();
     final List<ParamPanelItem> filteredItems = [];
 
     for (final param in activeSchema.availableParameters) {
-      final matchesSearch =
-          normalizedQuery.isNotEmpty &&
-          param.paramTitle.toLowerCase().contains(normalizedQuery);
+      final matchesSearch = normalizedQuery.isNotEmpty && param.paramTitle.toLowerCase().contains(normalizedQuery);
 
       if (matchesSearch) {
-        filteredItems.add(
-          ParamPanelItem(param: param, state: ParamItemState.search),
-        );
+        filteredItems.add(ParamPanelItem(param: param, state: ParamItemState.search));
       } else if (normalizedQuery.isEmpty) {
-        filteredItems.add(
-          ParamPanelItem(param: param, state: ParamItemState.schema),
-        );
+        filteredItems.add(ParamPanelItem(param: param, state: ParamItemState.schema));
       }
     }
     return filteredItems;
   }
+
+  void toggleLock(String paramName) {
+    final updatedItems = state.items.map((item) {
+      if (item.param.paramName == paramName) {
+        return ParamPanelItem(
+          param: item.param.copyWith(isLocked: !item.param.isLocked),
+          state: item.state,
+        );
+      }
+      return item;
+    }).toList();
+
+    state = state.copyWith(items: updatedItems);
+  }
+
+  void updateParamValue(String paramName, dynamic value) {
+    final updatedItems = state.items.map((item) {
+      if (item.param.paramName == paramName) {
+        dynamic finalValue = value;
+        if (item.param.quantity.quantityType == QuantityType.numeric && value is String) {
+          finalValue = double.tryParse(value) ?? item.param.value;
+        }
+
+        return ParamPanelItem(
+          param: item.param.copyWith(value: finalValue, isEdited: true),
+          state: item.state,
+        );
+      }
+      return item;
+    }).toList();
+
+    state = state.copyWith(items: updatedItems);
+  }
+
+  void resetParamValue(String paramName) {
+    final updatedItems = state.items.map((item) {
+      if (item.param.paramName == paramName) {
+        return ParamPanelItem(
+          param: item.param.copyWith(value: item.param.evalDefault(), isEdited: false),
+          state: item.state,
+        );
+      }
+      return item;
+    }).toList();
+
+    state = state.copyWith(items: updatedItems);
+  }
 }
 
-final paramPanelProvider =
-    NotifierProvider<ParamPanelNotifier, ParamPanelState>(() {
-      return ParamPanelNotifier();
-    });
+final paramPanelProvider = NotifierProvider<ParamPanelNotifier, ParamPanelState>(() {
+  return ParamPanelNotifier();
+});

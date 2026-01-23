@@ -23,13 +23,7 @@ void main() {
   group('SchemaEditorRepositoryImpl', () {
     final tSchema = CamSchemaEntry(
       schemaName: 'test_schema',
-      categories: [
-        CamCategoryEntry(
-          categoryName: 'cat',
-          categoryTitle: 'Cat',
-          categoryColorName: 'red',
-        ),
-      ],
+      categories: [CamCategoryEntry(categoryName: 'cat', categoryTitle: 'Cat', categoryColorName: 'red')],
       availableParameters: [
         CamParamEntry(
           paramName: 'p',
@@ -38,12 +32,9 @@ void main() {
             quantityName: 'length',
             quantityUnit: 'mm',
             quantitySymbol: 'L',
+            quantityType: QuantityType.numeric,
           ),
-          category: CamCategoryEntry(
-            categoryName: 'cat',
-            categoryTitle: 'Cat',
-            categoryColorName: 'red',
-          ),
+          category: CamCategoryEntry(categoryName: 'cat', categoryTitle: 'Cat', categoryColorName: 'red'),
           value: 0,
         ),
       ],
@@ -74,16 +65,8 @@ void main() {
           {
             'paramName': 'p',
             'paramTitle': 'P',
-            'quantity': {
-              'quantityName': 'n',
-              'quantityUnit': 'u',
-              'quantitySymbol': 's',
-            },
-            'category': {
-              'categoryName': 'c',
-              'categoryTitle': 'C',
-              'categoryColorName': 'b',
-            },
+            'quantity': {'quantityName': 'n', 'quantityUnit': 'u', 'quantitySymbol': 's'},
+            'category': {'categoryName': 'c', 'categoryTitle': 'C', 'categoryColorName': 'b'},
             'value': 10,
           },
         ],

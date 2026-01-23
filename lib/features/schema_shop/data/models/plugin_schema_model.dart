@@ -10,11 +10,7 @@ class PluginSchemaModel {
   final List<CamCategoryEntry> categories;
   final List<CamParamEntry> availableParameters;
 
-  PluginSchemaModel({
-    required this.manifest,
-    required this.categories,
-    required this.availableParameters,
-  });
+  PluginSchemaModel({required this.manifest, required this.categories, required this.availableParameters});
 
   factory PluginSchemaModel.fromJson(Map<String, dynamic> json) {
     final manifest = SchemaManifestModel.fromJson(json['manifest']);
@@ -39,17 +35,10 @@ class PluginSchemaModel {
       params = [_parseParam(json['availableParameters'], categories)];
     }
 
-    return PluginSchemaModel(
-      manifest: manifest,
-      categories: categories,
-      availableParameters: params,
-    );
+    return PluginSchemaModel(manifest: manifest, categories: categories, availableParameters: params);
   }
 
-  static CamParamEntry _parseParam(
-    Map<String, dynamic> p,
-    List<CamCategoryEntry> categories,
-  ) {
+  static CamParamEntry _parseParam(Map<String, dynamic> p, List<CamCategoryEntry> categories) {
     final catName = p['category'];
     final category = categories.firstWhere(
       (c) => c.categoryName == catName,
@@ -69,6 +58,10 @@ class PluginSchemaModel {
         quantityName: p['quantity']?['name'] ?? 'generic',
         quantityUnit: p['quantity']?['unit'] ?? 'none',
         quantitySymbol: p['quantity']?['symbol'] ?? '',
+        quantityType: QuantityType.values.firstWhere(
+          (e) => e.name == p['quantity']?['type'],
+          orElse: () => QuantityType.numeric,
+        ),
       ),
       category: category,
       value: null, // Default value or from schema if available
@@ -77,8 +70,7 @@ class PluginSchemaModel {
 
   CamSchemaEntry toEntity() {
     return CamSchemaEntry(
-      schemaName:
-          manifest.targetAppName ?? manifest.targetAppSector ?? 'Unknown',
+      schemaName: manifest.targetAppName ?? manifest.targetAppSector ?? 'Unknown',
       categories: categories,
       availableParameters: availableParameters,
     );

@@ -26,6 +26,7 @@ class TestModels {
       quantityName: 'length',
       quantityUnit: 'millimeters',
       quantitySymbol: 'mm',
+      quantityType: QuantityType.numeric,
     ),
     category: tCategoryModel.toEntity(),
     value: 0.2,
