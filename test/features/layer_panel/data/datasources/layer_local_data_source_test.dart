@@ -3,11 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:laminode_app/features/layer_panel/data/datasources/layer_local_data_source.dart';
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart' show MockPlatformInterfaceMixin;
 
-class MockPathProviderPlatform extends Fake
-    with MockPlatformInterfaceMixin
-    implements PathProviderPlatform {
+class MockPathProviderPlatform extends Fake with MockPlatformInterfaceMixin implements PathProviderPlatform {
   final String _appSupportPath;
 
   MockPathProviderPlatform(this._appSupportPath);

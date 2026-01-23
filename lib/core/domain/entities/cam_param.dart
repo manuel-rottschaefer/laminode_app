@@ -1,13 +1,17 @@
+enum QuantityType { numeric, choice, boolean }
+
 // A ParamQuantity describes the type of parameter being represented
 class ParamQuantity {
   final String quantityName;
   final String quantityUnit;
   final String quantitySymbol;
+  final QuantityType quantityType;
 
   const ParamQuantity({
     required this.quantityName,
     required this.quantityUnit,
     required this.quantitySymbol,
+    required this.quantityType,
   });
 
   factory ParamQuantity.fromJson(Map<String, dynamic> json) {
@@ -15,6 +19,10 @@ class ParamQuantity {
       quantityName: json['quantityName'],
       quantityUnit: json['quantityUnit'],
       quantitySymbol: json['quantitySymbol'],
+      quantityType: QuantityType.values.firstWhere(
+        (e) => e.name == json['quantityType'],
+        orElse: () => QuantityType.numeric,
+      ),
     );
   }
 
@@ -23,7 +31,20 @@ class ParamQuantity {
       'quantityName': quantityName,
       'quantityUnit': quantityUnit,
       'quantitySymbol': quantitySymbol,
+      'quantityType': quantityType.name,
     };
+  }
+
+  /// Returns a basic default value for this quantity type
+  dynamic get fallbackValue {
+    switch (quantityType) {
+      case QuantityType.numeric:
+        return 0;
+      case QuantityType.choice:
+        return '';
+      case QuantityType.boolean:
+        return false;
+    }
   }
 }
 
@@ -33,11 +54,7 @@ abstract class CamParamCategory {
   final String categoryTitle;
   final String categoryColorName;
 
-  const CamParamCategory({
-    required this.categoryName,
-    required this.categoryTitle,
-    required this.categoryColorName,
-  });
+  const CamParamCategory({required this.categoryName, required this.categoryTitle, required this.categoryColorName});
 }
 
 // A CamParameter is the atomic unit of configuration for a CAM profile

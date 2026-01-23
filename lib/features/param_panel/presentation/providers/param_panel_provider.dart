@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:laminode_app/core/domain/entities/cam_param.dart';
 import 'package:laminode_app/features/param_panel/domain/entities/param_panel_item.dart';
 import 'package:laminode_app/features/schema_editor/domain/entities/cam_schema_entry.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
@@ -124,6 +125,57 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
       }
     }
     return filteredItems;
+  }
+
+  void toggleLock(String paramName) {
+    final updatedItems = state.items.map((item) {
+      if (item.param.paramName == paramName) {
+        return ParamPanelItem(
+          param: item.param.copyWith(isLocked: !item.param.isLocked),
+          state: item.state,
+        );
+      }
+      return item;
+    }).toList();
+
+    state = state.copyWith(items: updatedItems);
+  }
+
+  void updateParamValue(String paramName, dynamic value) {
+    final updatedItems = state.items.map((item) {
+      if (item.param.paramName == paramName) {
+        dynamic finalValue = value;
+        if (item.param.quantity.quantityType == QuantityType.numeric &&
+            value is String) {
+          finalValue = double.tryParse(value) ?? item.param.value;
+        }
+
+        return ParamPanelItem(
+          param: item.param.copyWith(value: finalValue, isEdited: true),
+          state: item.state,
+        );
+      }
+      return item;
+    }).toList();
+
+    state = state.copyWith(items: updatedItems);
+  }
+
+  void resetParamValue(String paramName) {
+    final updatedItems = state.items.map((item) {
+      if (item.param.paramName == paramName) {
+        return ParamPanelItem(
+          param: item.param.copyWith(
+            value: item.param.evalDefault(),
+            isEdited: false,
+          ),
+          state: item.state,
+        );
+      }
+      return item;
+    }).toList();
+
+    state = state.copyWith(items: updatedItems);
   }
 }
 

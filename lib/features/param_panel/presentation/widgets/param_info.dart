@@ -19,7 +19,7 @@ class ParamInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Text(
@@ -30,28 +30,28 @@ class ParamInfo extends StatelessWidget {
                   color: theme.colorScheme.onSurface,
                   fontFamily: 'monospace',
                   fontWeight: FontWeight.w500,
-                  fontSize: 10,
+                  fontSize: 10.5,
                 ),
               ),
             ),
             const SizedBox(width: AppSpacing.s),
             LamiColoredBadge(
-              color:
-                  LamiColors.registry[param.category.categoryColorName] ??
-                  Colors.grey,
+              color: LamiColors.registry[param.category.categoryColorName] ?? Colors.grey,
               label: param.category.categoryTitle.toUpperCase(),
             ),
           ],
         ),
         if (param.baseParam != null) ...[
           const SizedBox(height: AppSpacing.s),
-          _InfoRow(
-            label: "INHERITS\nFROM",
-            value: param.baseParam!,
-            isMonospace: true,
-            valueFontSize: 10,
-          ),
+          _InfoRow(label: "INHERITS\nFROM", value: param.baseParam!, isMonospace: true, valueFontSize: 10),
         ],
+        const SizedBox(height: AppSpacing.m),
+        _InfoRow(
+          label: "QUANTITY\nTYPE",
+          value: param.quantity.quantityType.name.toUpperCase(),
+          isMonospace: true,
+          valueFontSize: 10,
+        ),
         const SizedBox(height: AppSpacing.m),
         Text(
           "\"${description ?? param.paramDescription ?? "No description available for this parameter."}\"",
@@ -73,12 +73,7 @@ class _InfoRow extends StatelessWidget {
   final bool isMonospace;
   final double? valueFontSize;
 
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    this.isMonospace = false,
-    this.valueFontSize,
-  });
+  const _InfoRow({required this.label, required this.value, this.isMonospace = false, this.valueFontSize});
 
   @override
   Widget build(BuildContext context) {

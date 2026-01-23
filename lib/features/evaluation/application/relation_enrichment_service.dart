@@ -9,15 +9,18 @@ class RelationEnrichmentService {
 
   /// Enriches a [ParamRelationEntry] by resolving parameter names found in its expression
   /// against the provided [availableParams].
-  ParamRelationEntry enrich(ParamRelationEntry relation, List<CamParamEntry> availableParams) {
-    final variableNames = _parser.extractVariableNames(relation.expression);
-    
+  ParamRelationEntry enrich(
+    ParamRelationEntry relation,
+    List<CamParamEntry> availableParams,
+  ) {
+    final variableNames = _parser.extractVariableNames(
+      relation.expression ?? '',
+    );
+
     final referencedParams = availableParams.where((param) {
       return variableNames.contains(param.paramName);
     }).toList();
 
-    return relation.copyWith(
-      referencedParamNames: referencedParams,
-    );
+    return relation.copyWith(referencedParams: referencedParams);
   }
 }

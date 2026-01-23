@@ -6,14 +6,16 @@ import 'package:laminode_app/features/schema_shop/presentation/providers/schema_
 import 'package:laminode_app/features/schema_shop/presentation/widgets/schema_shop_dialog.dart';
 import 'package:laminode_app/features/schema_shop/domain/entities/plugin_manifest.dart';
 
-class MockSchemaShopNotifier extends StateNotifier<SchemaShopState>
-    with Mock
-    implements SchemaShopNotifier {
+class MockSchemaShopNotifier extends StateNotifier<SchemaShopState> with Mock implements SchemaShopNotifier {
   MockSchemaShopNotifier(super.state);
 }
 
 void main() {
   late MockSchemaShopNotifier mockNotifier;
+
+  setUp(() {
+    registerFallbackValue(SchemaShopState());
+  });
 
   testWidgets('should render search bar and loading state', (tester) async {
     tester.view.physicalSize = const Size(1200, 800);
@@ -24,6 +26,7 @@ void main() {
     });
 
     mockNotifier = MockSchemaShopNotifier(SchemaShopState(isLoading: true));
+    when(() => mockNotifier.fetchPlugins()).thenAnswer((_) async {});
 
     await tester.pumpWidget(
       ProviderScope(
@@ -48,12 +51,11 @@ void main() {
         publishedDate: '2023-01-01',
         sector: 'FDM',
       ),
-      schemas: [],
+      schemas: const [],
     );
 
-    mockNotifier = MockSchemaShopNotifier(
-      SchemaShopState(availablePlugins: [tPlugin], isLoading: false),
-    );
+    mockNotifier = MockSchemaShopNotifier(SchemaShopState(availablePlugins: [tPlugin], isLoading: false));
+    when(() => mockNotifier.fetchPlugins()).thenAnswer((_) async {});
 
     await tester.pumpWidget(
       ProviderScope(
