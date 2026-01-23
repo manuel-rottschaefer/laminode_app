@@ -4,6 +4,11 @@ import 'package:laminode_app/core/domain/entities/cam_param.dart';
 abstract class CamRelation {
   final CamParameter targetParam;
   final String expression;
+  final List<CamParameter> referencedParams;
 
-  const CamRelation({required this.targetParam, required this.expression});
+  const CamRelation({
+    required this.targetParam,
+    required this.expression,
+    this.referencedParams = const [],
+  });
 }

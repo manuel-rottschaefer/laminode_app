@@ -5,12 +5,10 @@ import 'package:laminode_app/features/profile_editor/domain/entities/param_relat
 class ParamRelationModel {
   final CamParamEntryModel targetParam;
   final String expression;
-  final List<String>? referencedParamNames;
 
   const ParamRelationModel({
     required this.targetParam,
     required this.expression,
-    this.referencedParamNames,
   });
 
   factory ParamRelationModel.fromEntity(ParamRelationEntry entity) {
@@ -19,7 +17,6 @@ class ParamRelationModel {
         entity.targetParam as CamParamEntry,
       ),
       expression: entity.expression,
-      referencedParamNames: entity.referencedParamNames,
     );
   }
 
@@ -27,7 +24,7 @@ class ParamRelationModel {
     return ParamRelationEntry(
       targetParam: targetParam.toEntity(),
       expression: expression,
-      referencedParamNames: referencedParamNames,
+      referencedParamNames: [], // References must be enriched separately
     );
   }
 
@@ -37,9 +34,6 @@ class ParamRelationModel {
         json['targetParam'] as Map<String, dynamic>,
       ),
       expression: json['expression'],
-      referencedParamNames: (json['referencedParamNames'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
     );
   }
 
@@ -47,7 +41,6 @@ class ParamRelationModel {
     return {
       'targetParam': targetParam.toJson(),
       'expression': expression,
-      'referencedParamNames': referencedParamNames,
     };
   }
 }

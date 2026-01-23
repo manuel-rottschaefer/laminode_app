@@ -22,6 +22,7 @@ dependencies:
   lucide_icons: ^0.257.0
   google_fonts: ^7.0.2
   dio: ^5.7.0
+  flutter_js: ^0.8.5
 
 dev_dependencies:
   flutter_test:
