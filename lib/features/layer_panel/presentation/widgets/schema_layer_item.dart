@@ -9,6 +9,8 @@ import 'package:laminode_app/features/profile_manager/domain/entities/profile_en
 import 'package:laminode_app/features/profile_manager/presentation/providers/profile_manager_provider.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
+import 'package:laminode_app/features/schema_shop/presentation/widgets/schema_shop_dialog.dart';
 
 class SchemaLayerItem extends ConsumerWidget {
   final ProfileEntity profile;
@@ -55,14 +57,6 @@ class SchemaLayerItem extends ConsumerWidget {
                 if (schema != null)
                   Row(
                     children: [
-                      Text(
-                        "App Version: ${profile.application.version}",
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          fontSize: 10,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.m),
                       Text(
                         "Schema Version: ${schema.version}",
                         style: theme.textTheme.labelSmall?.copyWith(
@@ -117,7 +111,7 @@ class SchemaLayerItem extends ConsumerWidget {
       child: schemaId == null
           ? LamiDashedBox(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.m,
+                horizontal: AppSpacing.l,
                 vertical: AppSpacing.s,
               ),
               borderColor: theme.colorScheme.onSurfaceVariant.withValues(
@@ -131,7 +125,7 @@ class SchemaLayerItem extends ConsumerWidget {
             )
           : LamiBox(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.m,
+                horizontal: AppSpacing.l,
                 vertical: AppSpacing.s,
               ),
               child: InkWell(
@@ -155,6 +149,26 @@ class SchemaLayerItem extends ConsumerWidget {
             ref.read(profileManagerProvider.notifier).setSchema(id);
           },
         ),
+        actions: [
+          LamiButton(
+            icon: LucideIcons.logOut,
+            label: "Quit",
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          LamiButton(
+            icon: LucideIcons.shoppingBag,
+            label: "Shop",
+            onPressed: () {
+              showLamiDialog(
+                context: context,
+                model: const LamiDialogModel(
+                  title: "Schema Shop",
+                  content: SchemaShopDialog(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

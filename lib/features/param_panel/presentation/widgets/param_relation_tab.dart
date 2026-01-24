@@ -14,25 +14,25 @@ class ParamRelationTab extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     final hasRelations =
-        param.defaultValue != null || param.suggestValue != null;
+        !param.defaultValue.isEmpty || !param.suggestedValue.isEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (param.defaultValue != null) ...[
+        if (!param.defaultValue.isEmpty) ...[
           _buildRelationItem(
             context,
             label: "Default Value Formula",
-            expression: param.defaultValue!.expression ?? '',
+            expression: param.defaultValue.expression,
             icon: Icons.functions_rounded,
           ),
         ],
-        if (param.suggestValue != null) ...[
-          if (param.defaultValue != null) const SizedBox(height: AppSpacing.m),
+        if (!param.suggestedValue.isEmpty) ...[
+          if (!param.defaultValue.isEmpty) const SizedBox(height: AppSpacing.m),
           _buildRelationItem(
             context,
             label: "Suggested Value Formula",
-            expression: param.suggestValue!.expression ?? '',
+            expression: param.suggestedValue.expression,
             icon: Icons.tips_and_updates_outlined,
           ),
         ],

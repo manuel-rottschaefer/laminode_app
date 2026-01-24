@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_box.dart';
+import 'package:laminode_app/features/param_panel/presentation/providers/param_stack_provider.dart';
 
-class ParamLayersTab extends StatelessWidget {
+class ParamLayersTab extends ConsumerWidget {
   final CamParamEntry param;
 
   const ParamLayersTab({super.key, required this.param});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final stackInfo = ref.watch(paramStackProvider(param.paramName));
 
-    // TODO: In a real implementation, this data would come from a provider
-    // that calculates the layer stack for this specific parameter.
-    final mockLayers = [
-      _LayerValue(name: "Base Profile", value: param.evalDefault().toString(), isBase: true),
-      _LayerValue(name: "User Overrides", value: param.value.toString(), isOverride: param.isEdited),
-      _LayerValue(name: "Machine Limits", value: "Max: 100", isConstraint: true),
-    ];
+    // We want the stack order (Top Layer -> Base Layer)
+    // contributions is built as [Base, Layer1, Layer2...]
+    // So we invoke reversed.
+    final layers = stackInfo.contributions.reversed.toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,20 +35,36 @@ class ParamLayersTab extends StatelessWidget {
             ),
           ),
         ),
-        ...mockLayers.map((l) => _buildLayerRow(context, l)),
+        if (layers.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.m),
+            child: Text(
+              "No configuration layers found.",
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          )
+        else
+          ...layers.map((l) => _buildLayerRow(context, l)),
+
         const SizedBox(height: AppSpacing.m),
         _buildFinalValue(context),
       ],
     );
   }
 
-  Widget _buildLayerRow(BuildContext context, _LayerValue layer) {
+  Widget _buildLayerRow(BuildContext context, ParamLayerContribution layer) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m, vertical: AppSpacing.s),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.m,
+        vertical: AppSpacing.s,
+      ),
       decoration: BoxDecoration(
         color: layer.isOverride
             ? colorScheme.primaryContainer.withValues(alpha: 0.2)
@@ -69,29 +85,42 @@ class ParamLayersTab extends StatelessWidget {
                 ? Icons.gavel_rounded
                 : Icons.layers_outlined,
             size: 14,
-            color: layer.isOverride ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            color: layer.isOverride
+                ? colorScheme.primary
+                : colorScheme.onSurfaceVariant,
           ),
           const SizedBox(width: AppSpacing.m),
           Expanded(
             child: Text(
-              layer.name,
+              layer.layerName,
               style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 11,
-                fontWeight: layer.isOverride ? FontWeight.bold : FontWeight.normal,
+                fontWeight: layer.isOverride
+                    ? FontWeight.bold
+                    : FontWeight.normal,
               ),
             ),
           ),
           Text(
-            layer.value,
+            // Append unit if it looks like a number and we have a unit
+            "${layer.valueDisplay}${_shouldAppendUnit(layer.valueDisplay) ? ' ${param.quantity.quantitySymbol}' : ''}",
             style: theme.textTheme.bodySmall?.copyWith(
               fontFamily: 'monospace',
               fontSize: 10,
-              color: layer.isOverride ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              color: layer.isOverride
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
             ),
           ),
         ],
       ),
     );
+  }
+
+  bool _shouldAppendUnit(String value) {
+    // Simple heuristic: if value is numeric and unit is not empty
+    if (param.quantity.quantitySymbol.isEmpty) return false;
+    return double.tryParse(value) != null;
   }
 
   Widget _buildFinalValue(BuildContext context) {
@@ -104,7 +133,12 @@ class ParamLayersTab extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("Final Computed Value", style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            "Final Computed Value",
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           Text(
             "${param.value} ${param.quantity.quantitySymbol}",
             style: theme.textTheme.bodySmall?.copyWith(
@@ -117,20 +151,4 @@ class ParamLayersTab extends StatelessWidget {
       ),
     );
   }
-}
-
-class _LayerValue {
-  final String name;
-  final String value;
-  final bool isBase;
-  final bool isOverride;
-  final bool isConstraint;
-
-  _LayerValue({
-    required this.name,
-    required this.value,
-    this.isBase = false,
-    this.isOverride = false,
-    this.isConstraint = false,
-  });
 }

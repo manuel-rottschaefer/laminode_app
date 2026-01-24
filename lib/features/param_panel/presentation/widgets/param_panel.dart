@@ -16,6 +16,8 @@ class ParamPanel extends ConsumerStatefulWidget {
 
 class _ParamPanelState extends ConsumerState<ParamPanel> {
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  bool _isSearchVisible = true;
 
   @override
   void initState() {
@@ -30,7 +32,21 @@ class _ParamPanelState extends ConsumerState<ParamPanel> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _isSearchVisible = !_isSearchVisible;
+      if (!_isSearchVisible) {
+        _searchController.clear();
+        ref.read(paramPanelProvider.notifier).setSearchQuery('');
+        FocusScope.of(context).unfocus(); // Clear focus when hiding
+      } else {
+        _searchFocusNode.requestFocus();
+      }
+    });
   }
 
   @override
@@ -38,18 +54,44 @@ class _ParamPanelState extends ConsumerState<ParamPanel> {
     final state = ref.watch(paramPanelProvider);
     final theme = Theme.of(context);
 
+    // Filter items based on SEARCH VISIBILITY too, not just query content if hidden?
+    // The requirement says "search box is enabled by default".
+    // Usually if hidden, search is inactive.
+    // The original code filtered strictly by query.
+    // My toggle clears query so it works naturally.
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const LamiPanelHeader(icon: Icons.tune_rounded, title: "Parameters"),
-        const SizedBox(height: AppSpacing.s),
-
-        // Search Box (Always visible/pressed)
-        LamiSearch(
-          controller: _searchController,
-          hintText: "Filter parameters...",
+        LamiPanelHeader(
+          icon: Icons.tune_rounded,
+          title: "Parameters",
+          trailing: LamiToggleIcon(
+            value: _isSearchVisible,
+            icon: Icons.search_rounded,
+            toggledIcon: Icons.search_off_rounded,
+            onChanged: (val) => _toggleSearch(),
+          ),
         ),
-        const SizedBox(height: AppSpacing.m),
+
+        // Search Box (Collapsible)
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          child: SizedBox(
+            height: _isSearchVisible ? null : 0,
+            child: Column(
+              children: [
+                LamiSearch(
+                  controller: _searchController,
+                  focusNode: _searchFocusNode,
+                  hintText: "Filter parameters...",
+                ),
+                const SizedBox(height: AppSpacing.m),
+              ],
+            ),
+          ),
+        ),
 
         // Parameters List
         Expanded(

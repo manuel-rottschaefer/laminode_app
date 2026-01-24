@@ -7,6 +7,7 @@ import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
 import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_segmented_control.dart';
+import 'package:laminode_app/features/param_panel/presentation/widgets/param_list_item_body.dart';
 
 void main() {
   final testQuantity = const ParamQuantity(
@@ -30,7 +31,10 @@ void main() {
     value: 1.0,
   );
 
-  final testItem = ParamPanelItem(param: testParam, state: ParamItemState.schema);
+  final testItem = ParamPanelItem(
+    param: testParam,
+    state: ParamItemState.schema,
+  );
 
   testWidgets('ParamListItem should expand and show tabs', (tester) async {
     await tester.pumpWidget(

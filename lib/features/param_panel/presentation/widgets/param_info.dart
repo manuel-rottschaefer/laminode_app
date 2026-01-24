@@ -36,14 +36,21 @@ class ParamInfo extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.s),
             LamiColoredBadge(
-              color: LamiColors.registry[param.category.categoryColorName] ?? Colors.grey,
+              color:
+                  LamiColors.registry[param.category.categoryColorName] ??
+                  Colors.grey,
               label: param.category.categoryTitle.toUpperCase(),
             ),
           ],
         ),
         if (param.baseParam != null) ...[
           const SizedBox(height: AppSpacing.s),
-          _InfoRow(label: "INHERITS\nFROM", value: param.baseParam!, isMonospace: true, valueFontSize: 10),
+          _InfoRow(
+            label: "INHERITS\nFROM",
+            value: param.baseParam!,
+            isMonospace: true,
+            valueFontSize: 10,
+          ),
         ],
         const SizedBox(height: AppSpacing.m),
         _InfoRow(
@@ -73,7 +80,12 @@ class _InfoRow extends StatelessWidget {
   final bool isMonospace;
   final double? valueFontSize;
 
-  const _InfoRow({required this.label, required this.value, this.isMonospace = false, this.valueFontSize});
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    this.isMonospace = false,
+    this.valueFontSize,
+  });
 
   @override
   Widget build(BuildContext context) {

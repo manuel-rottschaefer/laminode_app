@@ -7,7 +7,8 @@ import 'package:laminode_app/features/param_panel/domain/entities/param_panel_it
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
 
-class MockParamPanelNotifier extends Notifier<ParamPanelState> implements ParamPanelNotifier {
+class MockParamPanelNotifier extends Notifier<ParamPanelState>
+    implements ParamPanelNotifier {
   final ParamPanelState initialState;
   MockParamPanelNotifier(this.initialState);
 
@@ -60,7 +61,9 @@ void main() {
     mockNotifier = MockParamPanelNotifier(ParamPanelState(items: [testItem]));
   });
 
-  testWidgets('ParamValueBox displays value and toggles lock', (WidgetTester tester) async {
+  testWidgets('ParamValueBox displays value and toggles lock', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [paramPanelProvider.overrideWith(() => mockNotifier)],
@@ -81,7 +84,9 @@ void main() {
     expect(mockNotifier.lastToggledParam, 'test_param');
   });
 
-  testWidgets('ParamValueBox updates value on submission', (WidgetTester tester) async {
+  testWidgets('ParamValueBox updates value on submission', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [paramPanelProvider.overrideWith(() => mockNotifier)],
@@ -100,5 +105,10 @@ void main() {
 }
 
 class TestCategory extends CamParamCategory {
-  const TestCategory() : super(categoryName: 'test', categoryTitle: 'Test', categoryColorName: 'blue');
+  const TestCategory()
+    : super(
+        categoryName: 'test',
+        categoryTitle: 'Test',
+        categoryColorName: 'blue',
+      );
 }

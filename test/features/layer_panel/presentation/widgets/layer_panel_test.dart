@@ -16,20 +16,23 @@ class FakeProfileManagerNotifier extends StateNotifier<ProfileManagerState>
   FakeProfileManagerNotifier() : super(ProfileManagerState());
 
   @override
-  Future<void> createProfile(any) async {}
+  Future<void> createProfile(dynamic profile) async {}
   @override
-  Future<void> loadProfile(any) async {}
+  Future<void> loadProfile(dynamic path) async {}
   @override
-  void setProfile(any) {
-    state = state.copyWith(currentProfile: any, clearProfile: any == null);
+  void setProfile(dynamic profile) {
+    state = state.copyWith(
+      currentProfile: profile,
+      clearProfile: profile == null,
+    );
   }
 
   @override
-  void setSchema(any) {}
+  void setSchema(dynamic schemaId) {}
   @override
-  void updateProfileName(any) {}
+  void updateProfileName(dynamic name) {}
   @override
-  void setApplication(any) {}
+  void setApplication(dynamic application) {}
 }
 
 void main() {
@@ -37,11 +40,7 @@ void main() {
   late MockLayerPanelRepository mockRepository;
   late FakeProfileManagerNotifier fakeProfileManagerNotifier;
 
-  setUp(() {
-    mockGetLayersUseCase = MockGetLayersUseCase();
-    mockRepository = MockLayerPanelRepository();
-    fakeProfileManagerNotifier = FakeProfileManagerNotifier();
-
+  setUpAll(() {
     registerFallbackValue(
       const LamiLayerEntry(
         layerName: '',
@@ -50,6 +49,12 @@ void main() {
         layerDescription: '',
       ),
     );
+  });
+
+  setUp(() {
+    mockGetLayersUseCase = MockGetLayersUseCase();
+    mockRepository = MockLayerPanelRepository();
+    fakeProfileManagerNotifier = FakeProfileManagerNotifier();
 
     when(() => mockRepository.setLayers(any())).thenReturn(null);
   });
@@ -66,6 +71,64 @@ void main() {
       child: const MaterialApp(home: Scaffold(body: LayerPanel())),
     );
   }
+
+  testWidgets('should expand a layer when tapped', (WidgetTester tester) async {
+    final layers = [
+      const LamiLayerEntry(
+        layerName: 'Test Layer',
+        parameters: [],
+        layerAuthor: '',
+        layerDescription: '',
+      ),
+    ];
+
+    when(() => mockGetLayersUseCase()).thenReturn(layers);
+    fakeProfileManagerNotifier.setProfile(
+      ProfileEntity(
+        name: 'Test',
+        layers: layers,
+        application: ProfileApplication.empty(),
+      ),
+    );
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pump();
+
+    // Verify initial state: not expanded (no edit icon visible yet)
+    expect(find.byIcon(Icons.edit_rounded), findsNothing);
+
+    // Tap to expand
+    await tester.tap(find.text('Test Layer'));
+    await tester.pumpAndSettle();
+
+    // Verify expanded state
+    expect(find.byIcon(Icons.edit_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.delete_outline_rounded), findsOneWidget);
+  });
+
+  testWidgets('should open create layer dialog when add button is clicked', (
+    WidgetTester tester,
+  ) async {
+    when(() => mockGetLayersUseCase()).thenReturn([]);
+    fakeProfileManagerNotifier.setProfile(
+      ProfileEntity(
+        name: 'Test',
+        layers: [],
+        application: ProfileApplication.empty(),
+        schemaId: 'some_schema', // Must have schema to enable button
+      ),
+    );
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pump();
+
+    // Find and tap "Create Layer" button
+    await tester.tap(find.text('Create Layer'));
+    await tester.pumpAndSettle();
+
+    // Verify dialog appeared
+    expect(find.text('New Profile Layer'), findsOneWidget);
+  });
 
   testWidgets('should filter layers based on search query', (
     WidgetTester tester,
