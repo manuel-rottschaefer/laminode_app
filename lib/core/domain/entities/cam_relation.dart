@@ -1,37 +1,47 @@
-// A CAM Relation represents a bound relationship of a CAM Parameter to one or many other parameters
-import 'package:laminode_app/core/domain/entities/cam_param.dart';
-
+/// Represents a relationship between CAM Parameters.
 abstract class CamRelation {
-  final CamParameter targetParam;
+  /// The parameter that this relation targets/defines.
+  final String targetParamName;
 
-  const CamRelation({required this.targetParam});
+  const CamRelation({required this.targetParamName});
 }
 
-/// A relation that carries an expression used to compute a value
-class ValueRelation extends CamRelation {
-  final String? expression;
-  final List<CamParameter>? referencedParams;
+/// A relation that uses a JavaScript expression to compute a value or condition.
+class CamExpressionRelation extends CamRelation {
+  /// The JavaScript expression string.
+  final String expression;
 
-  const ValueRelation({
-    required super.targetParam,
-    this.expression,
-    this.referencedParams,
+  /// List of parameter names that this expression depends on.
+  final List<String> referencedParamNames;
+
+  const CamExpressionRelation({
+    required super.targetParamName,
+    required this.expression,
+    this.referencedParamNames = const [],
   });
 
-  /// Evaluates the expression using a context
-  dynamic eval([Map<String, dynamic>? context]) {
-    if (expression == null || expression!.isEmpty) return null;
-    // TODO: Connect to expression engine
-    return null;
-  }
+  /// Returns true if the expression is empty or null-equivalent.
+  bool get isEmpty => expression.trim().isEmpty;
+
+  /// Creates an empty expression relation for a given target.
+  factory CamExpressionRelation.empty(String targetParamName) =>
+      CamExpressionRelation(targetParamName: targetParamName, expression: '');
 }
 
-/// A relation that represents hierarchy without an expression
-class AncestorRelation extends CamRelation {
-  final CamParameter ancestorParam;
+/// A relation that represents a hierarchical link between parameters (Parent -> Child).
+class CamHierarchyRelation extends CamRelation {
+  /// The name of the child parameter.
+  final String childParamName;
 
-  const AncestorRelation({
-    required super.targetParam,
-    required this.ancestorParam,
+  const CamHierarchyRelation({
+    required super.targetParamName,
+    required this.childParamName,
   });
+
+  /// Creates an empty hierarchy relation for a given target.
+  factory CamHierarchyRelation.empty(String targetParamName) =>
+      CamHierarchyRelation(
+        targetParamName: targetParamName,
+        childParamName: '',
+      );
 }

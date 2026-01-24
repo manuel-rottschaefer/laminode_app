@@ -1,3 +1,5 @@
+import 'package:laminode_app/core/domain/entities/cam_relation.dart';
+
 enum QuantityType { numeric, choice, boolean }
 
 // A ParamQuantity describes the type of parameter being represented
@@ -53,8 +55,14 @@ abstract class CamParamCategory {
   final String categoryName;
   final String categoryTitle;
   final String categoryColorName;
+  final bool isVisible;
 
-  const CamParamCategory({required this.categoryName, required this.categoryTitle, required this.categoryColorName});
+  const CamParamCategory({
+    required this.categoryName,
+    required this.categoryTitle,
+    required this.categoryColorName,
+    this.isVisible = true,
+  });
 }
 
 // A CamParameter is the atomic unit of configuration for a CAM profile
@@ -65,13 +73,51 @@ abstract class CamParameter {
   final ParamQuantity quantity;
   final CamParamCategory category;
   final String? baseParam;
+  final bool isVisible;
 
-  const CamParameter({
+  // Intrinsic mandatory relations
+  final CamExpressionRelation minThreshold;
+  final CamExpressionRelation maxThreshold;
+  final CamExpressionRelation defaultValue;
+  final CamExpressionRelation suggestedValue;
+
+  // Conditional enablement
+  final CamExpressionRelation enabledCondition;
+
+  // Hierarchy
+  final List<CamHierarchyRelation> children;
+
+  /// Parameters that depend on THIS parameter (for cascading updates)
+  final List<String> dependentParamNames;
+
+  CamParameter({
     required this.paramName,
     required this.paramTitle,
     this.paramDescription,
     required this.quantity,
     required this.category,
     this.baseParam,
-  });
+    this.isVisible = true,
+    CamExpressionRelation? minThreshold,
+    CamExpressionRelation? maxThreshold,
+    CamExpressionRelation? defaultValue,
+    CamExpressionRelation? suggestedValue,
+    CamExpressionRelation? enabledCondition,
+    this.children = const [],
+    this.dependentParamNames = const [],
+  }) : minThreshold =
+           minThreshold ??
+           CamExpressionRelation(targetParamName: paramName, expression: ''),
+       maxThreshold =
+           maxThreshold ??
+           CamExpressionRelation(targetParamName: paramName, expression: ''),
+       defaultValue =
+           defaultValue ??
+           CamExpressionRelation(targetParamName: paramName, expression: ''),
+       suggestedValue =
+           suggestedValue ??
+           CamExpressionRelation(targetParamName: paramName, expression: ''),
+       enabledCondition =
+           enabledCondition ??
+           CamExpressionRelation(targetParamName: paramName, expression: '');
 }

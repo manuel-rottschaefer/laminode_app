@@ -9,11 +9,17 @@ class CamParamEntryModel {
   final String? paramDescription;
   final ParamQuantity quantity;
   final CamCategoryEntry category;
+  final bool isVisible;
   final dynamic value;
   final bool isLocked;
   final bool isEdited;
-  final ParamRelationModel? defaultValue;
-  final ParamRelationModel? suggestValue;
+
+  final CamExpressionRelationModel minThreshold;
+  final CamExpressionRelationModel maxThreshold;
+  final CamExpressionRelationModel defaultValue;
+  final CamExpressionRelationModel suggestedValue;
+  final CamExpressionRelationModel enabledCondition;
+  final List<CamHierarchyRelationModel> children;
 
   CamParamEntryModel({
     required this.paramName,
@@ -21,12 +27,46 @@ class CamParamEntryModel {
     this.paramDescription,
     required this.quantity,
     required this.category,
+    this.isVisible = true,
     required this.value,
     this.isLocked = false,
     this.isEdited = false,
-    this.defaultValue,
-    this.suggestValue,
-  });
+    CamExpressionRelationModel? minThreshold,
+    CamExpressionRelationModel? maxThreshold,
+    CamExpressionRelationModel? defaultValue,
+    CamExpressionRelationModel? suggestedValue,
+    CamExpressionRelationModel? enabledCondition,
+    this.children = const [],
+  }) : minThreshold =
+           minThreshold ??
+           CamExpressionRelationModel(
+             targetParamName: paramName,
+             expression: '',
+           ),
+       maxThreshold =
+           maxThreshold ??
+           CamExpressionRelationModel(
+             targetParamName: paramName,
+             expression: '',
+           ),
+       defaultValue =
+           defaultValue ??
+           CamExpressionRelationModel(
+             targetParamName: paramName,
+             expression: '',
+           ),
+       suggestedValue =
+           suggestedValue ??
+           CamExpressionRelationModel(
+             targetParamName: paramName,
+             expression: '',
+           ),
+       enabledCondition =
+           enabledCondition ??
+           CamExpressionRelationModel(
+             targetParamName: paramName,
+             expression: '',
+           );
 
   factory CamParamEntryModel.fromEntity(CamParamEntry entity) {
     return CamParamEntryModel(
@@ -35,11 +75,22 @@ class CamParamEntryModel {
       paramDescription: entity.paramDescription,
       quantity: entity.quantity,
       category: entity.category as CamCategoryEntry,
+      isVisible: entity.isVisible,
       value: entity.value,
       isLocked: entity.isLocked,
       isEdited: entity.isEdited,
-      defaultValue: entity.defaultValue != null ? ParamRelationModel.fromEntity(entity.defaultValue!) : null,
-      suggestValue: entity.suggestValue != null ? ParamRelationModel.fromEntity(entity.suggestValue!) : null,
+      minThreshold: CamExpressionRelationModel.fromEntity(entity.minThreshold),
+      maxThreshold: CamExpressionRelationModel.fromEntity(entity.maxThreshold),
+      defaultValue: CamExpressionRelationModel.fromEntity(entity.defaultValue),
+      suggestedValue: CamExpressionRelationModel.fromEntity(
+        entity.suggestedValue,
+      ),
+      enabledCondition: CamExpressionRelationModel.fromEntity(
+        entity.enabledCondition,
+      ),
+      children: entity.children
+          .map((e) => CamHierarchyRelationModel.fromEntity(e))
+          .toList(),
     );
   }
 
@@ -50,11 +101,17 @@ class CamParamEntryModel {
       paramDescription: paramDescription,
       quantity: quantity,
       category: category,
+      isVisible: isVisible,
       value: value,
       isLocked: isLocked,
       isEdited: isEdited,
-      defaultValue: defaultValue?.toEntity(),
-      suggestValue: suggestValue?.toEntity(),
+      minThreshold: minThreshold.toEntity(),
+      maxThreshold: maxThreshold.toEntity(),
+      defaultValue: defaultValue.toEntity(),
+      suggestedValue: suggestedValue.toEntity(),
+      enabledCondition: enabledCondition.toEntity(),
+      children: children.map((e) => e.toEntity()).toList(),
+      dependentParamNames: const [],
     );
   }
 
@@ -68,12 +125,36 @@ class CamParamEntryModel {
         categoryName: json['category']['categoryName'],
         categoryTitle: json['category']['categoryTitle'],
         categoryColorName: json['category']['categoryColorName'],
+        isVisible: json['category']['isVisible'] ?? true,
       ),
+      isVisible: json['isVisible'] ?? true,
       value: json['value'],
       isLocked: json['isLocked'] ?? false,
       isEdited: json['isEdited'] ?? false,
-      defaultValue: json['defaultValue'] != null ? ParamRelationModel.fromJson(json['defaultValue']) : null,
-      suggestValue: json['suggestValue'] != null ? ParamRelationModel.fromJson(json['suggestValue']) : null,
+      minThreshold: CamExpressionRelationModel.fromJson(
+        json['minThreshold'] ?? {'targetParamName': json['paramName']},
+      ),
+      maxThreshold: CamExpressionRelationModel.fromJson(
+        json['maxThreshold'] ?? {'targetParamName': json['paramName']},
+      ),
+      defaultValue: CamExpressionRelationModel.fromJson(
+        json['defaultValue'] ?? {'targetParamName': json['paramName']},
+      ),
+      suggestedValue: CamExpressionRelationModel.fromJson(
+        json['suggestedValue'] ?? {'targetParamName': json['paramName']},
+      ),
+      enabledCondition: CamExpressionRelationModel.fromJson(
+        json['enabledCondition'] ?? {'targetParamName': json['paramName']},
+      ),
+      children:
+          (json['children'] as List<dynamic>?)
+              ?.map(
+                (e) => CamHierarchyRelationModel.fromJson(
+                  e as Map<String, dynamic>,
+                ),
+              )
+              .toList() ??
+          const [],
     );
   }
 
@@ -87,12 +168,18 @@ class CamParamEntryModel {
         'categoryName': category.categoryName,
         'categoryTitle': category.categoryTitle,
         'categoryColorName': category.categoryColorName,
+        'isVisible': category.isVisible,
       },
+      'isVisible': isVisible,
       'value': value,
       'isLocked': isLocked,
       'isEdited': isEdited,
-      'defaultValue': defaultValue?.toJson(),
-      'suggestValue': suggestValue?.toJson(),
+      'minThreshold': minThreshold.toJson(),
+      'maxThreshold': maxThreshold.toJson(),
+      'defaultValue': defaultValue.toJson(),
+      'suggestedValue': suggestedValue.toJson(),
+      'enabledCondition': enabledCondition.toJson(),
+      'children': children.map((e) => e.toJson()).toList(),
     };
   }
 }

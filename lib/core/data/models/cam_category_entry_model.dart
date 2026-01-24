@@ -4,11 +4,13 @@ class CamCategoryEntryModel {
   final String categoryName;
   final String categoryTitle;
   final String categoryColorName;
+  final bool isVisible;
 
   const CamCategoryEntryModel({
     required this.categoryName,
     required this.categoryTitle,
     required this.categoryColorName,
+    this.isVisible = true,
   });
 
   factory CamCategoryEntryModel.fromEntity(CamCategoryEntry entity) {
@@ -16,6 +18,7 @@ class CamCategoryEntryModel {
       categoryName: entity.categoryName,
       categoryTitle: entity.categoryTitle,
       categoryColorName: entity.categoryColorName,
+      isVisible: entity.isVisible,
     );
   }
 
@@ -24,6 +27,7 @@ class CamCategoryEntryModel {
       categoryName: categoryName,
       categoryTitle: categoryTitle,
       categoryColorName: categoryColorName,
+      isVisible: isVisible,
     );
   }
 
@@ -32,6 +36,7 @@ class CamCategoryEntryModel {
       categoryName: json['categoryName'],
       categoryTitle: json['categoryTitle'] ?? json['categoryName'],
       categoryColorName: json['categoryColorName'] ?? 'grey',
+      isVisible: json['isVisible'] ?? true,
     );
   }
 
@@ -40,6 +45,7 @@ class CamCategoryEntryModel {
       'categoryName': categoryName,
       'categoryTitle': categoryTitle,
       'categoryColorName': categoryColorName,
+      'isVisible': isVisible,
     };
   }
 }
