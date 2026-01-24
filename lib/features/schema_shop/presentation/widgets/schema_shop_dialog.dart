@@ -6,8 +6,8 @@ import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart'
 import 'package:laminode_app/core/theme/app_spacing.dart';
 import 'package:laminode_app/features/schema_shop/domain/entities/plugin_manifest.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
-import 'package:laminode_app/features/schema_shop/presentation/widgets/plugin_card.dart';
-import 'package:laminode_app/features/schema_shop/presentation/widgets/application_group_card.dart';
+import 'package:laminode_app/features/schema_shop/presentation/widgets/shop_empty_state.dart';
+import 'package:laminode_app/features/schema_shop/presentation/widgets/shop_plugin_list.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -40,7 +40,9 @@ class _SchemaShopDialogState extends ConsumerState<SchemaShopDialog> {
     final state = ref.watch(schemaShopProvider);
     final theme = Theme.of(context);
 
-    final filteredAndGrouped = ref.watch(filteredAndGroupedPluginsProvider(_searchController.text));
+    final filteredAndGrouped = ref.watch(
+      filteredAndGroupedPluginsProvider(_searchController.text),
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -56,80 +58,32 @@ class _SchemaShopDialogState extends ConsumerState<SchemaShopDialog> {
               ),
             ),
             const SizedBox(width: AppSpacing.m),
-            LamiButton(icon: LucideIcons.upload, label: "Upload", onPressed: _uploadManualSchema),
+            LamiButton(
+              icon: LucideIcons.upload,
+              label: "Upload",
+              onPressed: _uploadManualSchema,
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.l),
         Flexible(
           child: state.isLoading && state.availablePlugins.isEmpty
               ? const Center(
-                  child: Padding(padding: EdgeInsets.all(AppSpacing.xl), child: CircularProgressIndicator()),
+                  child: Padding(
+                    padding: EdgeInsets.all(AppSpacing.xl),
+                    child: CircularProgressIndicator(),
+                  ),
                 )
               : filteredAndGrouped.isEmpty
               ? Center(
-                  child: _ShopEmptyState(
+                  child: ShopEmptyState(
                     isSearch: _searchController.text.isNotEmpty,
                     state: state,
-                    onRetry: () => ref.read(schemaShopProvider.notifier).fetchPlugins(),
+                    onRetry: () =>
+                        ref.read(schemaShopProvider.notifier).fetchPlugins(),
                   ),
                 )
-              : ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: filteredAndGrouped.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.m),
-                  itemBuilder: (context, index) {
-                    final item = filteredAndGrouped[index];
-
-                    if (item is ApplicationGroup) {
-                      return ApplicationGroupCard(
-                        group: item,
-                        onInstall: _install,
-                        onRemove: (pluginId) {
-                          ref.read(schemaShopProvider.notifier).uninstallPlugin(pluginId);
-                        },
-                      );
-                    } else if (item is PluginManifest) {
-                      final isInstalled = state.installedPlugins.any((p) => p.plugin.pluginID == item.plugin.pluginID);
-
-                      return PluginCard(
-                        plugin: item,
-                        isInstalled: isInstalled,
-                        isInstalling: state.isLoading && state.activeSchema == null,
-                        onInstall: () {
-                          if (item.schemas.isEmpty) return;
-
-                          if (item.schemas.length == 1) {
-                            _install(item, item.schemas.first.id);
-                          } else {
-                            // Show simple version picker
-                            showMenu(
-                              context: context,
-                              position: const RelativeRect.fromLTRB(
-                                100,
-                                100,
-                                100,
-                                100,
-                              ), // Better positioning would be nice
-                              items: item.schemas
-                                  .map(
-                                    (s) => PopupMenuItem(
-                                      value: s.id,
-                                      child: Text('Version: ${s.version} (${s.releaseDate})'),
-                                    ),
-                                  )
-                                  .toList(),
-                            ).then((schemaId) {
-                              if (schemaId != null) {
-                                _install(item, schemaId);
-                              }
-                            });
-                          }
-                        },
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+              : ShopPluginList(items: filteredAndGrouped, onInstall: _install),
         ),
         if (state.error != null && filteredAndGrouped.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.m),
@@ -146,8 +100,16 @@ class _SchemaShopDialogState extends ConsumerState<SchemaShopDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            LamiButton(icon: LucideIcons.logOut, label: "Quit", onPressed: () => Navigator.of(context).pop()),
-            LamiButton(icon: LucideIcons.folder, label: "Show Directory", onPressed: _showDirectory),
+            LamiButton(
+              icon: LucideIcons.logOut,
+              label: "Quit",
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            LamiButton(
+              icon: LucideIcons.folder,
+              label: "Show Directory",
+              onPressed: _showDirectory,
+            ),
           ],
         ),
       ],
@@ -160,7 +122,10 @@ class _SchemaShopDialogState extends ConsumerState<SchemaShopDialog> {
   }
 
   Future<void> _uploadManualSchema() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['json']);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
 
     if (result != null && result.files.single.path != null) {
       final file = File(result.files.single.path!);
@@ -169,77 +134,18 @@ class _SchemaShopDialogState extends ConsumerState<SchemaShopDialog> {
   }
 
   void _install(PluginManifest plugin, String schemaId) {
-    ref.read(schemaShopProvider.notifier).installPlugin(plugin, schemaId).then((_) {
+    ref.read(schemaShopProvider.notifier).installPlugin(plugin, schemaId).then((
+      _,
+    ) {
       if (mounted && ref.read(schemaShopProvider).error == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Successfully installed ${plugin.displayName} - $schemaId')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Successfully installed ${plugin.displayName} - $schemaId',
+            ),
+          ),
+        );
       }
     });
-  }
-}
-
-class _ShopEmptyState extends StatelessWidget {
-  final bool isSearch;
-  final SchemaShopState state;
-  final VoidCallback onRetry;
-
-  const _ShopEmptyState({required this.isSearch, required this.state, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isConnectionError = state.hasConnectionError;
-
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isConnectionError ? LucideIcons.wifiOff : (isSearch ? LucideIcons.search : LucideIcons.packageOpen),
-              size: 32,
-              color: isConnectionError
-                  ? theme.colorScheme.error.withValues(alpha: 0.5)
-                  : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: AppSpacing.l),
-            Text(
-              isConnectionError
-                  ? "Unable to connect to LamiNode"
-                  : (isSearch ? "No matching plugins found" : "No plugins available yet"),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s),
-            Text(
-              isConnectionError
-                  ? "Please check your backend connection or internet access."
-                  : (isSearch
-                        ? "Try adjusting your search terms or sector filters."
-                        : "The plugin store is currently empty. Check back later!"),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-            if (state.hasError && !isConnectionError) ...[
-              const SizedBox(height: AppSpacing.m),
-              Text(
-                state.error!,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: theme.colorScheme.error, fontSize: 12),
-              ),
-            ],
-            if (isConnectionError) ...[
-              const SizedBox(height: AppSpacing.l),
-              LamiButton(icon: LucideIcons.refreshCw, label: "Try Again", onPressed: onRetry),
-            ],
-          ],
-        ),
-      ),
-    );
   }
 }

@@ -10,4 +10,12 @@ abstract class SchemaShopRepository {
   Future<CamSchemaEntry?> loadInstalledSchema(String schemaId);
   Future<List<String>> getInstalledSchemaIds();
   Future<List<PluginManifest>> getInstalledPlugins();
+  Future<String?> getAdapterCodeForSchema(String schemaId);
+  Future<void> saveSchema(
+    String appName,
+    String schemaId,
+    Map<String, dynamic> schemaJson,
+    String? adapterCode,
+  );
+  Future<Map<String, dynamic>?> getRawSchema(String schemaId);
 }

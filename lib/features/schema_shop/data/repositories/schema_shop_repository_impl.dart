@@ -67,7 +67,12 @@ class SchemaShopRepositoryImpl implements SchemaShopRepository {
 
     final schemaId = json['manifest']['schemaVersion'] ?? 'manual';
 
-    await _localDataSource.saveManualSchema(targetAppName, schemaId, json);
+    await _localDataSource.saveManualSchema(
+      targetAppName,
+      schemaId,
+      json,
+      null,
+    );
   }
 
   @override
@@ -92,5 +97,30 @@ class SchemaShopRepositoryImpl implements SchemaShopRepository {
   @override
   Future<List<PluginManifest>> getInstalledPlugins() async {
     return await _localDataSource.getInstalledPlugins();
+  }
+
+  @override
+  Future<String?> getAdapterCodeForSchema(String schemaId) async {
+    return await _localDataSource.getAdapterCodeForSchema(schemaId);
+  }
+
+  @override
+  Future<void> saveSchema(
+    String appName,
+    String schemaId,
+    Map<String, dynamic> schemaJson,
+    String? adapterCode,
+  ) async {
+    await _localDataSource.saveManualSchema(
+      appName,
+      schemaId,
+      schemaJson,
+      adapterCode,
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getRawSchema(String schemaId) async {
+    return await _localDataSource.getInstalledSchema(schemaId);
   }
 }

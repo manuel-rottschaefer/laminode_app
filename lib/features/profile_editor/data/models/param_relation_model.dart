@@ -1,99 +1,75 @@
-import 'package:laminode_app/core/data/models/param_entry_model.dart';
 import 'package:laminode_app/core/domain/entities/cam_relation.dart';
-import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
-import 'package:laminode_app/features/profile_editor/domain/entities/param_relation_entry.dart';
 
-class ParamRelationModel {
-  final CamParamEntryModel targetParam;
-  final String? expression;
-  final List<String>? referencedParamNames;
+class CamExpressionRelationModel {
+  final String targetParamName;
+  final String expression;
 
-  const ParamRelationModel({
-    required this.targetParam,
-    this.expression,
-    this.referencedParamNames,
+  const CamExpressionRelationModel({
+    required this.targetParamName,
+    required this.expression,
   });
 
-  factory ParamRelationModel.fromEntity(ParamRelationEntry entity) {
-    return ParamRelationModel(
-      targetParam: CamParamEntryModel.fromEntity(
-        entity.targetParam as CamParamEntry,
-      ),
+  factory CamExpressionRelationModel.fromEntity(CamExpressionRelation entity) {
+    return CamExpressionRelationModel(
+      targetParamName: entity.targetParamName,
       expression: entity.expression,
     );
   }
 
-  ParamRelationEntry toEntity() {
-    return ParamRelationEntry(
-      targetParam: targetParam.toEntity(),
-      expression: expression ?? '',
-      referencedParams: [],
+  CamExpressionRelation toEntity() {
+    return CamExpressionRelation(
+      targetParamName: targetParamName,
+      expression: expression,
+      referencedParamNames: const [],
     );
   }
 
-  factory ParamRelationModel.fromJson(Map<String, dynamic> json) {
-    return ParamRelationModel(
-      targetParam: CamParamEntryModel.fromJson(
-        json['targetParam'] as Map<String, dynamic>,
-      ),
-      expression: json['expression'],
-      referencedParamNames: (json['referencedParamNames'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
+  factory CamExpressionRelationModel.fromJson(Map<String, dynamic> json) {
+    return CamExpressionRelationModel(
+      targetParamName: json['targetParamName'],
+      expression: json['expression'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'targetParam': targetParam.toJson(),
-      'expression': expression,
-      'referencedParamNames': referencedParamNames,
-    };
+    return {'targetParamName': targetParamName, 'expression': expression};
   }
 }
 
-class AncestorRelationModel {
-  final CamParamEntryModel targetParam;
-  final CamParamEntryModel ancestorParam;
+class CamHierarchyRelationModel {
+  final String targetParamName;
+  final String childParamName;
 
-  const AncestorRelationModel({
-    required this.targetParam,
-    required this.ancestorParam,
+  const CamHierarchyRelationModel({
+    required this.targetParamName,
+    required this.childParamName,
   });
 
-  factory AncestorRelationModel.fromEntity(AncestorRelation entity) {
-    return AncestorRelationModel(
-      targetParam: CamParamEntryModel.fromEntity(
-        entity.targetParam as CamParamEntry,
-      ),
-      ancestorParam: CamParamEntryModel.fromEntity(
-        entity.ancestorParam as CamParamEntry,
-      ),
+  factory CamHierarchyRelationModel.fromEntity(CamHierarchyRelation entity) {
+    return CamHierarchyRelationModel(
+      targetParamName: entity.targetParamName,
+      childParamName: entity.childParamName,
     );
   }
 
-  AncestorRelation toEntity() {
-    return AncestorRelation(
-      targetParam: targetParam.toEntity(),
-      ancestorParam: ancestorParam.toEntity(),
+  CamHierarchyRelation toEntity() {
+    return CamHierarchyRelation(
+      targetParamName: targetParamName,
+      childParamName: childParamName,
     );
   }
 
-  factory AncestorRelationModel.fromJson(Map<String, dynamic> json) {
-    return AncestorRelationModel(
-      targetParam: CamParamEntryModel.fromJson(
-        json['targetParam'] as Map<String, dynamic>,
-      ),
-      ancestorParam: CamParamEntryModel.fromJson(
-        json['ancestorParam'] as Map<String, dynamic>,
-      ),
+  factory CamHierarchyRelationModel.fromJson(Map<String, dynamic> json) {
+    return CamHierarchyRelationModel(
+      targetParamName: json['targetParamName'],
+      childParamName: json['childParamName'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'targetParam': targetParam.toJson(),
-      'ancestorParam': ancestorParam.toJson(),
+      'targetParamName': targetParamName,
+      'childParamName': childParamName,
     };
   }
 }

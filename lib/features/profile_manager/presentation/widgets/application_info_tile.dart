@@ -44,19 +44,25 @@ class ApplicationInfoTile extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    Text(
-                      application.vendor,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                    Flexible(
+                      child: Text(
+                        application.vendor,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.s),
-                    Text(
-                      "Application Version: ${application.version}",
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontSize: 8,
-                        color: colorScheme.onSurfaceVariant.withValues(
-                          alpha: 0.7,
+                    Flexible(
+                      child: Text(
+                        "Application Version: ${application.version}",
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 8,
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.7,
+                          ),
                         ),
                       ),
                     ),

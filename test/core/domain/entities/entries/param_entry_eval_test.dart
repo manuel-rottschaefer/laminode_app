@@ -4,7 +4,11 @@ import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dar
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 
 void main() {
-  final testCategory = CamCategoryEntry(categoryName: 'test', categoryTitle: 'Test', categoryColorName: 'blue');
+  final testCategory = CamCategoryEntry(
+    categoryName: 'test',
+    categoryTitle: 'Test',
+    categoryColorName: 'blue',
+  );
 
   group('CamParamEntry.evalDefault', () {
     test('should return 0 for numeric quantity when default is null', () {

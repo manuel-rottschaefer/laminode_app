@@ -6,7 +6,9 @@ import 'package:laminode_app/features/schema_shop/presentation/providers/schema_
 import 'package:laminode_app/features/schema_shop/presentation/widgets/schema_shop_dialog.dart';
 import 'package:laminode_app/features/schema_shop/domain/entities/plugin_manifest.dart';
 
-class MockSchemaShopNotifier extends StateNotifier<SchemaShopState> with Mock implements SchemaShopNotifier {
+class MockSchemaShopNotifier extends StateNotifier<SchemaShopState>
+    with Mock
+    implements SchemaShopNotifier {
   MockSchemaShopNotifier(super.state);
 }
 
@@ -54,7 +56,9 @@ void main() {
       schemas: const [],
     );
 
-    mockNotifier = MockSchemaShopNotifier(SchemaShopState(availablePlugins: [tPlugin], isLoading: false));
+    mockNotifier = MockSchemaShopNotifier(
+      SchemaShopState(availablePlugins: [tPlugin], isLoading: false),
+    );
     when(() => mockNotifier.fetchPlugins()).thenAnswer((_) async {});
 
     await tester.pumpWidget(

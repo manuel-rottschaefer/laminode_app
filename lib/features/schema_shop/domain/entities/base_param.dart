@@ -6,5 +6,12 @@ class CamBaseParam extends CamParameter {
     required super.paramTitle,
     required super.quantity,
     required super.category,
+    super.minThreshold,
+    super.maxThreshold,
+    super.defaultValue,
+    super.suggestedValue,
+    super.enabledCondition,
+    super.children,
+    super.dependentParamNames,
   });
 }
