@@ -11,36 +11,46 @@ class JsEvaluationEngine implements EvaluationEngine {
 
   @override
   dynamic evaluate(String expression, Map<String, dynamic> context) {
+    if (expression.trim().isEmpty) return null;
+
     // Inject context variables into the JS scope
-    // We wrap values in a JSON object to safely pass them
     final jsonContext = jsonEncode(context);
-    
-    // We assign the context to a global variable '__ctx'
-    // and then use a 'with' statement or explicit property access?
-    // 'with' is often discouraged but convenient for simple formulas like "a + b" where a and b are keys.
-    // However, strict mode forbids 'with'. 
-    // A safer way is to replace variable names or just expose them globally if keys are safe.
-    
-    // For robust evaluation without parsing, we can declare variables.
-    // Assuming context keys are valid JS identifiers.
-    
-    // Better approach: 
-    // 1. Assign context to a variable
-    final setupScript = 'var __ctx = $jsonContext;';
-    _runtime.evaluate(setupScript);
 
-    // 2. Create a function that destructures __ctx and returns the expression
-    // "with(__ctx) { return ( expression ); }"
-    // This allows writing "a + b" instead of "__ctx.a + __ctx.b"
-    final evalScript = 'with(__ctx) { $expression }';
+    // Instead of using 'with', we will declare each variable locally in an IIFE.
+    // This is safer and avoids strict mode issues with 'with'.
+    // We create a script that:
+    // 1. Parses the context
+    // 2. Extracts keys
+    // 3. Evaluates the expression in that scope
 
-    final result = _runtime.evaluate(evalScript);
+    final buffer = StringBuffer();
+    buffer.writeln('(function() {');
+    buffer.writeln('  const ctx = $jsonContext;');
+    for (final key in context.keys) {
+      // Ensure key is a valid identifier (we assume they are for now)
+      buffer.writeln('  const $key = ctx["$key"];');
+    }
+    buffer.writeln('  return ($expression);');
+    buffer.writeln('})();');
+
+    final result = _runtime.evaluate(buffer.toString());
 
     if (result.isError) {
-      throw Exception('JS Evaluation Error: ${result.stringResult}');
+      // For now we'll return null to prevent crashing the whole app.
+      // In a real app we might want to log this to a crash reporting service.
+      return null;
     }
 
-    return result.rawResult;
+    return _parseResult(result.rawResult);
+  }
+
+  /// Converts JS results to Dart-friendly types
+  dynamic _parseResult(dynamic raw) {
+    if (raw is num || raw is bool || raw is String || raw == null) {
+      return raw;
+    }
+    // Handle other types if necessary
+    return raw.toString();
   }
 
   void dispose() {
