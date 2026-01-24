@@ -7,14 +7,20 @@ import 'package:laminode_app/core/presentation/dialog/lami_dialog_widgets.dart';
 class LamiDialogModel {
   final String title;
   final Widget content;
+  final Widget? leading;
   final List<Widget>? actions;
   final bool dismissible;
+  final double? maxWidth;
+  final EdgeInsets? insetPadding;
 
   const LamiDialogModel({
     required this.title,
     required this.content,
+    this.leading,
     this.actions,
     this.dismissible = true,
+    this.maxWidth,
+    this.insetPadding,
   });
 }
 
@@ -31,9 +37,11 @@ class LamiDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+      insetPadding:
+          model.insetPadding ??
+          const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 550),
+        constraints: BoxConstraints(maxWidth: model.maxWidth ?? 550),
         child: FogEffect(
           padding: AppSpacing.xl,
           color: colorScheme.surfaceContainer,
@@ -47,6 +55,7 @@ class LamiDialog extends StatelessWidget {
               children: [
                 LamiDialogHeader(
                   title: model.title,
+                  leading: model.leading,
                   dismissible: model.dismissible,
                 ),
                 Flexible(child: model.content),
@@ -82,9 +91,11 @@ class LamiDialog extends StatelessWidget {
 Future<T?> showLamiDialog<T>({
   required BuildContext context,
   required LamiDialogModel model,
+  bool useRootNavigator = true,
 }) {
   return showDialog<T>(
     context: context,
+    useRootNavigator: useRootNavigator,
     barrierDismissible: model.dismissible,
     barrierColor: Colors.black.withValues(alpha: 0.4),
     builder: (context) => LamiDialog(model: model),

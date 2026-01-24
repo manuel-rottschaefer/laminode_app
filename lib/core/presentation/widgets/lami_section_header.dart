@@ -52,21 +52,27 @@ class LamiSectionHeader extends StatelessWidget {
             ),
             const SizedBox(width: 10),
           ],
-          Text(
-            title,
-            style: isLarge
-                ? theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                  )
-                : theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 13,
-                    letterSpacing: 0.8,
-                    color: colorScheme.onSurface.withValues(alpha: 0.8),
-                  ),
+          Expanded(
+            child: Text(
+              title,
+              overflow: TextOverflow.ellipsis,
+              style: isLarge
+                  ? theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    )
+                  : theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                      letterSpacing: 0.8,
+                      color: colorScheme.onSurface.withValues(alpha: 0.8),
+                    ),
+            ),
           ),
-          if (trailing != null) ...[const Spacer(), trailing!],
+          if (trailing != null) ...[
+            const SizedBox(width: AppSpacing.s),
+            trailing!,
+          ],
         ],
       ),
     );

@@ -1,10 +1,6 @@
 import "package:flutter/material.dart";
-import "package:laminode_app/core/presentation/dialog/lami_dialog.dart";
-import "package:laminode_app/core/presentation/widgets/lami_action_widgets.dart";
 import "package:laminode_app/core/theme/app_spacing.dart";
 import "package:laminode_app/core/presentation/widgets/app_bar/lami_window_button.dart";
-import "package:laminode_app/features/schema_shop/presentation/widgets/schema_shop_dialog.dart";
-import "package:lucide_icons/lucide_icons.dart";
 import "package:window_manager/window_manager.dart";
 
 class LamiAppBar extends StatelessWidget {
@@ -56,20 +52,6 @@ class LamiAppBar extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.xl),
-                  LamiIcon(
-                    icon: LucideIcons.shoppingBag,
-                    size: 16,
-                    padding: 4,
-                    onPressed: () {
-                      showLamiDialog(
-                        context: context,
-                        model: const LamiDialogModel(
-                          title: "Schema Shop",
-                          content: SchemaShopDialog(),
-                        ),
-                      );
-                    },
-                  ),
                 ],
               ),
             ),

@@ -5,7 +5,11 @@ class LamiSegment<T> {
   final IconData icon;
   final String tooltip;
 
-  const LamiSegment({required this.value, required this.icon, required this.tooltip});
+  const LamiSegment({
+    required this.value,
+    required this.icon,
+    required this.tooltip,
+  });
 }
 
 class LamiSegmentedControl<T> extends StatelessWidget {
@@ -46,7 +50,9 @@ class LamiSegmentedControl<T> extends StatelessWidget {
                   curve: Curves.easeOutCubic,
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   decoration: BoxDecoration(
-                    color: isSelected ? colorScheme.surface : Colors.transparent,
+                    color: isSelected
+                        ? colorScheme.surface
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(6),
                     boxShadow: isSelected
                         ? [
@@ -61,7 +67,9 @@ class LamiSegmentedControl<T> extends StatelessWidget {
                   child: Icon(
                     segment.icon,
                     size: 16,
-                    color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.4),
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                 ),
               ),

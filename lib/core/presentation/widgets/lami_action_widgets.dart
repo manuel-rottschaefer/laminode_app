@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_box.dart';
 
+export 'lami_search.dart';
+export 'lami_text_segmented_control.dart';
+
 class LamiButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
   final bool inactive;
 
-  const LamiButton({super.key, required this.icon, required this.label, this.onPressed, this.inactive = false});
+  const LamiButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.onPressed,
+    this.inactive = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,14 +31,19 @@ class LamiButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           onTap: enabled ? onPressed : null,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 14.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 12.0,
+              horizontal: 14.0,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   icon,
-                  color: enabled ? theme.colorScheme.primary.withValues(alpha: 0.9) : theme.disabledColor,
+                  color: enabled
+                      ? theme.colorScheme.primary.withValues(alpha: 0.9)
+                      : theme.disabledColor,
                   size: 14,
                 ),
                 const SizedBox(width: 10),
@@ -39,7 +53,9 @@ class LamiButton extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelMedium?.copyWith(
-                      color: enabled ? theme.colorScheme.onSurface.withValues(alpha: 0.9) : theme.disabledColor,
+                      color: enabled
+                          ? theme.colorScheme.onSurface.withValues(alpha: 0.9)
+                          : theme.disabledColor,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
                       fontSize: 11,
@@ -83,7 +99,11 @@ class LamiIcon extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         child: Padding(
           padding: EdgeInsets.all(padding),
-          child: Icon(icon, size: size, color: color ?? theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+          child: Icon(
+            icon,
+            size: size,
+            color: color ?? theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
         ),
       ),
     );
@@ -119,7 +139,9 @@ class LamiIconButton extends StatelessWidget {
       padding: EdgeInsets.zero,
       borderRadius: borderRadius,
       borderWidth: borderWidth,
-      backgroundColor: backgroundColor ?? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      backgroundColor:
+          backgroundColor ??
+          theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -127,7 +149,12 @@ class LamiIconButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           child: Padding(
             padding: EdgeInsets.all(padding),
-            child: Icon(icon, size: size, color: color ?? theme.colorScheme.onSurface.withValues(alpha: 0.7)),
+            child: Icon(
+              icon,
+              size: size,
+              color:
+                  color ?? theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
           ),
         ),
       ),
@@ -161,80 +188,6 @@ class LamiToggleIcon extends StatelessWidget {
       icon: value ? toggledIcon : icon,
       size: size,
       color: value ? theme.colorScheme.primary : color,
-    );
-  }
-}
-
-class LamiSearch extends StatefulWidget {
-  final TextEditingController controller;
-  final String? hintText;
-  final ValueChanged<String>? onChanged;
-  final VoidCallback? onClear;
-  final FocusNode? focusNode;
-
-  const LamiSearch({super.key, required this.controller, this.hintText, this.onChanged, this.onClear, this.focusNode});
-
-  @override
-  State<LamiSearch> createState() => _LamiSearchState();
-}
-
-class _LamiSearchState extends State<LamiSearch> {
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.addListener(_updateState);
-  }
-
-  @override
-  void dispose() {
-    widget.controller.removeListener(_updateState);
-    super.dispose();
-  }
-
-  void _updateState() {
-    if (mounted) setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return LamiBox(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      child: Row(
-        children: [
-          Icon(Icons.search_rounded, size: 18, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              controller: widget.controller,
-              focusNode: widget.focusNode,
-              onChanged: widget.onChanged,
-              style: theme.textTheme.bodyMedium,
-              decoration: InputDecoration(
-                hintText: widget.hintText ?? 'Search...',
-                hintStyle: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor.withValues(alpha: 0.5)),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ),
-          if (widget.controller.text.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.close_rounded, size: 16),
-              onPressed: () {
-                widget.controller.clear();
-                widget.onChanged?.call('');
-                widget.onClear?.call();
-              },
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              visualDensity: VisualDensity.compact,
-              splashRadius: 16,
-            ),
-        ],
-      ),
     );
   }
 }
