@@ -9,7 +9,7 @@ import 'package:laminode_app/features/layer_panel/presentation/providers/layer_p
 import 'package:laminode_app/features/param_panel/presentation/widgets/param_panel.dart';
 import 'package:laminode_app/features/profile_manager/presentation/widgets/profile_panel.dart';
 import 'package:laminode_app/features/profile_manager/presentation/providers/profile_manager_provider.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:laminode_app/features/profile_graph/presentation/widgets/profile_graph_view.dart';
 
 class ProfileEditorScreen extends ConsumerStatefulWidget {
   const ProfileEditorScreen({super.key});
@@ -25,13 +25,6 @@ class _ProfileEditorScreenState extends ConsumerState<ProfileEditorScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final fogColor = colorScheme.surfaceContainer;
 
-    final hasProfile = ref.watch(
-      profileManagerProvider.select((s) => s.currentProfile != null),
-    );
-    final hasLayers = ref.watch(
-      layerPanelProvider.select((s) => s.layers.isNotEmpty),
-    );
-
     return Scaffold(
       backgroundColor: fogColor,
       body: Column(
@@ -41,76 +34,82 @@ class _ProfileEditorScreenState extends ConsumerState<ProfileEditorScreen> {
               Theme.of(context).platform == TargetPlatform.windows)
             const LamiAppBar(),
           Expanded(
-            child: Stack(
-              children: [
-                // Background (Graph Placeholder)
-                Positioned.fill(
-                  child: Container(
-                    color: fogColor,
-                    child: const Center(
-                      child: Icon(
-                        LucideIcons.grid,
-                        size: 100,
-                        color: Colors.white10,
+            child: Navigator(
+              onGenerateRoute: (settings) => MaterialPageRoute(
+                builder: (context) => Consumer(
+                  builder: (context, ref, child) {
+                    final hasProfile = ref.watch(
+                      profileManagerProvider.select(
+                        (s) => s.currentProfile != null,
                       ),
-                    ),
-                  ),
-                ),
+                    );
+                    final hasLayers = ref.watch(
+                      layerPanelProvider.select((s) => s.layers.isNotEmpty),
+                    );
 
-                // Sidebars
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Left Sidebar
-                    _Sidebar(
-                      width: 320,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          FogEffect(
-                            padding: AppSpacing.m,
-                            color: fogColor,
-                            showLeft: false,
-                            showTop: false,
-                            child: const ProfilePanel(),
-                          ),
-                          if (hasProfile)
-                            Expanded(
-                              child: FogEffect(
-                                padding: AppSpacing.m,
-                                color: fogColor,
-                                showLeft: false,
-                                showBottom: false,
-                                child: const LamiPanel(
-                                  baseRadius: 12,
-                                  borderWidth: 3,
-                                  child: LayerPanel(),
-                                ),
+                    return Stack(
+                      children: [
+                        // Background (Graph View)
+                        const Positioned.fill(child: ProfileGraphView()),
+
+                        // Sidebars
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Left Sidebar
+                            _Sidebar(
+                              width: 320,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  FogEffect(
+                                    padding: AppSpacing.m,
+                                    color: fogColor,
+                                    showLeft: false,
+                                    showTop: false,
+                                    child: const ProfilePanel(),
+                                  ),
+                                  if (hasProfile)
+                                    Expanded(
+                                      child: FogEffect(
+                                        padding: AppSpacing.m,
+                                        color: fogColor,
+                                        showLeft: false,
+                                        showBottom: false,
+                                        child: const LamiPanel(
+                                          baseRadius: 12,
+                                          borderWidth: 3,
+                                          child: LayerPanel(),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                        ],
-                      ),
-                    ),
 
-                    // Right Sidebar
-                    if (hasLayers)
-                      _Sidebar(
-                        width: 360,
-                        child: FogEffect(
-                          padding: AppSpacing.m,
-                          color: fogColor,
-                          showRight: false,
-                          showTop: false,
-                          child: const LamiPanel(
-                            baseRadius: 12,
-                            borderWidth: 3,
-                            child: ParamPanel(),
-                          ),
+                            // Right Sidebar
+                            if (hasLayers)
+                              _Sidebar(
+                                width: 360,
+                                child: FogEffect(
+                                  padding: AppSpacing.m,
+                                  color: fogColor,
+                                  showRight: false,
+                                  showTop: false,
+                                  child: const LamiPanel(
+                                    baseRadius: 12,
+                                    borderWidth: 3,
+                                    child: ParamPanel(),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                      ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
-              ],
+              ),
             ),
           ),
         ],
