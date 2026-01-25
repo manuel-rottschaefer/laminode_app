@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
 import 'package:laminode_app/features/param_panel/presentation/widgets/param_panel.dart';
-import 'package:laminode_app/features/param_panel/presentation/widgets/param_list_item.dart';
+import 'package:laminode_app/features/param_panel/presentation/widgets/items/param_list_item.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 import 'package:laminode_app/features/schema_editor/domain/entities/cam_schema_entry.dart';
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';

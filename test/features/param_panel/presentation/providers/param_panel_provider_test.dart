@@ -65,7 +65,8 @@ void main() {
 
     test('initial state should be empty if no schema', () {
       final state = container.read(paramPanelProvider);
-      expect(state.items, isEmpty);
+      final items = container.read(paramPanelItemsProvider);
+      expect(items, isEmpty);
       expect(state.searchQuery, '');
     });
 
@@ -88,10 +89,10 @@ void main() {
 
         fakeSchemaShopNotifier.setSchema(schema);
 
-        final state = container.read(paramPanelProvider);
-        expect(state.items.length, 1);
-        expect(state.items.first.param.paramName, 'test_param');
-        expect(state.items.first.state, ParamItemState.schema);
+        final items = container.read(paramPanelItemsProvider);
+        expect(items.length, 1);
+        expect(items.first.param.paramName, 'test_param');
+        expect(items.first.state, ParamItemState.schema);
       },
     );
 
@@ -121,10 +122,10 @@ void main() {
 
       container.read(paramPanelProvider.notifier).setSearchQuery('first');
 
-      final state = container.read(paramPanelProvider);
-      expect(state.items.length, 1);
-      expect(state.items.first.param.paramName, 'test_param_1');
-      expect(state.items.first.state, ParamItemState.search);
+      final items = container.read(paramPanelItemsProvider);
+      expect(items.length, 1);
+      expect(items.first.param.paramName, 'test_param_1');
+      expect(items.first.state, ParamItemState.search);
     });
 
     test('should filter out items that do not match search', () {
@@ -146,8 +147,8 @@ void main() {
 
       container.read(paramPanelProvider.notifier).setSearchQuery('xyz');
 
-      final state = container.read(paramPanelProvider);
-      expect(state.items, isEmpty);
+      final items = container.read(paramPanelItemsProvider);
+      expect(items, isEmpty);
     });
   });
 }

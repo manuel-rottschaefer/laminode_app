@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:laminode_app/features/param_panel/presentation/widgets/param_value_box.dart';
+import 'package:laminode_app/features/param_panel/domain/entities/param_tab.dart';
+import 'package:laminode_app/features/param_panel/presentation/widgets/tabs/value_tab.dart';
 import 'package:laminode_app/features/param_panel/presentation/providers/param_panel_provider.dart';
 import 'package:laminode_app/features/param_panel/domain/entities/param_panel_item.dart';
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
@@ -14,6 +15,29 @@ class MockParamPanelNotifier extends Notifier<ParamPanelState>
 
   @override
   ParamPanelState build() => initialState;
+
+  @override
+  void setSearchQuery(String query) {}
+
+  @override
+  void navigateToParam(String paramName) {
+    state = state.copyWith(expandedParamName: paramName);
+  }
+
+  @override
+  void goBack() {}
+
+  @override
+  void toggleExpansion(String paramName) {}
+
+  @override
+  void setSelectedLayerIndex(String paramName, int layerIndex) {}
+
+  @override
+  void setSelectedTab(String paramName, ParamTab tab) {}
+
+  @override
+  void resetParamValue(String paramName) {}
 
   String? lastToggledParam;
   @override
@@ -28,13 +52,6 @@ class MockParamPanelNotifier extends Notifier<ParamPanelState>
     lastUpdatedParam = paramName;
     lastUpdatedValue = value;
   }
-
-  @override
-  void setSearchQuery(String query) {}
-  @override
-  void toggleExpansion(String paramName) {}
-  @override
-  void resetParamValue(String paramName) {}
 }
 
 void main() {
@@ -58,17 +75,17 @@ void main() {
       state: ParamItemState.schema,
     );
 
-    mockNotifier = MockParamPanelNotifier(ParamPanelState(items: [testItem]));
+    mockNotifier = MockParamPanelNotifier(ParamPanelState());
   });
 
-  testWidgets('ParamValueBox displays value and toggles lock', (
+  testWidgets('ValueTab displays value and toggles lock', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [paramPanelProvider.overrideWith(() => mockNotifier)],
         child: MaterialApp(
-          home: Scaffold(body: ParamValueBox(item: testItem)),
+          home: Scaffold(body: ValueTab(item: testItem)),
         ),
       ),
     );
@@ -84,14 +101,14 @@ void main() {
     expect(mockNotifier.lastToggledParam, 'test_param');
   });
 
-  testWidgets('ParamValueBox updates value on submission', (
+  testWidgets('ValueTab updates value on submission', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [paramPanelProvider.overrideWith(() => mockNotifier)],
         child: MaterialApp(
-          home: Scaffold(body: ParamValueBox(item: testItem)),
+          home: Scaffold(body: ValueTab(item: testItem)),
         ),
       ),
     );

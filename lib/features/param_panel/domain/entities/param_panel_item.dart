@@ -1,6 +1,6 @@
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 
-enum ParamItemState { schema, search }
+enum ParamItemState { schema, search, reference }
 
 class ParamPanelItem {
   final CamParamEntry param;

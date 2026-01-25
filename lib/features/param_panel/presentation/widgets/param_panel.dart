@@ -5,7 +5,7 @@ import 'package:laminode_app/core/presentation/widgets/lami_panel.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
 import 'package:laminode_app/features/param_panel/presentation/providers/param_panel_provider.dart';
-import 'package:laminode_app/features/param_panel/presentation/widgets/param_list_item.dart';
+import 'package:laminode_app/features/param_panel/presentation/widgets/items/param_list_item.dart';
 
 class ParamPanel extends ConsumerStatefulWidget {
   const ParamPanel({super.key});
@@ -52,13 +52,14 @@ class _ParamPanelState extends ConsumerState<ParamPanel> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(paramPanelProvider);
-    final theme = Theme.of(context);
+    final items = ref.watch(paramPanelItemsProvider);
 
-    // Filter items based on SEARCH VISIBILITY too, not just query content if hidden?
-    // The requirement says "search box is enabled by default".
-    // Usually if hidden, search is inactive.
-    // The original code filtered strictly by query.
-    // My toggle clears query so it works naturally.
+    // Sync search controller if state changes from elsewhere (e.g. navigation)
+    if (_searchController.text != state.searchQuery) {
+      _searchController.text = state.searchQuery;
+    }
+
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,7 +98,7 @@ class _ParamPanelState extends ConsumerState<ParamPanel> {
         Expanded(
           child: LamiBox(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s),
-            child: state.items.isEmpty
+            child: items.isEmpty
                 ? Center(
                     child: Text(
                       state.searchQuery.isEmpty
@@ -109,12 +110,13 @@ class _ParamPanelState extends ConsumerState<ParamPanel> {
                     ),
                   )
                 : ListView.builder(
-                    itemCount: state.items.length,
+                    itemCount: items.length,
                     padding: EdgeInsets.zero,
                     itemBuilder: (context, index) {
+                      final item = items[index];
                       return ParamListItem(
-                        item: state.items[index],
-                        showDivider: index < state.items.length - 1,
+                        key: ValueKey(item.param.paramName),
+                        item: item,
                       );
                     },
                   ),

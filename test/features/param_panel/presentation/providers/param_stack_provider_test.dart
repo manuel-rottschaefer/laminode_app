@@ -116,20 +116,21 @@ void main() {
       );
 
       // Verify Provider state
-      // We expect: Base (Schema Default) -> Layer 1 (Override) -> Layer 2 (Skipped/Inherit) -> Layer 3 (Override)
+      // We expect: Base (Schema Default) -> Layer 3 (Override) -> Layer 1 (Override)
+      // Implementation iterates layers.reversed (Layer 3, Layer 2, Layer 1)
 
       final stack = container.read(paramStackProvider('speed'));
 
       // Expected structure:
       // 0: Base (10)
-      // 1: Layer 1 (20) - isOverride: true
-      // 2: Layer 3 (30) - isOverride: true
+      // 1: Layer 3 (30) - isOverride: true
+      // 2: Layer 1 (20) - isOverride: true
       // Layer 2 should be skipped because isEdited=false
 
       expect(
         stack.contributions.length,
         3,
-        reason: 'Should have 3 contributions (Base + Layer1 + Layer3)',
+        reason: 'Should have 3 contributions (Base + Layer3 + Layer1)',
       );
 
       // 1. Base (Schema)
@@ -144,19 +145,19 @@ void main() {
         '0',
       ); // Fallback is 0 because defaultValue is null in mock
 
-      // 2. Layer 1 (Override)
-      final l1 = stack.contributions[1];
-      expect(l1.isBase, false);
-      expect(l1.isOverride, true);
-      expect(l1.layerName, 'Layer 1');
-      expect(l1.valueDisplay, '20');
-
-      // 3. Layer 3 (Override)
-      final l3 = stack.contributions[2];
+      // 2. Layer 3 (Override)
+      final l3 = stack.contributions[1];
       expect(l3.isBase, false);
       expect(l3.isOverride, true);
       expect(l3.layerName, 'Layer 3');
       expect(l3.valueDisplay, '30');
+
+      // 3. Layer 1 (Override)
+      final l1 = stack.contributions[2];
+      expect(l1.isBase, false);
+      expect(l1.isOverride, true);
+      expect(l1.layerName, 'Layer 1');
+      expect(l1.valueDisplay, '20');
     });
 
     test('Handling missing Active Schema', () {
