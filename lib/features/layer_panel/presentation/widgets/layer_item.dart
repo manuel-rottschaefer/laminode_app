@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_box.dart';
-import 'package:laminode_app/core/theme/app_colors.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
@@ -38,9 +37,6 @@ class _LayerItemState extends ConsumerState<LayerItem> {
       (c) => c?.categoryName == widget.entry.layerCategory,
       orElse: () => null,
     );
-    final categoryColor = category != null
-        ? LamiColors.registry[category.categoryColorName]
-        : null;
 
     final canMoveUp = widget.index > 0;
     final canMoveDown = widget.index < layersCount - 1;
@@ -62,7 +58,7 @@ class _LayerItemState extends ConsumerState<LayerItem> {
                 index: widget.index,
                 isHovered: isHovered,
                 isExpanded: isExpanded,
-                categoryColor: categoryColor,
+                category: category,
                 onTap: () => ref
                     .read(layerPanelProvider.notifier)
                     .setExpandedIndex(widget.index),

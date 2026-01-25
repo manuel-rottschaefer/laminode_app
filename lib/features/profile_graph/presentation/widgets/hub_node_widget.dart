@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:laminode_app/core/theme/app_colors.dart';
 import '../../domain/entities/graph_node.dart';
 import 'dart:math' as math;
 
@@ -14,7 +15,9 @@ class HubNodeWidget extends StatelessWidget {
       onTap: onTap,
       child: CustomPaint(
         painter: OctagonPainter(
-          color: _getCategoryColor(node.category.categoryColorName),
+          color: LamiColor.fromString(
+            node.category.categoryColorName,
+          ).value.withValues(alpha: 0.8),
           isFocused: node.isFocused,
         ),
         child: Container(
@@ -27,21 +30,6 @@ class HubNodeWidget extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Color _getCategoryColor(String colorName) {
-    switch (colorName.toLowerCase()) {
-      case 'blue':
-        return Colors.blue.shade300;
-      case 'green':
-        return Colors.green.shade300;
-      case 'orange':
-        return Colors.orange.shade300;
-      case 'red':
-        return Colors.red.shade300;
-      default:
-        return Colors.grey.shade300;
-    }
   }
 }
 

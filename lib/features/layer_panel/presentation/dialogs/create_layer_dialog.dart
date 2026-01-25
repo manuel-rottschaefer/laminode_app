@@ -4,6 +4,7 @@ import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart'
 import 'package:laminode_app/core/presentation/dialog/lami_dialog_widgets.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_dialog_layout.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
+import 'package:laminode_app/core/theme/app_colors.dart';
 import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -53,6 +54,7 @@ class _CreateLayerDialogState extends ConsumerState<CreateLayerDialog> {
     return Form(
       key: _formKey,
       child: LamiDialogLayout(
+        mainAxisSize: MainAxisSize.max,
         actions: [
           LamiButton(
             icon: LucideIcons.x,
@@ -81,70 +83,102 @@ class _CreateLayerDialogState extends ConsumerState<CreateLayerDialog> {
             label: "Description",
             controller: _descriptionController,
             hintText: "Enter layer description",
-            maxLines: 3,
+            maxLines: 2,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Category",
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.s),
-              Container(
-                constraints: const BoxConstraints(maxHeight: 250),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: _selectedCategory != null
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.25),
-                    width: _selectedCategory != null ? 2 : 1,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Category",
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                child: categories.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.all(AppSpacing.m),
-                        child: Text(
-                          "No categories available in the current schema.",
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.error,
-                          ),
-                        ),
-                      )
-                    : Scrollbar(
-                        controller: _categoryScrollController,
-                        child: SingleChildScrollView(
-                          controller: _categoryScrollController,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: categories.map((category) {
-                              return RadioListTile<String>(
-                                title: Text(category.categoryTitle),
-                                value: category.categoryName,
-                                // ignore: deprecated_member_use
-                                groupValue: _selectedCategory,
-                                // ignore: deprecated_member_use
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedCategory = value;
-                                  });
-                                },
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.m,
-                                ),
-                                dense: true,
-                                activeColor: theme.colorScheme.primary,
-                              );
-                            }).toList(),
-                          ),
-                        ),
+                const SizedBox(height: AppSpacing.s),
+                Expanded(
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 200),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _selectedCategory != null
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.outline.withValues(alpha: 0.5),
+                        width: _selectedCategory != null ? 2 : 1,
                       ),
-              ),
-            ],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: categories.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.all(AppSpacing.m),
+                            child: Text(
+                              "No categories available in the current schema.",
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.error,
+                              ),
+                            ),
+                          )
+                        : RadioGroup<String>(
+                            groupValue: _selectedCategory,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCategory = value;
+                              });
+                            },
+                            child: Scrollbar(
+                              controller: _categoryScrollController,
+                              child: ListView.builder(
+                                controller: _categoryScrollController,
+                                shrinkWrap: true,
+                                itemCount: categories.length,
+                                itemBuilder: (context, index) {
+                                  final category = categories[index];
+                                  final isSelected =
+                                      _selectedCategory ==
+                                      category.categoryName;
+                                  final categoryColor = LamiColor.fromString(
+                                    category.categoryColorName,
+                                  ).value;
+                                  return RadioListTile<String>(
+                                    title: Row(
+                                      children: [
+                                        Container(
+                                          width: 12,
+                                          height: 12,
+                                          decoration: BoxDecoration(
+                                            color: categoryColor,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: AppSpacing.s),
+                                        Text(
+                                          category.categoryTitle,
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: isSelected
+                                                    ? FontWeight.bold
+                                                    : FontWeight.normal,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    value: category.categoryName,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.m,
+                                    ),
+                                    dense: true,
+                                    activeColor: categoryColor,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

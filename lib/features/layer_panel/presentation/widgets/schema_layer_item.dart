@@ -164,6 +164,8 @@ class SchemaLayerItem extends ConsumerWidget {
                 model: const LamiDialogModel(
                   title: "Schema Shop",
                   content: SchemaShopDialog(),
+                  maxHeight: 700,
+                  maxWidth: 800,
                 ),
               );
             },

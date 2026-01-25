@@ -8,6 +8,8 @@ import 'package:laminode_app/features/layer_panel/domain/usecases/remove_layer.d
 import 'package:laminode_app/features/layer_panel/domain/usecases/update_layer_name.dart';
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 import 'package:laminode_app/features/profile_manager/presentation/providers/profile_manager_provider.dart';
+import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
+import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 
 // Repository Provider
 final layerPanelRepositoryProvider = Provider<LayerPanelRepository>((ref) {
@@ -198,6 +200,58 @@ class LayerPanelNotifier extends Notifier<LayerPanelState> {
       ref
           .read(layerManagementRepositoryProvider)
           .saveLayerToStorage(updatedLayer);
+      _refresh();
+    }
+  }
+
+  void updateParamValue(int layerIndex, String paramName, dynamic value) {
+    final layers = state.layers;
+    if (layerIndex >= 0 && layerIndex < layers.length) {
+      final layer = layers[layerIndex];
+      final parameters = List<CamParamEntry>.from(layer.parameters ?? []);
+
+      final paramIndex = parameters.indexWhere((p) => p.paramName == paramName);
+      if (paramIndex != -1) {
+        parameters[paramIndex] = parameters[paramIndex].copyWith(
+          value: value,
+          isEdited: true,
+        );
+      } else {
+        // If not found in layer, we might want to add it from schema?
+        // But for now, let's assume it should be there if we are editing it.
+        // Actually, if it's not edited, it might not be in the layer's parameters list.
+        // We need to fetch the base definition from schema if we want to add it.
+        final activeSchema = ref.read(schemaShopProvider).activeSchema;
+        if (activeSchema != null) {
+          try {
+            final schemaParam = activeSchema.availableParameters.firstWhere(
+              (p) => p.paramName == paramName,
+            );
+            parameters.add(schemaParam.copyWith(value: value, isEdited: true));
+          } catch (_) {}
+        }
+      }
+
+      final updatedLayer = layer.copyWith(parameters: parameters);
+      ref
+          .read(layerPanelRepositoryProvider)
+          .updateLayer(layerIndex, updatedLayer);
+      _refresh();
+    }
+  }
+
+  void resetParamValue(int layerIndex, String paramName) {
+    final layers = state.layers;
+    if (layerIndex >= 0 && layerIndex < layers.length) {
+      final layer = layers[layerIndex];
+      final parameters = List<CamParamEntry>.from(layer.parameters ?? []);
+
+      parameters.removeWhere((p) => p.paramName == paramName);
+
+      final updatedLayer = layer.copyWith(parameters: parameters);
+      ref
+          .read(layerPanelRepositoryProvider)
+          .updateLayer(layerIndex, updatedLayer);
       _refresh();
     }
   }

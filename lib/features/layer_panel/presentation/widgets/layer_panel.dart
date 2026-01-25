@@ -72,6 +72,7 @@ class _LayerPanelState extends ConsumerState<LayerPanel> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
       children: [
         LamiPanelHeader(
           icon: Icons.layers_rounded,
@@ -107,8 +108,10 @@ class _LayerPanelState extends ConsumerState<LayerPanel> {
         ),
 
         // Layers List
-        Expanded(
+        Flexible(
           child: ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
             buildDefaultDragHandles: false,
             onReorder: (oldIndex, newIndex) {
               if (searchQuery.isNotEmpty) return;
@@ -164,6 +167,7 @@ class _LayerPanelState extends ConsumerState<LayerPanel> {
                         model: const LamiDialogModel(
                           title: "New Profile Layer",
                           content: CreateLayerDialog(),
+                          maxHeight: 600,
                         ),
                       );
                     },
@@ -180,6 +184,7 @@ class _LayerPanelState extends ConsumerState<LayerPanel> {
                         model: const LamiDialogModel(
                           title: "Local Layers",
                           content: FindLayersDialog(),
+                          maxHeight: 600,
                         ),
                       );
                     },

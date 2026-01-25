@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_box.dart';
+import 'package:laminode_app/core/presentation/widgets/lami_dialog_layout.dart';
+import 'package:laminode_app/core/presentation/widgets/lami_colored_badge.dart';
+import 'package:laminode_app/core/theme/app_colors.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
 import 'package:laminode_app/features/layer_management/presentation/providers/layer_management_provider.dart';
 import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
@@ -30,9 +33,8 @@ class _FindLayersDialogState extends ConsumerState<FindLayersDialog> {
     final managementState = ref.watch(layerManagementProvider);
     final theme = Theme.of(context);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LamiDialogLayout(
+      mainAxisSize: MainAxisSize.max,
       children: [
         Row(
           children: [
@@ -63,11 +65,8 @@ class _FindLayersDialogState extends ConsumerState<FindLayersDialog> {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.m),
         Text("Installed Layers", style: theme.textTheme.titleSmall),
-        const SizedBox(height: AppSpacing.s),
-        SizedBox(
-          height: 300,
+        Expanded(
           child: storedLayersAsync.when(
             data: (layers) {
               final filteredLayers = layers.where((l) {
@@ -87,50 +86,56 @@ class _FindLayersDialogState extends ConsumerState<FindLayersDialog> {
                 );
               }
 
-              return ListView.separated(
-                itemCount: filteredLayers.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: AppSpacing.xs),
-                itemBuilder: (context, index) {
-                  final layer = filteredLayers[index];
-                  return LamiBox(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                layer.layerName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (layer.layerCategory != null)
+              return Scrollbar(
+                child: ListView.separated(
+                  itemCount: filteredLayers.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: AppSpacing.xs),
+                  itemBuilder: (context, index) {
+                    final layer = filteredLayers[index];
+                    return LamiBox(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  layer.layerCategory!,
-                                  style: theme.textTheme.labelSmall,
+                                  layer.layerName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                            ],
+                                if (layer.layerCategory != null) ...[
+                                  const SizedBox(height: 4),
+                                  LamiColoredBadge(
+                                    label: layer.layerCategory!,
+                                    color: LamiColor.fromString(
+                                      layer.layerCategory,
+                                    ).value,
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
-                        ),
-                        LamiIcon(
-                          icon: LucideIcons.plus,
-                          onPressed: () {
-                            ref
-                                .read(layerPanelProvider.notifier)
-                                .addLayer(
-                                  name: layer.layerName,
-                                  description: layer.layerDescription,
-                                  category: layer.layerCategory ?? 'Default',
-                                );
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                          LamiIcon(
+                            icon: LucideIcons.plus,
+                            onPressed: () {
+                              ref
+                                  .read(layerPanelProvider.notifier)
+                                  .addLayer(
+                                    name: layer.layerName,
+                                    description: layer.layerDescription,
+                                    category: layer.layerCategory ?? 'Default',
+                                  );
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),

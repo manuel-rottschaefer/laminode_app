@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
+import 'package:laminode_app/core/presentation/widgets/lami_dialog_layout.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 import 'package:laminode_app/features/layer_panel/presentation/dialogs/schema_selection_item.dart';
 import 'package:laminode_app/features/layer_panel/presentation/dialogs/schema_edit_manager.dart';
@@ -21,9 +22,7 @@ class SchemaSelectionDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final schemas = ref.watch(installedSchemasForAppProvider(applicationId));
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LamiDialogLayout(
       children: [
         if (schemas.isEmpty)
           const Center(

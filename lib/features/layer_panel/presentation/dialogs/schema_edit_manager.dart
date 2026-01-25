@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/presentation/dialog/lami_dialog.dart';
 import 'package:laminode_app/features/schema_editor/application/schema_editor_provider.dart';
-import 'package:laminode_app/features/schema_editor/application/schema_editor_state.dart';
 import 'package:laminode_app/features/schema_editor/presentation/schema_editor_dialog.dart';
 import 'package:laminode_app/features/schema_shop/data/models/schema_manifest_model.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
@@ -35,38 +34,7 @@ class SchemaEditManager {
           );
 
       if (context.mounted) {
-        final editor = SchemaEditorDialog(
-          onSave: () async {
-            try {
-              final state = ref.read(schemaEditorProvider);
-              final newSchemaJson = _schemaToJson(state);
-
-              // Use updated targetAppName from manifest
-              final targetAppName = state.manifest.targetAppName ?? 'Unknown';
-
-              await repo.saveSchema(
-                targetAppName,
-                schemaId,
-                newSchemaJson,
-                state.adapterCode,
-              );
-
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Schema saved successfully")),
-                );
-                // Refresh schemas
-                ref.invalidate(schemaShopProvider);
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Failed to save schema: $e")),
-                );
-              }
-            }
-          },
-        );
+        const editor = SchemaEditorDialog();
 
         showLamiDialog(
           context: context,
@@ -89,45 +57,5 @@ class SchemaEditManager {
     }
   }
 
-  static Map<String, dynamic> _schemaToJson(SchemaEditorState state) {
-    // Update lastUpdated
-    final updatedManifest = SchemaManifestModel(
-      schemaType: state.manifest.schemaType,
-      schemaVersion: state.manifest.schemaVersion,
-      schemaAuthors: state.manifest.schemaAuthors,
-      lastUpdated: DateTime.now().toIso8601String(),
-      targetAppName: state.manifest.targetAppName,
-      targetAppSector: state.manifest.targetAppSector,
-    );
-
-    return {
-      'manifest': updatedManifest.toJson(),
-      'categories': state.schema.categories
-          .map(
-            (c) => {
-              'name': c.categoryName,
-              'title': c.categoryTitle,
-              'color': c.categoryColorName,
-            },
-          )
-          .toList(),
-      'availableParameters': state.schema.availableParameters
-          .map(
-            (p) => {
-              'name': p.paramName,
-              'title': p.paramTitle,
-              'description': p.paramDescription,
-              'category': p.category.categoryName,
-              'baseParam': p.baseParam,
-              'quantity': {
-                'name': p.quantity.quantityName,
-                'unit': p.quantity.quantityUnit,
-                'symbol': p.quantity.quantitySymbol,
-                'type': p.quantity.quantityType.name,
-              },
-            },
-          )
-          .toList(),
-    };
-  }
+  // _schemaToJson is no longer needed here as it moved to the notifier
 }

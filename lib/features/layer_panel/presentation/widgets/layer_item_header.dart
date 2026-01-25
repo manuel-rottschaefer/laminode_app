@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
+import 'package:laminode_app/core/theme/app_colors.dart';
+import 'package:laminode_app/core/presentation/widgets/lami_colored_badge.dart';
+import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 
 class LayerItemHeader extends StatelessWidget {
@@ -7,7 +10,7 @@ class LayerItemHeader extends StatelessWidget {
   final int index;
   final bool isHovered;
   final bool isExpanded;
-  final Color? categoryColor;
+  final CamCategoryEntry? category;
   final VoidCallback onTap;
   final Function(bool) onHover;
   final Function(bool?) onToggleActive;
@@ -18,7 +21,7 @@ class LayerItemHeader extends StatelessWidget {
     required this.index,
     required this.isHovered,
     required this.isExpanded,
-    this.categoryColor,
+    this.category,
     required this.onTap,
     required this.onHover,
     required this.onToggleActive,
@@ -28,6 +31,9 @@ class LayerItemHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final categoryColor = category != null
+        ? LamiColor.fromString(category!.categoryColorName).value
+        : null;
 
     return InkWell(
       onTap: onTap,
@@ -84,11 +90,26 @@ class LayerItemHeader extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      "${entry.parameters?.length ?? 0} effective parameters",
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurface.withValues(alpha: 0.5),
-                      ),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: isExpanded && category != null
+                          ? Align(
+                              alignment: Alignment.centerLeft,
+                              key: const ValueKey('badge'),
+                              child: LamiColoredBadge(
+                                label: category!.categoryName,
+                                color: categoryColor ?? colorScheme.primary,
+                              ),
+                            )
+                          : Text(
+                              "${entry.parameters?.length ?? 0} effective parameters",
+                              key: const ValueKey('text'),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                            ),
                     ),
                   ],
                 ),
@@ -112,22 +133,37 @@ class LayerItemHeader extends StatelessWidget {
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
-            const SizedBox(width: AppSpacing.xs),
+            const SizedBox(width: AppSpacing.m),
 
             // Expand Icon
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: (isHovered || isExpanded) ? 24 : 0,
+              width: (isHovered || isExpanded) ? 22 : 0,
               curve: Curves.easeInOut,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 150),
-                opacity: (isHovered || isExpanded) ? 1 : 0,
-                child: Icon(
-                  isExpanded
-                      ? Icons.keyboard_arrow_up_rounded
-                      : Icons.keyboard_arrow_down_rounded,
-                  color: colorScheme.onSurface,
-                  size: 20,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const NeverScrollableScrollPhysics(),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 150),
+                  opacity: (isHovered || isExpanded) ? 1 : 0,
+                  curve: Curves.easeOut,
+                  child: AnimatedSlide(
+                    duration: const Duration(milliseconds: 200),
+                    offset: (isHovered || isExpanded)
+                        ? Offset.zero
+                        : const Offset(1, 0),
+                    curve: Curves.easeOut,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 2),
+                      child: Icon(
+                        isExpanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
+                        color: colorScheme.onSurface,
+                        size: 20,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
