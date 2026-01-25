@@ -11,6 +11,7 @@ class LamiDialogModel {
   final List<Widget>? actions;
   final bool dismissible;
   final double? maxWidth;
+  final double? maxHeight;
   final EdgeInsets? insetPadding;
 
   const LamiDialogModel({
@@ -20,6 +21,7 @@ class LamiDialogModel {
     this.actions,
     this.dismissible = true,
     this.maxWidth,
+    this.maxHeight,
     this.insetPadding,
   });
 }
@@ -41,7 +43,10 @@ class LamiDialog extends StatelessWidget {
           model.insetPadding ??
           const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       child: Container(
-        constraints: BoxConstraints(maxWidth: model.maxWidth ?? 550),
+        constraints: BoxConstraints(
+          maxWidth: model.maxWidth ?? 550,
+          maxHeight: model.maxHeight ?? double.infinity,
+        ),
         child: FogEffect(
           padding: AppSpacing.xl,
           color: colorScheme.surfaceContainer,
@@ -58,7 +63,10 @@ class LamiDialog extends StatelessWidget {
                   leading: model.leading,
                   dismissible: model.dismissible,
                 ),
-                Flexible(child: model.content),
+                if (model.maxHeight != null)
+                  Expanded(child: model.content)
+                else
+                  Flexible(child: model.content),
                 if (model.actions != null && model.actions!.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.l),
                   Row(
