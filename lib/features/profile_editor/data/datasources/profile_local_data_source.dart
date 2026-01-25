@@ -16,8 +16,9 @@ class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
 
     // Add profile.json
     final profileJson = jsonEncode(profile.toJson());
+    final profileBytes = utf8.encode(profileJson);
     archive.addFile(
-      ArchiveFile('profile.json', profileJson.length, utf8.encode(profileJson)),
+      ArchiveFile('profile.json', profileBytes.length, profileBytes),
     );
 
     // Add layers
@@ -25,9 +26,10 @@ class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
       final layer = profile.layers[i];
       final layerModel = LayerEntryModel.fromEntity(layer);
       final layerJson = jsonEncode(layerModel.toJson());
+      final layerBytes = utf8.encode(layerJson);
       final fileName = 'layers/layer_$i.lmdl';
       archive.addFile(
-        ArchiveFile(fileName, layerJson.length, utf8.encode(layerJson)),
+        ArchiveFile(fileName, layerBytes.length, layerBytes),
       );
     }
 

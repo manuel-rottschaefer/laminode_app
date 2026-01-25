@@ -13,9 +13,7 @@ import 'package:laminode_app/features/schema_editor/presentation/widgets/param_c
 import 'package:lucide_icons/lucide_icons.dart';
 
 class SchemaEditorDialog extends ConsumerWidget {
-  final VoidCallback onSave;
-
-  const SchemaEditorDialog({super.key, required this.onSave});
+  const SchemaEditorDialog({super.key});
 
   Widget buildNavigator(WidgetRef ref) {
     return Consumer(
@@ -51,6 +49,14 @@ class SchemaEditorDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewMode = ref.watch(schemaEditorProvider.select((s) => s.viewMode));
+    final canSave = ref.watch(schemaEditorProvider.select((s) => s.canSave));
+    final appExists = ref.watch(schemaEditorProvider.select((s) => s.appExists));
+    final versionExists = ref.watch(
+      schemaEditorProvider.select((s) => s.versionExists),
+    );
+    final isChecking = ref.watch(
+      schemaEditorProvider.select((s) => s.isChecking),
+    );
 
     return SizedBox(
       height: 700,
@@ -69,9 +75,34 @@ class SchemaEditorDialog extends ConsumerWidget {
                 onPressed: () => Navigator.of(context).pop(),
               ),
               const Spacer(),
+              if (isChecking)
+                const Padding(
+                  padding: EdgeInsets.only(right: AppSpacing.m),
+                  child: SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              if (!appExists && !isChecking)
+                const Padding(
+                  padding: EdgeInsets.only(right: AppSpacing.m),
+                  child: Text(
+                    "Application not installed",
+                    style: TextStyle(color: Colors.orange, fontSize: 12),
+                  ),
+                ),
+              if (versionExists && !isChecking)
+                const Padding(
+                  padding: EdgeInsets.only(right: AppSpacing.m),
+                  child: Text(
+                    "Version already exists",
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                ),
               LamiButton(
                 label: "Export Bundle",
-                icon: LucideIcons.download,
+                icon: LucideIcons.upload,
                 onPressed: () {
                   ref.read(schemaEditorProvider.notifier).exportSchema();
                 },
@@ -80,9 +111,38 @@ class SchemaEditorDialog extends ConsumerWidget {
               LamiButton(
                 label: "Save Schema",
                 icon: LucideIcons.save,
-                onPressed: () {
-                  onSave();
-                  Navigator.of(context).pop();
+                inactive: !canSave,
+                onPressed: () async {
+                  try {
+                    await ref.read(schemaEditorProvider.notifier).saveSchema();
+                    if (context.mounted) Navigator.of(context).pop();
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed to save: $e")),
+                      );
+                    }
+                  }
+                },
+              ),
+              const SizedBox(width: AppSpacing.m),
+              LamiButton(
+                label: "Save & Use Schema",
+                icon: LucideIcons.play,
+                inactive: !canSave,
+                onPressed: () async {
+                  try {
+                    await ref
+                        .read(schemaEditorProvider.notifier)
+                        .saveAndUseSchema();
+                    if (context.mounted) Navigator.of(context).pop();
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed to save & use: $e")),
+                      );
+                    }
+                  }
                 },
               ),
             ],

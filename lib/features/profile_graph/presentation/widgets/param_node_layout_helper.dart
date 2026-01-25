@@ -1,26 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:laminode_app/core/theme/app_colors.dart';
 
 class ParamNodeLayoutHelper {
   static Color getCategoryColor(String colorName) {
-    switch (colorName.toLowerCase()) {
-      case 'blue':
-        return Colors.blue;
-      case 'green':
-        return Colors.green;
-      case 'orange':
-        return Colors.orange;
-      case 'red':
-        return Colors.red;
-      case 'purple':
-        return Colors.purple;
-      case 'yellow':
-        return Colors.yellow;
-      case 'grey':
-      case 'gray':
-        return Colors.grey;
-      default:
-        return Colors.teal;
-    }
+    return LamiColor.fromString(colorName).value;
   }
 
   static const titleStyle = TextStyle(

@@ -69,20 +69,30 @@ class _ProfileEditorScreenState extends ConsumerState<ProfileEditorScreen> {
                                     showTop: false,
                                     child: const ProfilePanel(),
                                   ),
-                                  if (hasProfile)
+                                  if (hasProfile) ...[
+                                    const SizedBox(height: 300),
                                     Expanded(
-                                      child: FogEffect(
-                                        padding: AppSpacing.m,
-                                        color: fogColor,
-                                        showLeft: false,
-                                        showBottom: false,
-                                        child: const LamiPanel(
-                                          baseRadius: 12,
-                                          borderWidth: 3,
-                                          child: LayerPanel(),
-                                        ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Flexible(
+                                            child: FogEffect(
+                                              padding: AppSpacing.m,
+                                              color: fogColor,
+                                              showLeft: false,
+                                              showBottom: false,
+                                              child: const LamiPanel(
+                                                baseRadius: 12,
+                                                borderWidth: 3,
+                                                child: LayerPanel(),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
+                                  ],
                                 ],
                               ),
                             ),

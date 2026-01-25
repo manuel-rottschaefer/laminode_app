@@ -123,4 +123,15 @@ class SchemaShopRepositoryImpl implements SchemaShopRepository {
   Future<Map<String, dynamic>?> getRawSchema(String schemaId) async {
     return await _localDataSource.getInstalledSchema(schemaId);
   }
+
+  @override
+  Future<bool> schemaExists(String schemaId) async {
+    final schema = await _localDataSource.getInstalledSchema(schemaId);
+    return schema != null;
+  }
+
+  @override
+  Future<bool> applicationExists(String appName) async {
+    return await _localDataSource.applicationExists(appName);
+  }
 }

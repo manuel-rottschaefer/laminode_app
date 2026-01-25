@@ -5,6 +5,7 @@ import 'package:laminode_app/core/presentation/widgets/lami_box.dart';
 import 'package:laminode_app/features/schema_editor/application/schema_editor_provider.dart';
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
+import 'package:laminode_app/core/theme/app_colors.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class ParamListItem extends ConsumerWidget {
@@ -40,7 +41,7 @@ class ParamListItem extends ConsumerWidget {
               _getIconForType(param.quantity.quantityType),
               size: 16,
               color: param.isVisible
-                  ? Theme.of(context).colorScheme.primary
+                  ? LamiColor.fromString(param.category.categoryColorName).value
                   : Theme.of(context).disabledColor,
             ),
             const SizedBox(width: AppSpacing.m),

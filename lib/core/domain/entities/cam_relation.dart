@@ -22,10 +22,6 @@ class CamExpressionRelation extends CamRelation {
 
   /// Returns true if the expression is empty or null-equivalent.
   bool get isEmpty => expression.trim().isEmpty;
-
-  /// Creates an empty expression relation for a given target.
-  factory CamExpressionRelation.empty(String targetParamName) =>
-      CamExpressionRelation(targetParamName: targetParamName, expression: '');
 }
 
 /// A relation that represents a hierarchical link between parameters (Parent -> Child).
@@ -37,11 +33,4 @@ class CamHierarchyRelation extends CamRelation {
     required super.targetParamName,
     required this.childParamName,
   });
-
-  /// Creates an empty hierarchy relation for a given target.
-  factory CamHierarchyRelation.empty(String targetParamName) =>
-      CamHierarchyRelation(
-        targetParamName: targetParamName,
-        childParamName: '',
-      );
 }

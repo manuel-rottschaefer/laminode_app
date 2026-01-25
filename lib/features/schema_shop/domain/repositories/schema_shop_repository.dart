@@ -18,4 +18,6 @@ abstract class SchemaShopRepository {
     String? adapterCode,
   );
   Future<Map<String, dynamic>?> getRawSchema(String schemaId);
+  Future<bool> schemaExists(String schemaId);
+  Future<bool> applicationExists(String appName);
 }

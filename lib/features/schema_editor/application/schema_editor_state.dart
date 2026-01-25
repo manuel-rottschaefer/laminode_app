@@ -14,6 +14,9 @@ class SchemaEditorState {
   final SchemaEditorViewMode viewMode;
   final String parameterSearchQuery;
   final bool showHiddenParameters;
+  final bool isChecking;
+  final bool appExists;
+  final bool versionExists;
 
   SchemaEditorState({
     required this.schema,
@@ -24,7 +27,12 @@ class SchemaEditorState {
     this.viewMode = SchemaEditorViewMode.schema,
     this.parameterSearchQuery = '',
     this.showHiddenParameters = true,
+    this.isChecking = false,
+    this.appExists = false,
+    this.versionExists = false,
   });
+
+  bool get canSave => !isChecking && appExists && !versionExists;
 
   SchemaEditorState copyWith({
     CamSchemaEntry? schema,
@@ -35,6 +43,9 @@ class SchemaEditorState {
     SchemaEditorViewMode? viewMode,
     String? parameterSearchQuery,
     bool? showHiddenParameters,
+    bool? isChecking,
+    bool? appExists,
+    bool? versionExists,
     bool clearSelectedParameter = false,
     bool clearSelectedCategory = false,
   }) {
@@ -51,6 +62,9 @@ class SchemaEditorState {
       viewMode: viewMode ?? this.viewMode,
       parameterSearchQuery: parameterSearchQuery ?? this.parameterSearchQuery,
       showHiddenParameters: showHiddenParameters ?? this.showHiddenParameters,
+      isChecking: isChecking ?? this.isChecking,
+      appExists: appExists ?? this.appExists,
+      versionExists: versionExists ?? this.versionExists,
     );
   }
 }

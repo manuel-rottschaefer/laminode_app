@@ -174,6 +174,6 @@ class CategoriesEditorWidget extends ConsumerWidget {
   }
 
   Color _getColor(String colorName) {
-    return LamiColors.registry[colorName.toLowerCase()] ?? Colors.grey;
+    return LamiColor.fromString(colorName).value;
   }
 }

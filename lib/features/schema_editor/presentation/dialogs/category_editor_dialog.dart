@@ -95,15 +95,15 @@ class _CategoryEditorDialogState extends State<CategoryEditorDialog> {
               Wrap(
                 spacing: AppSpacing.s,
                 runSpacing: AppSpacing.s,
-                children: LamiColors.registry.entries.map((e) {
-                  final isSelected = e.key == _selectedColor;
+                children: LamiColor.values.map((c) {
+                  final isSelected = c.name == _selectedColor;
                   return InkWell(
-                    onTap: () => setState(() => _selectedColor = e.key),
+                    onTap: () => setState(() => _selectedColor = c.name),
                     child: Container(
                       width: 24,
                       height: 24,
                       decoration: BoxDecoration(
-                        color: e.value,
+                        color: c.value,
                         shape: BoxShape.circle,
                         border: isSelected
                             ? Border.all(

@@ -121,4 +121,40 @@ void main() {
       verify(() => mockLocalDataSource.removePlugin(tPluginId));
     });
   });
+
+  group('schemaExists', () {
+    test('should return true when local data source returns a schema', () async {
+      when(
+        () => mockLocalDataSource.getInstalledSchema(any()),
+      ).thenAnswer((_) async => {'id': 'v1'});
+
+      final result = await repository.schemaExists('v1');
+
+      expect(result, true);
+      verify(() => mockLocalDataSource.getInstalledSchema('v1'));
+    });
+
+    test('should return false when local data source returns null', () async {
+      when(
+        () => mockLocalDataSource.getInstalledSchema(any()),
+      ).thenAnswer((_) async => null);
+
+      final result = await repository.schemaExists('v1');
+
+      expect(result, false);
+    });
+  });
+
+  group('applicationExists', () {
+    test('should call local data source applicationExists', () async {
+      when(
+        () => mockLocalDataSource.applicationExists(any()),
+      ).thenAnswer((_) async => true);
+
+      final result = await repository.applicationExists('App');
+
+      expect(result, true);
+      verify(() => mockLocalDataSource.applicationExists('App'));
+    });
+  });
 }
