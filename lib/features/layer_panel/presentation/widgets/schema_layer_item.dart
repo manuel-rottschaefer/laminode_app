@@ -20,7 +20,7 @@ class SchemaLayerItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final schemaId = profile.schemaId;
+    final schemaId = profile.schema?.id;
     final schema = schemaId != null
         ? ref.watch(schemaByIdProvider(schemaId))
         : null;
@@ -45,7 +45,7 @@ class SchemaLayerItem extends ConsumerWidget {
                 Text(
                   schemaId == null
                       ? "Select Schema"
-                      : "${profile.application.name} Schema",
+                      : "${profile.schema?.targetAppName ?? profile.application.name} Schema",
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -144,9 +144,9 @@ class SchemaLayerItem extends ConsumerWidget {
         title: "Select Schema",
         content: SchemaSelectionDialog(
           applicationId: profile.application.id,
-          selectedSchemaId: profile.schemaId,
-          onSchemaSelected: (id) {
-            ref.read(profileManagerProvider.notifier).setSchema(id);
+          selectedSchemaId: profile.schema?.id,
+          onSchemaSelected: (manifest) {
+            ref.read(profileManagerProvider.notifier).setSchema(manifest);
           },
         ),
         actions: [

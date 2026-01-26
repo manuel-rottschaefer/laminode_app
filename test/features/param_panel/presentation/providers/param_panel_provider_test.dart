@@ -150,5 +150,43 @@ void main() {
       final items = container.read(paramPanelItemsProvider);
       expect(items, isEmpty);
     });
+
+    test('should toggle parameter lock state', () {
+      final paramName = 'test_param';
+      final notifier = container.read(paramPanelProvider.notifier);
+
+      expect(
+        container.read(paramPanelProvider).lockedParams[paramName],
+        isNull,
+      );
+
+      notifier.toggleLock(paramName);
+      expect(
+        container.read(paramPanelProvider).lockedParams[paramName],
+        isTrue,
+      );
+
+      notifier.toggleLock(paramName);
+      expect(
+        container.read(paramPanelProvider).lockedParams[paramName],
+        isFalse,
+      );
+    });
+
+    test('should clear focus and expansion', () {
+      final notifier = container.read(paramPanelProvider.notifier);
+
+      notifier.navigateToParam('test_param');
+      expect(
+        container.read(paramPanelProvider).expandedParamName,
+        'test_param',
+      );
+      expect(container.read(paramPanelProvider).focusedParamName, 'test_param');
+
+      notifier.clearFocus();
+      expect(container.read(paramPanelProvider).expandedParamName, isNull);
+      expect(container.read(paramPanelProvider).focusedParamName, isNull);
+      expect(container.read(paramPanelProvider).history, isEmpty);
+    });
   });
 }

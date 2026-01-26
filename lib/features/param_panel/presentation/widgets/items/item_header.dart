@@ -40,7 +40,8 @@ class _ItemHeaderState extends State<ItemHeader> {
           : FontWeight.normal,
       fontSize: widget.isExpanded ? 12.5 : 11.5,
       letterSpacing: 0.3,
-      color: (widget.isExpanded || isSearchState || isReferenceState || _isHovered)
+      color:
+          (widget.isExpanded || isSearchState || isReferenceState || _isHovered)
           ? colorScheme.onSurface.withValues(alpha: 0.8)
           : colorScheme.onSurface.withValues(alpha: 0.5),
     );

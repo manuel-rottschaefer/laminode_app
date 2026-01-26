@@ -12,23 +12,26 @@ void main() {
         application: application,
       );
 
-      final updated = profile.copyWith(name: 'New Name', schemaId: 'schema-1');
+      final updated = profile.copyWith(
+        name: 'New Name',
+        schema: TestModels.tProfileSchemaManifest,
+      );
 
       expect(updated.name, 'New Name');
-      expect(updated.schemaId, 'schema-1');
+      expect(updated.schema, TestModels.tProfileSchemaManifest);
       expect(updated.application, application);
     });
 
-    test('should clear schemaId when clearSchema is true', () {
+    test('should clear schema when clearSchema is true', () {
       const profile = ProfileEntity(
         name: 'Test Profile',
         application: application,
-        schemaId: 'schema-1',
+        schema: TestModels.tProfileSchemaManifest,
       );
 
       final updated = profile.copyWith(clearSchema: true);
 
-      expect(updated.schemaId, isNull);
+      expect(updated.schema, isNull);
     });
   });
 }

@@ -36,9 +36,7 @@ class MainApp extends ConsumerWidget {
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
       themeMode: themeMode,
-      theme: ThemeData(
-        useMaterial3: true,
-      ), // Placeholder for light theme if needed
+      theme: LamiTheme.lightTheme,
       darkTheme: LamiTheme.darkTheme,
     );
   }

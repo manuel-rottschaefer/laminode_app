@@ -8,10 +8,10 @@ class AddEmptyLayerUseCase {
 
   void call() {
     final newLayer = LamiLayerEntry(
-      layerName: "New Layer",
+      layerName: 'New Layer',
+      layerDescription: '',
+      layerAuthor: 'User',
       parameters: [],
-      layerAuthor: 'Me',
-      layerDescription: "",
     );
     repository.addLayer(newLayer);
   }

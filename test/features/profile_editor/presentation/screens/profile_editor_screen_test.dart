@@ -8,8 +8,12 @@ import 'package:laminode_app/features/profile_manager/domain/entities/profile_en
 import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
 import 'package:laminode_app/features/layer_panel/presentation/widgets/layer_panel.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
+import 'package:laminode_app/features/evaluation/domain/evaluation_engine.dart';
+import 'package:laminode_app/features/evaluation/application/providers.dart';
 
 import '../../../../mocks/mocks.dart';
+
+class MockEvaluationEngine extends Mock implements EvaluationEngine {}
 
 class FakeProfileManagerNotifier extends StateNotifier<ProfileManagerState>
     implements ProfileManagerNotifier {
@@ -35,7 +39,11 @@ class FakeProfileManagerNotifier extends StateNotifier<ProfileManagerState>
   @override
   void updateProfileName(dynamic name) {}
   @override
+  void updateLayers(dynamic layers) {}
+  @override
   void setApplication(dynamic application) {}
+  @override
+  Future<void> saveCurrentProfile() async {}
 }
 
 class MockSchemaShopNotifier extends StateNotifier<SchemaShopState>
@@ -62,14 +70,19 @@ void main() {
   late FakeProfileManagerNotifier fakeProfileManagerNotifier;
   late MockGetLayersUseCase mockGetLayersUseCase;
   late MockLayerPanelRepository mockLayerRepo;
+  late MockEvaluationEngine mockEvaluationEngine;
 
   setUp(() {
     fakeProfileManagerNotifier = FakeProfileManagerNotifier();
     mockGetLayersUseCase = MockGetLayersUseCase();
     mockLayerRepo = MockLayerPanelRepository();
+    mockEvaluationEngine = MockEvaluationEngine();
 
     when(() => mockGetLayersUseCase()).thenReturn([]);
     when(() => mockLayerRepo.setLayers(any())).thenReturn(null);
+    when(
+      () => mockEvaluationEngine.evaluate(any(), any()),
+    ).thenReturn('MockResult');
   });
 
   Widget createWidgetUnderTest() {
@@ -80,7 +93,7 @@ void main() {
         ),
         getLayersUseCaseProvider.overrideWith((ref) => mockGetLayersUseCase),
         layerPanelRepositoryProvider.overrideWithValue(mockLayerRepo),
-        // Add other overrides if needed
+        evaluationEngineProvider.overrideWithValue(mockEvaluationEngine),
       ],
       child: const MaterialApp(home: ProfileEditorScreen()),
     );

@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/presentation/widgets/graph/hex/hex_painter.dart';
-import 'package:laminode_app/core/presentation/widgets/graph/octagon/octagon_painter.dart';
-import '../../domain/entities/graph_node.dart';
-import '../utils/node_layout_calculator.dart';
-import 'param_node_action_bar.dart';
+import 'package:laminode_app/core/presentation/widgets/graph/shape_utils.dart';
+import 'package:laminode_app/features/param_panel/presentation/providers/param_panel_provider.dart';
+import 'package:laminode_app/features/profile_graph/domain/entities/graph_node.dart';
+import 'package:laminode_app/features/profile_graph/presentation/utils/node_layout_calculator.dart';
+import 'package:laminode_app/features/profile_graph/presentation/utils/profile_graph_config.dart';
 import 'param_node_layout_helper.dart';
 import 'param_node_builders.dart';
 
-class ParamNodeWidget extends StatefulWidget {
+class ParamNodeWidget extends ConsumerStatefulWidget {
   final ParamGraphNode node;
   final VoidCallback? onTap;
 
   const ParamNodeWidget({super.key, required this.node, this.onTap});
 
   @override
-  State<ParamNodeWidget> createState() => _ParamNodeWidgetState();
+  ConsumerState<ParamNodeWidget> createState() => _ParamNodeWidgetState();
 }
 
-class _ParamNodeWidgetState extends State<ParamNodeWidget> {
+class _ParamNodeWidgetState extends ConsumerState<ParamNodeWidget> {
   dynamic _layoutData;
-  late GraphNodeShape _cachedShape;
 
   @override
   void didChangeDependencies() {
@@ -41,119 +42,112 @@ class _ParamNodeWidgetState extends State<ParamNodeWidget> {
         oldNode.isFocused != newNode.isFocused ||
         oldNode.isSelected != newNode.isSelected ||
         oldNode.parameter.category.categoryColorName !=
-            newNode.parameter.category.categoryColorName;
+            newNode.parameter.category.categoryColorName ||
+        oldNode.isLocked != newNode.isLocked ||
+        oldNode.isBranching != newNode.isBranching ||
+        oldNode.hasChildren != newNode.hasChildren ||
+        oldNode.level != newNode.level;
   }
 
   void _computeLayout() {
-    _cachedShape = widget.node.shape;
     final baseColor = ParamNodeLayoutHelper.getCategoryColor(
       widget.node.parameter.category.categoryColorName,
     );
-    const double edgeLength = 140.0;
-    const int level = 0;
+    const double edgeLength = ProfileGraphConfig.baseEdgeLength;
+    final int level = widget.node.level;
 
-    if (widget.node.shape == GraphNodeShape.octagon) {
-      _layoutData = NodeLayoutCalculator.computeOctagon(
-        title: widget.node.parameter.paramTitle,
-        edgeLength: edgeLength,
-        level: level,
-        cornerRadiusFactor: 0.1,
-        titleStyle: ParamNodeLayoutHelper.titleStyle,
-        context: context,
-        baseColor: baseColor,
-        isFocused: widget.node.isFocused,
-        id: widget.node.id,
-        topmostLayerName: null,
-        flatBackground: false,
-      );
-    } else {
-      _layoutData = NodeLayoutCalculator.computeHex(
-        title: widget.node.parameter.paramTitle,
-        edgeLength: edgeLength,
-        level: level,
-        cornerRadiusFactor: 0.15,
-        titleStyle: ParamNodeLayoutHelper.titleStyle,
-        context: context,
-        baseColor: baseColor,
-        isFocused: widget.node.isFocused,
-        id: widget.node.id,
-        topmostLayerName: null,
-      );
-    }
+    _layoutData = NodeLayoutCalculator.computeHex(
+      title: widget.node.parameter.paramTitle,
+      edgeLength: edgeLength,
+      level: level,
+      cornerRadiusFactor: ProfileGraphConfig.cornerRadiusFactorHex,
+      titleStyle: ParamNodeLayoutHelper.getTitleStyle(context),
+      context: context,
+      baseColor: baseColor,
+      isFocused: widget.node.isFocused,
+      id: widget.node.id,
+      topmostLayerName: null,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (_layoutData == null) _computeLayout();
 
-    if (_cachedShape == GraphNodeShape.octagon) {
-      final data = _layoutData as OctagonNodeLayoutData;
-      return _buildNodeContainer(
-        size: data.nodeSize,
-        painter: OctagonPainter(
-          fillCenter: data.centerColor,
-          fillEdge: data.edgeColor,
-          stroke: data.borderColor,
-          strokeWidth: data.borderWidth,
-          cornerRadius: data.cornerRadius,
-          rotationDegrees: 22.5,
-        ),
-        child: OctagonNodeBody(data: data, node: widget.node),
-      );
-    }
     final data = _layoutData as HexNodeLayoutData;
+    // Path for the painter
+    final paintPath = ShapePathUtils.getHexPath(
+      data.hexSize,
+      strokeWidth: data.borderWidth,
+      cornerRadius: data.cornerRadius,
+      scaleY: ProfileGraphConfig.hexScaleY,
+    );
+    // Path for clipping (inner edge)
+    final clipPath = ShapePathUtils.getHexPath(
+      data.hexSize,
+      strokeWidth: data.borderWidth + data.borderWidth / 2,
+      cornerRadius: data.cornerRadius,
+      scaleY: ProfileGraphConfig.hexScaleY,
+    );
+
     return _buildNodeContainer(
       size: data.hexSize,
       painter: HexPainter(
+        path: paintPath,
         fillCenter: data.centerColor,
         fillEdge: data.edgeColor,
         stroke: data.borderColor,
         strokeWidth: data.borderWidth,
         cornerRadius: data.cornerRadius,
+        scaleY: ProfileGraphConfig.hexScaleY,
       ),
-      child: HexNodeBody(data: data, node: widget.node),
+      path: clipPath,
+      child: HexNodeBody(
+        data: data,
+        node: widget.node,
+        onToggleLock: () {
+          ref.read(paramPanelProvider.notifier).toggleLock(widget.node.id);
+        },
+        onToggleBranching: () {
+          ref.read(paramPanelProvider.notifier).toggleBranching(widget.node.id);
+        },
+      ),
     );
   }
 
   Widget _buildNodeContainer({
     required Size size,
     required CustomPainter painter,
+    required Path path,
     required Widget child,
   }) {
     return GestureDetector(
       onTap: widget.onTap,
-      child: RepaintBoundary(
-        child: CustomPaint(
-          size: size,
-          painter: painter,
-          child: SizedBox(
-            width: size.width,
-            height: size.height,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Center(child: child),
-
-                if (widget.node.isFocused)
-                  Positioned(
-                    top: -20,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: ParamNodeActionBar(
-                        onMoveUp: () {},
-                        onMoveDown: () {},
-                        onToggleLock: () {},
-                        onEdit: () {},
-                        onDelete: () {},
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+      child: CustomPaint(
+        size: size,
+        painter: painter,
+        child: SizedBox(
+          width: size.width,
+          height: size.height,
+          child: ClipPath(
+            clipper: _ShapeClipper(path: path),
+            child: Center(child: child),
           ),
         ),
       ),
     );
   }
+}
+
+class _ShapeClipper extends CustomClipper<Path> {
+  final Path path;
+
+  _ShapeClipper({required this.path});
+
+  @override
+  Path getClip(Size size) => path;
+
+  @override
+  bool shouldReclip(covariant _ShapeClipper oldClipper) =>
+      oldClipper.path != path;
 }

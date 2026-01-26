@@ -11,6 +11,17 @@ class LamiColors {
   static const Color darkOnSurface = Color(0xFFB0B0B0);
   static const Color darkOutline = Color(0xFF2F2F2F);
   static const Color darkPrimaryContainer = Color(0xFF1A1A1A);
+
+  // Light Theme Colors (Comfy Solarized-inspired)
+  static const Color lightScaffoldBackground = Color(0xFFFDF6E3);
+  static const Color lightPrimary = Color(0xFF657B83); // Neutral Slate Grey
+  static const Color lightSecondary = Color(0xFF586E75); // Darker Slate
+  static const Color lightSurface = Color(0xFFF4EDDA);
+  static const Color lightSurfaceContainer = Color(0xFFFDF6E3);
+  static const Color lightSurfaceContainerHighest = Color(0xFFEEE8D5);
+  static const Color lightOnSurface = Color(0xFF073642);
+  static const Color lightOutline = Color(0xFFDDD3B7);
+  static const Color lightPrimaryContainer = Color(0xFFE9E4D1);
 }
 
 enum LamiColor {

@@ -26,7 +26,11 @@ class FakeProfileManagerNotifier extends StateNotifier<ProfileManagerState>
   @override
   void updateProfileName(any) {}
   @override
+  void updateLayers(any) {}
+  @override
   void setApplication(any) {}
+  @override
+  Future<void> saveCurrentProfile() async {}
 }
 
 void main() {

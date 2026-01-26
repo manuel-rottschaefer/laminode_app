@@ -167,7 +167,8 @@ class LayersTab extends ConsumerWidget {
     // not a color name. In that case, we should probably still use the param's category color
     // but the LamiColor.fromString doesn't know about category -> color mappings.
     // However, if the result is blue and layerCategory is NOT 'blue', we fallback.
-    if (color == LamiColor.blue && layer.layerCategory!.toLowerCase() != 'blue') {
+    if (color == LamiColor.blue &&
+        layer.layerCategory!.toLowerCase() != 'blue') {
       return LamiColor.fromString(param.category.categoryColorName).value;
     }
 

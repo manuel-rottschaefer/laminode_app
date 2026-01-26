@@ -117,34 +117,41 @@ class CamParamEntryModel {
 
   factory CamParamEntryModel.fromJson(Map<String, dynamic> json) {
     return CamParamEntryModel(
-      paramName: json['paramName'],
-      paramTitle: json['paramTitle'],
-      paramDescription: json['paramDescription'] ?? json['description'],
-      quantity: ParamQuantity.fromJson(json['quantity']),
+      paramName: json['name'],
+      paramTitle: json['title'],
+      paramDescription: json['description'],
+      quantity: ParamQuantity.fromJson(
+        json['quantity'] as Map<String, dynamic>,
+      ),
       category: CamCategoryEntry(
-        categoryName: json['category']['categoryName'],
-        categoryTitle: json['category']['categoryTitle'],
-        categoryColorName: json['category']['categoryColorName'],
-        isVisible: json['category']['isVisible'] ?? true,
+        categoryName: json['category'] is String
+            ? (json['category'] as String)
+            : (json['category'] as Map<String, dynamic>)['name'],
+        categoryTitle: json['category'] is Map<String, dynamic>
+            ? (json['category'] as Map<String, dynamic>)['title'] ?? ''
+            : '',
+        categoryColorName: json['category'] is Map<String, dynamic>
+            ? (json['category'] as Map<String, dynamic>)['color'] ?? 'blue'
+            : 'blue',
       ),
       isVisible: json['isVisible'] ?? true,
       value: json['value'],
       isLocked: json['isLocked'] ?? false,
       isEdited: json['isEdited'] ?? false,
       minThreshold: CamExpressionRelationModel.fromJson(
-        json['minThreshold'] ?? {'targetParamName': json['paramName']},
+        json['minThreshold'] ?? {'target': json['name']},
       ),
       maxThreshold: CamExpressionRelationModel.fromJson(
-        json['maxThreshold'] ?? {'targetParamName': json['paramName']},
+        json['maxThreshold'] ?? {'target': json['name']},
       ),
       defaultValue: CamExpressionRelationModel.fromJson(
-        json['defaultValue'] ?? {'targetParamName': json['paramName']},
+        json['defaultValue'] ?? {'target': json['name']},
       ),
       suggestedValue: CamExpressionRelationModel.fromJson(
-        json['suggestedValue'] ?? {'targetParamName': json['paramName']},
+        json['suggestedValue'] ?? {'target': json['name']},
       ),
       enabledCondition: CamExpressionRelationModel.fromJson(
-        json['enabledCondition'] ?? {'targetParamName': json['paramName']},
+        json['enabledCondition'] ?? {'target': json['name']},
       ),
       children:
           (json['children'] as List<dynamic>?)
@@ -160,16 +167,11 @@ class CamParamEntryModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'paramName': paramName,
-      'paramTitle': paramTitle,
-      'paramDescription': paramDescription,
+      'name': paramName,
+      'title': paramTitle,
+      'description': paramDescription,
       'quantity': quantity.toJson(),
-      'category': {
-        'categoryName': category.categoryName,
-        'categoryTitle': category.categoryTitle,
-        'categoryColorName': category.categoryColorName,
-        'isVisible': category.isVisible,
-      },
+      'category': category.categoryName,
       'isVisible': isVisible,
       'value': value,
       'isLocked': isLocked,

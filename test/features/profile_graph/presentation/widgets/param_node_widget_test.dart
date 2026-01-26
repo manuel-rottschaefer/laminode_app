@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
 import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
@@ -33,19 +34,15 @@ void main() {
     id: 'speed_print',
     label: 'Print Speed',
     parameter: param,
-  );
-
-  final focusedNode = ParamGraphNode(
-    id: 'speed_print',
-    label: 'Print Speed',
-    parameter: param,
-    isFocused: true,
+    hasChildren: true,
   );
 
   testWidgets('ParamNodeWidget builds correctly', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(body: ParamNodeWidget(node: node)),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(body: ParamNodeWidget(node: node)),
+        ),
       ),
     );
 
@@ -66,9 +63,11 @@ void main() {
   testWidgets('ParamNodeWidget handles tap', (tester) async {
     bool tapped = false;
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ParamNodeWidget(node: node, onTap: () => tapped = true),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: ParamNodeWidget(node: node, onTap: () => tapped = true),
+          ),
         ),
       ),
     );
@@ -77,17 +76,19 @@ void main() {
     expect(tapped, true);
   });
 
-  testWidgets('ParamNodeWidget shows edit actions when focused', (
+  testWidgets('ParamNodeWidget shows integrated action buttons', (
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: SizedBox(
-              width: 500,
-              height: 500,
-              child: ParamNodeWidget(node: focusedNode),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 500,
+                height: 500,
+                child: ParamNodeWidget(node: node),
+              ),
             ),
           ),
         ),
@@ -95,9 +96,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Check for icons in the overlay toolbar
-    expect(find.byIcon(Icons.edit_rounded), findsOneWidget);
+    // Check for integrated action buttons (Lock and Branching)
     expect(find.byIcon(Icons.lock_open_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.delete_outline_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.call_split_rounded), findsOneWidget);
   });
 }

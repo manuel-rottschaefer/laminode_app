@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/graph_node.dart';
+import 'package:laminode_app/features/profile_graph/domain/entities/graph_node.dart';
 
 class RootNodeWidget extends StatelessWidget {
   final RootGraphNode node;
@@ -18,7 +18,9 @@ class RootNodeWidget extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,
-            color: node.isFocused ? Colors.blue : Colors.grey.shade700,
+            color: node.isFocused
+                ? Colors.blue
+                : Theme.of(context).colorScheme.primary,
             letterSpacing: 1.2,
           ),
         ),

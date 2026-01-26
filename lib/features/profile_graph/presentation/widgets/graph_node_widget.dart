@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/graph_node.dart';
+import 'package:laminode_app/features/profile_graph/domain/entities/graph_node.dart';
 import 'root_node_widget.dart';
 import 'hub_node_widget.dart';
 import 'param_node_widget.dart';

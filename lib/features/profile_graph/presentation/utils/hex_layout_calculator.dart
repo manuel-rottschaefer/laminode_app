@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:laminode_app/features/profile_graph/presentation/utils/node_layout_data.dart';
 import 'package:laminode_app/features/profile_graph/presentation/utils/node_layout_helper.dart';
+import 'package:laminode_app/features/profile_graph/presentation/utils/profile_graph_config.dart';
 
 class HexLayoutCalculator with NodeLayoutHelper {
   static Color _centerColor(Color baseColor, int level) {
@@ -40,17 +41,26 @@ class HexLayoutCalculator with NodeLayoutHelper {
     String? topmostLayerName,
     bool debugLineWidth = false,
   }) {
-    final effectiveEdge = (edgeLength * math.pow(0.95, level)).toDouble();
+    final effectiveEdge =
+        (edgeLength * math.pow(ProfileGraphConfig.nodeLevelScaleFactor, level))
+            .toDouble();
     final w = 2 * effectiveEdge;
-    final h = math.sqrt(3) * effectiveEdge * 0.9;
+    final h =
+        math.sqrt(3) *
+        effectiveEdge *
+        ProfileGraphConfig.hexHeightFactor *
+        ProfileGraphConfig.hexScaleY;
     final hexSize = Size(w, h);
     final cornerRadius = effectiveEdge * cornerRadiusFactor;
 
-    final borderWidth = (6.0 - 2.0 * level).clamp(0.0, 6.0);
+    final borderWidth = (ProfileGraphConfig.maxBorderWidth - 2.0 * level).clamp(
+      0.0,
+      ProfileGraphConfig.maxBorderWidth,
+    );
     final r = effectiveEdge - borderWidth - cornerRadius;
     final circumradius = r;
 
-    final span = math.sqrt(3) * r * 0.9;
+    final span = math.sqrt(3) * r * ProfileGraphConfig.hexSpanFactor;
 
     final presets = <int, List<double>>{
       1: [1],

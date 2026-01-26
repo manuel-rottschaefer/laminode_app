@@ -6,17 +6,17 @@
     "isLocked": false,
     "parameters": [
         {
-            "paramName": "speed_print",
-            "paramTitle": "Print Speed",
+            "name": "speed_print",
+            "title": "Print Speed",
             "quantity": {
                 "quantityName": "speed",
                 "quantityUnit": "mm/s",
                 "quantitySymbol": "v"
             },
             "category": {
-                "categoryName": "speed",
-                "categoryTitle": "Speed",
-                "categoryColorName": "blue"
+                "name": "speed",
+                "title": "Speed",
+                "color": "blue"
             },
             "value": 60.0
         }

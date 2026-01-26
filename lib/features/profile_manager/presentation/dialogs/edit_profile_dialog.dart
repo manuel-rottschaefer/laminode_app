@@ -41,11 +41,14 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
         LamiButton(
           icon: LucideIcons.check,
           label: "Save Changes",
-          onPressed: () {
+          onPressed: () async {
             ref
                 .read(profileManagerProvider.notifier)
                 .updateProfileName(_nameController.text);
-            Navigator.of(context).pop();
+            await ref
+                .read(profileManagerProvider.notifier)
+                .saveCurrentProfile();
+            if (context.mounted) Navigator.of(context).pop();
           },
         ),
       ],

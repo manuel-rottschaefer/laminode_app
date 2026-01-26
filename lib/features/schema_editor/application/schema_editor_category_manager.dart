@@ -88,6 +88,20 @@ mixin SchemaEditorCategoryManager on Notifier<SchemaEditorState> {
     );
   }
 
+  void setAllCategoriesVisibility(bool isVisible) {
+    final updatedCategories = state.schema.categories.map((c) {
+      return c.copyWith(isVisible: isVisible);
+    }).toList();
+
+    state = state.copyWith(
+      schema: CamSchemaEntry(
+        schemaName: state.schema.schemaName,
+        categories: updatedCategories,
+        availableParameters: state.schema.availableParameters,
+      ),
+    );
+  }
+
   void selectCategory(CamCategoryEntry? category) {
     state = state.copyWith(
       selectedCategory: category,

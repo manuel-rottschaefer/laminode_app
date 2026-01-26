@@ -37,7 +37,7 @@ class CamSchemaEntryModel {
 
   factory CamSchemaEntryModel.fromJson(Map<String, dynamic> json) {
     return CamSchemaEntryModel(
-      schemaName: json['schemaName'],
+      schemaName: json['name'] ?? 'Unknown Schema',
       categories: (json['categories'] as List<dynamic>)
           .map((e) => CamCategoryEntryModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -49,7 +49,7 @@ class CamSchemaEntryModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'schemaName': schemaName,
+      'name': schemaName,
       'categories': categories.map((e) => e.toJson()).toList(),
       'availableParameters': availableParameters
           .map((e) => e.toJson())

@@ -4,6 +4,7 @@ import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dar
 import 'package:laminode_app/features/schema_editor/domain/entities/cam_schema_entry.dart';
 import 'package:laminode_app/features/schema_shop/data/models/schema_manifest_model.dart';
 import 'package:laminode_app/features/schema_shop/domain/entities/schema_manifest.dart';
+import 'package:laminode_app/features/profile_editor/data/models/param_relation_model.dart';
 
 class PluginSchemaModel {
   final SchemaManifest manifest;
@@ -65,17 +66,35 @@ class PluginSchemaModel {
       paramTitle: p['title'],
       paramDescription: p['description'],
       baseParam: p['baseParam'],
-      quantity: ParamQuantity(
-        quantityName: p['quantity']?['name'] ?? 'generic',
-        quantityUnit: p['quantity']?['unit'] ?? 'none',
-        quantitySymbol: p['quantity']?['symbol'] ?? '',
-        quantityType: QuantityType.values.firstWhere(
-          (e) => e.name == p['quantity']?['type'],
-          orElse: () => QuantityType.numeric,
-        ),
-      ),
+      quantity: ParamQuantity.fromJson(p['quantity']),
       category: category,
-      value: null, // Default value or from schema if available
+      value: p['value'],
+      minThreshold: p['minThreshold'] != null
+          ? CamExpressionRelationModel.fromJson(p['minThreshold']).toEntity()
+          : null,
+      maxThreshold: p['maxThreshold'] != null
+          ? CamExpressionRelationModel.fromJson(p['maxThreshold']).toEntity()
+          : null,
+      defaultValue: p['defaultValue'] != null
+          ? CamExpressionRelationModel.fromJson(p['defaultValue']).toEntity()
+          : null,
+      suggestedValue: p['suggestedValue'] != null
+          ? CamExpressionRelationModel.fromJson(p['suggestedValue']).toEntity()
+          : null,
+      enabledCondition: p['enabledCondition'] != null
+          ? CamExpressionRelationModel.fromJson(
+              p['enabledCondition'],
+            ).toEntity()
+          : null,
+      children:
+          (p['children'] as List<dynamic>?)
+              ?.map(
+                (e) => CamHierarchyRelationModel.fromJson(
+                  e as Map<String, dynamic>,
+                ).toEntity(),
+              )
+              .toList() ??
+          const [],
     );
   }
 

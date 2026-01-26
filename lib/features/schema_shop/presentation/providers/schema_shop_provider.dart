@@ -8,7 +8,6 @@ import 'package:laminode_app/features/schema_shop/data/datasources/schema_shop_r
 import 'package:laminode_app/features/schema_shop/data/repositories/schema_shop_repository_impl.dart';
 import 'package:laminode_app/features/schema_shop/domain/entities/plugin_manifest.dart';
 import 'package:laminode_app/features/schema_shop/domain/repositories/schema_shop_repository.dart';
-import 'package:laminode_app/features/profile_manager/presentation/providers/profile_manager_provider.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_state.dart';
 
 export 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_state.dart';
@@ -44,8 +43,10 @@ class SchemaShopNotifier extends StateNotifier<SchemaShopState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final plugins = await _repository.getAvailablePlugins();
+      if (!mounted) return;
       state = state.copyWith(availablePlugins: plugins, isLoading: false);
     } catch (e) {
+      if (!mounted) return;
       String errorMessage = e.toString();
       if (e is DioException) {
         if (e.type == DioExceptionType.connectionTimeout ||
@@ -60,14 +61,20 @@ class SchemaShopNotifier extends StateNotifier<SchemaShopState> {
   }
 
   Future<void> refreshInstalled() async {
+    state = state.copyWith(isLoading: true);
     try {
       final plugins = await _repository.getInstalledPlugins();
       final ids = await _repository.getInstalledSchemaIds();
+      if (!mounted) return;
       state = state.copyWith(
         installedPlugins: plugins,
         installedSchemaIds: ids,
+        isLoading: false,
       );
-    } catch (_) {}
+    } catch (e) {
+      if (!mounted) return;
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
   }
 
   Future<void> installPlugin(PluginManifest plugin, String schemaId) async {
@@ -75,8 +82,10 @@ class SchemaShopNotifier extends StateNotifier<SchemaShopState> {
     try {
       await _repository.installPlugin(plugin, schemaId);
       await refreshInstalled();
+      if (!mounted) return;
       state = state.copyWith(isLoading: false);
     } catch (e) {
+      if (!mounted) return;
       String errorMessage = e.toString();
       if (e is DioException) {
         if (e.type == DioExceptionType.connectionTimeout ||
@@ -95,8 +104,10 @@ class SchemaShopNotifier extends StateNotifier<SchemaShopState> {
     try {
       await _repository.installManualSchema(file);
       await refreshInstalled();
+      if (!mounted) return;
       state = state.copyWith(isLoading: false);
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -106,8 +117,10 @@ class SchemaShopNotifier extends StateNotifier<SchemaShopState> {
     try {
       await _repository.uninstallPlugin(pluginId);
       await refreshInstalled();
+      if (!mounted) return;
       state = state.copyWith(isLoading: false);
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -116,8 +129,10 @@ class SchemaShopNotifier extends StateNotifier<SchemaShopState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final schema = await _repository.loadInstalledSchema(schemaId);
+      if (!mounted) return;
       state = state.copyWith(activeSchema: schema, isLoading: false);
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -131,19 +146,6 @@ final schemaShopProvider =
     StateNotifierProvider<SchemaShopNotifier, SchemaShopState>((ref) {
       final notifier = SchemaShopNotifier(
         ref.watch(schemaShopRepositoryProvider),
-      );
-
-      // Synchronize active schema with profile selection
-      ref.listen(
-        profileManagerProvider.select((s) => s.currentProfile?.schemaId),
-        (previous, next) {
-          if (next != null) {
-            notifier.loadSchema(next);
-          } else {
-            // Reset action
-            notifier.clearActiveSchema();
-          }
-        },
       );
 
       return notifier;

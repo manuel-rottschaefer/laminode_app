@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:laminode_app/features/profile_graph/presentation/utils/node_layout_data.dart';
 import 'package:laminode_app/features/profile_graph/presentation/utils/node_layout_helper.dart';
+import 'package:laminode_app/features/profile_graph/presentation/utils/profile_graph_config.dart';
 
 class OctagonLayoutCalculator with NodeLayoutHelper {
   static Color _centerColor(Color baseColor, int level) {
@@ -48,7 +49,9 @@ class OctagonLayoutCalculator with NodeLayoutHelper {
     bool debugLineWidth = false,
     bool flatBackground = false,
   }) {
-    final effectiveEdge = (edgeLength * math.pow(0.95, level)).toDouble();
+    final effectiveEdge =
+        (edgeLength * math.pow(ProfileGraphConfig.nodeLevelScaleFactor, level))
+            .toDouble();
     final r = effectiveEdge;
     final apothem = r * math.cos(math.pi / 8);
     final w = 2 * apothem;
@@ -57,10 +60,17 @@ class OctagonLayoutCalculator with NodeLayoutHelper {
     final nodeSize = Size(w, h);
     final cornerRadius = effectiveEdge * cornerRadiusFactor;
 
-    final borderWidth = (6.0 - 2.0 * level).clamp(0.0, 6.0);
+    final borderWidth = (ProfileGraphConfig.maxBorderWidth - 2.0 * level).clamp(
+      0.0,
+      ProfileGraphConfig.maxBorderWidth,
+    );
     final innerR = r - borderWidth - cornerRadius;
     final circumradius = innerR;
-    final span = 2 * innerR * math.cos(math.pi / 8) * 0.9;
+    final span =
+        2 *
+        innerR *
+        math.cos(math.pi / 8) *
+        ProfileGraphConfig.octagonSpanFactor;
 
     final presets = <int, List<double>>{
       1: [1.1],

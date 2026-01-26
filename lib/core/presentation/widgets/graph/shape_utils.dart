@@ -30,7 +30,7 @@ class ShapePathUtils {
     Size size, {
     required double strokeWidth,
     required double cornerRadius,
-    double scaleY = 1.0,
+    required double scaleY,
     double rotationDegrees = 0.0,
   }) {
     final w = size.width;

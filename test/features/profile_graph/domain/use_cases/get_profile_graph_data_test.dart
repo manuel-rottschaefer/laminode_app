@@ -70,8 +70,8 @@ void main() {
     final result = useCase.execute(categories: [category], parameters: []);
 
     expect(result.nodes.length, 1);
-    expect(result.nodes.containsKey('__root_Speed'), true);
-    expect(result.nodes['__root_Speed'], isA<RootGraphNode>());
+    expect(result.nodes.containsKey('__cat_Speed'), true);
+    expect(result.nodes['__cat_Speed'], isA<RootGraphNode>());
   });
 
   test('Should create param nodes and connect to root if no parent', () {
@@ -84,7 +84,7 @@ void main() {
     expect(result.nodes.containsKey('speed_print'), true);
     expect(
       result.edges.any(
-        (e) => e.sourceId == '__root_Speed' && e.targetId == 'speed_print',
+        (e) => e.sourceId == '__cat_Speed' && e.targetId == 'speed_print',
       ),
       true,
     );
@@ -97,6 +97,7 @@ void main() {
       parentToChildrenMap: {
         'speed_print': ['speed_travel'],
       },
+      branchedParamNames: {'speed_print'},
     );
 
     expect(result.nodes.length, 3); // Root + Param1 + Param2
@@ -104,7 +105,7 @@ void main() {
     // Check edge from Root -> Param1
     expect(
       result.edges.any(
-        (e) => e.sourceId == '__root_Speed' && e.targetId == 'speed_print',
+        (e) => e.sourceId == '__cat_Speed' && e.targetId == 'speed_print',
       ),
       true,
     );
@@ -120,7 +121,7 @@ void main() {
     // Ensure Param2 is NOT connected to Root directly
     expect(
       result.edges.any(
-        (e) => e.sourceId == '__root_Speed' && e.targetId == 'speed_travel',
+        (e) => e.sourceId == '__cat_Speed' && e.targetId == 'speed_travel',
       ),
       false,
     );
@@ -132,18 +133,18 @@ void main() {
       parameters: [param1, param3],
     );
     expect(result.nodes.length, 4); // Root1, Root2, Param1, Param3
-    expect(result.nodes['__root_Speed'], isNotNull);
-    expect(result.nodes['__root_Quality'], isNotNull);
+    expect(result.nodes['__cat_Speed'], isNotNull);
+    expect(result.nodes['__cat_Quality'], isNotNull);
 
     expect(
       result.edges.any(
-        (e) => e.sourceId == '__root_Speed' && e.targetId == 'speed_print',
+        (e) => e.sourceId == '__cat_Speed' && e.targetId == 'speed_print',
       ),
       true,
     );
     expect(
       result.edges.any(
-        (e) => e.sourceId == '__root_Quality' && e.targetId == 'layer_height',
+        (e) => e.sourceId == '__cat_Quality' && e.targetId == 'layer_height',
       ),
       true,
     );

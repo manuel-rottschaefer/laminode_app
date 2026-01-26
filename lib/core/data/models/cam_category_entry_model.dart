@@ -4,12 +4,14 @@ class CamCategoryEntryModel {
   final String categoryName;
   final String categoryTitle;
   final String categoryColorName;
+  final String? parentCategoryName;
   final bool isVisible;
 
   const CamCategoryEntryModel({
     required this.categoryName,
     required this.categoryTitle,
     required this.categoryColorName,
+    this.parentCategoryName,
     this.isVisible = true,
   });
 
@@ -18,6 +20,7 @@ class CamCategoryEntryModel {
       categoryName: entity.categoryName,
       categoryTitle: entity.categoryTitle,
       categoryColorName: entity.categoryColorName,
+      parentCategoryName: entity.parentCategoryName,
       isVisible: entity.isVisible,
     );
   }
@@ -27,24 +30,27 @@ class CamCategoryEntryModel {
       categoryName: categoryName,
       categoryTitle: categoryTitle,
       categoryColorName: categoryColorName,
+      parentCategoryName: parentCategoryName,
       isVisible: isVisible,
     );
   }
 
   factory CamCategoryEntryModel.fromJson(Map<String, dynamic> json) {
     return CamCategoryEntryModel(
-      categoryName: json['categoryName'],
-      categoryTitle: json['categoryTitle'] ?? json['categoryName'],
-      categoryColorName: json['categoryColorName'] ?? 'grey',
+      categoryName: json['name'],
+      categoryTitle: json['title'],
+      categoryColorName: json['color'],
+      parentCategoryName: json['parent'],
       isVisible: json['isVisible'] ?? true,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'categoryName': categoryName,
-      'categoryTitle': categoryTitle,
-      'categoryColorName': categoryColorName,
+      'name': categoryName,
+      'title': categoryTitle,
+      'color': categoryColorName,
+      'parent': parentCategoryName,
       'isVisible': isVisible,
     };
   }

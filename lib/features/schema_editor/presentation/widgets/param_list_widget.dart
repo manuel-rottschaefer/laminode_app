@@ -4,7 +4,6 @@ import 'package:laminode_app/core/theme/app_spacing.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_box.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
 import 'package:laminode_app/features/schema_editor/application/schema_editor_provider.dart';
-import 'package:laminode_app/features/schema_editor/presentation/widgets/param_list_header.dart';
 import 'package:laminode_app/features/schema_editor/presentation/widgets/param_list_item.dart';
 
 class ParamListWidget extends ConsumerStatefulWidget {
@@ -16,7 +15,6 @@ class ParamListWidget extends ConsumerStatefulWidget {
 
 class _ParamListWidgetState extends ConsumerState<ParamListWidget> {
   final TextEditingController _searchController = TextEditingController();
-  bool _isSearchVisible = false;
 
   @override
   void dispose() {
@@ -24,59 +22,48 @@ class _ParamListWidgetState extends ConsumerState<ParamListWidget> {
     super.dispose();
   }
 
-  void _toggleSearch() {
-    setState(() {
-      _isSearchVisible = !_isSearchVisible;
-      if (!_isSearchVisible) {
-        _searchController.clear();
-        ref.read(schemaEditorProvider.notifier).setParameterSearchQuery('');
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(schemaEditorProvider);
     final allParameters = state.schema.availableParameters;
+    final categories = state.schema.categories;
     final selectedParameter = state.selectedParameter;
     final searchQuery = state.parameterSearchQuery.toLowerCase();
     final showHidden = state.showHiddenParameters;
+    final filterByCategories = state.filterByCategories;
+
+    final visibleCategoryNames = categories
+        .where((c) => c.isVisible)
+        .map((c) => c.categoryName)
+        .toSet();
 
     final parameters = allParameters.where((p) {
       final matchesSearch =
           p.paramTitle.toLowerCase().contains(searchQuery) ||
           p.paramName.toLowerCase().contains(searchQuery);
       final matchesVisibility = showHidden || p.isVisible;
-      return matchesSearch && matchesVisibility;
+      final matchesCategory =
+          !filterByCategories ||
+          visibleCategoryNames.contains(p.category.categoryName);
+
+      return matchesSearch && matchesVisibility && matchesCategory;
     }).toList();
 
     return LamiBox(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ParamListHeader(
-            isSearchVisible: _isSearchVisible,
-            onToggleSearch: _toggleSearch,
-          ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            child: _isSearchVisible
-                ? Padding(
-                    padding: const EdgeInsets.only(
-                      top: AppSpacing.s,
-                      bottom: AppSpacing.s,
-                    ),
-                    child: LamiSearch(
-                      controller: _searchController,
-                      hintText: "Search parameters...",
-                      onChanged: (val) {
-                        ref
-                            .read(schemaEditorProvider.notifier)
-                            .setParameterSearchQuery(val);
-                      },
-                    ),
-                  )
-                : const SizedBox.shrink(),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.s),
+            child: LamiSearch(
+              controller: _searchController,
+              hintText: "Search parameters...",
+              onChanged: (val) {
+                ref
+                    .read(schemaEditorProvider.notifier)
+                    .setParameterSearchQuery(val);
+              },
+            ),
           ),
           const SizedBox(height: AppSpacing.s),
           Expanded(

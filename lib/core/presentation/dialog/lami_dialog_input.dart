@@ -11,6 +11,7 @@ class LamiDialogInput extends StatelessWidget {
   final int maxLines;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
+  final bool isDense;
 
   const LamiDialogInput({
     super.key,
@@ -23,6 +24,7 @@ class LamiDialogInput extends StatelessWidget {
     this.maxLines = 1,
     this.prefixIcon,
     this.suffixIcon,
+    this.isDense = false,
   });
 
   static InputDecoration decoration(
@@ -89,6 +91,7 @@ class LamiDialogInput extends StatelessWidget {
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon,
           alignLabelWithHint: maxLines > 1,
+          isDense: isDense,
         ),
         style: theme.textTheme.bodyLarge?.copyWith(
           color: theme.colorScheme.onSurface,

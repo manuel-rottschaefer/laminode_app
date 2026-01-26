@@ -160,7 +160,7 @@ class _LayerPanelState extends ConsumerState<LayerPanel> {
                   child: LamiButton(
                     icon: Icons.add_rounded,
                     label: "Create Layer",
-                    inactive: currentProfile.schemaId == null,
+                    inactive: currentProfile.schema == null,
                     onPressed: () {
                       showLamiDialog(
                         context: context,

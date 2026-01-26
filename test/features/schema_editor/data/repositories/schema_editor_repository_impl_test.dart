@@ -60,31 +60,27 @@ void main() {
       expect(await file.exists(), true);
       final content = await file.readAsString();
       final json = jsonDecode(content);
-      expect(json['schemaName'], 'test_schema');
+      expect(json['name'], 'test_schema');
     });
 
     test('should import schema from file', () async {
       // arrange
       final filePath = '${tempDir.path}/import.json';
       final jsonString = jsonEncode({
-        'schemaName': 'imported',
+        'name': 'imported',
         'categories': [
-          {'categoryName': 'c', 'categoryTitle': 'C', 'categoryColorName': 'b'},
+          {'name': 'c', 'title': 'C', 'color': 'b'},
         ],
         'availableParameters': [
           {
-            'paramName': 'p',
-            'paramTitle': 'P',
+            'name': 'p',
+            'title': 'P',
             'quantity': {
               'quantityName': 'n',
               'quantityUnit': 'u',
               'quantitySymbol': 's',
             },
-            'category': {
-              'categoryName': 'c',
-              'categoryTitle': 'C',
-              'categoryColorName': 'b',
-            },
+            'category': {'name': 'c', 'title': 'C', 'color': 'b'},
             'value': 10,
           },
         ],

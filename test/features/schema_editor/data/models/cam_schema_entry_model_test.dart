@@ -56,7 +56,7 @@ void main() {
       // act
       final result = tSchemaModel.toJson();
       // assert
-      expect(result['schemaName'], 'fdm_basic_schema');
+      expect(result['name'], 'fdm_basic_schema');
       expect(result['categories'], isA<List>());
       expect(result['availableParameters'], isA<List>());
     });

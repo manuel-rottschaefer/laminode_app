@@ -19,10 +19,7 @@ class LamiInputDecoration {
       suffixIcon: suffixIcon,
       isDense: true,
       floatingLabelBehavior: FloatingLabelBehavior.auto,
-      contentPadding: const EdgeInsets.symmetric(
-        vertical: 14,
-        horizontal: 16,
-      ),
+      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       filled: true,
       fillColor: enabled
           ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)

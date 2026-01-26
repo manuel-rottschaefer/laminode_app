@@ -12,6 +12,14 @@ class TestModels {
     version: '1.0.0',
   );
 
+  static const tProfileSchemaManifest = ProfileSchemaManifest(
+    id: 'test-schema',
+    version: '1.0.0',
+    updated: '2026-01-25',
+    targetAppName: 'Test App',
+    type: 'application',
+  );
+
   static const tCategoryModel = CamCategoryEntryModel(
     categoryName: 'quality',
     categoryTitle: 'Quality',

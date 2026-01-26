@@ -5,6 +5,7 @@ import 'package:laminode_app/features/param_panel/domain/entities/param_panel_it
 import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_input.dart';
 import 'package:laminode_app/features/param_panel/presentation/providers/param_panel_provider.dart';
+import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
 
 class ValueInput extends ConsumerWidget {
   final ParamPanelItem item;
@@ -16,7 +17,19 @@ class ValueInput extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isLocked = item.param.isLocked;
+
+    final selectedLayerIndex = ref.watch(
+      paramPanelProvider.select(
+        (s) => s.selectedLayerIndices[item.param.paramName],
+      ),
+    );
+    final layers = ref.watch(layerPanelProvider.select((s) => s.layers));
+    final isLayerLocked =
+        selectedLayerIndex != null &&
+        selectedLayerIndex < layers.length &&
+        layers[selectedLayerIndex].isLocked;
+
+    final isLocked = item.param.isLocked || isLayerLocked;
 
     return Row(
       children: [

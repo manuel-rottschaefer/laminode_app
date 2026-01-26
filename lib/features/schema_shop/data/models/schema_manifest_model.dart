@@ -7,6 +7,7 @@ class SchemaManifestModel extends SchemaManifest {
     required super.schemaAuthors,
     required super.lastUpdated,
     super.targetAppName,
+    super.targetAppVersion,
     super.targetAppSector,
   });
 
@@ -17,6 +18,7 @@ class SchemaManifestModel extends SchemaManifest {
       schemaAuthors: List<String>.from(json['schemaAuthors']),
       lastUpdated: json['lastUpdated'],
       targetAppName: json['targetAppName'],
+      targetAppVersion: json['targetAppVersion'],
       targetAppSector: json['targetAppSector'],
     );
   }
@@ -28,6 +30,7 @@ class SchemaManifestModel extends SchemaManifest {
       'schemaAuthors': schemaAuthors,
       'lastUpdated': lastUpdated,
       if (targetAppName != null) 'targetAppName': targetAppName,
+      if (targetAppVersion != null) 'targetAppVersion': targetAppVersion,
       if (targetAppSector != null) 'targetAppSector': targetAppSector,
     };
   }

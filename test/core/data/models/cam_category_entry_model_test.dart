@@ -29,7 +29,7 @@ void main() {
       // act
       final result = tCategoryModel.toJson();
       // assert
-      expect(result['categoryName'], tCategoryModel.categoryName);
+      expect(result['name'], tCategoryModel.categoryName);
     });
   });
 

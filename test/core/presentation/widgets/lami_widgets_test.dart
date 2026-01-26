@@ -9,10 +9,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: LamiInput(
-              label: 'Test Label',
-              hintText: 'Test Hint',
-            ),
+            body: LamiInput(label: 'Test Label', hintText: 'Test Hint'),
           ),
         ),
       );
@@ -26,9 +23,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: LamiInput(
-              onChanged: (val) => changedValue = val,
-            ),
+            body: LamiInput(onChanged: (val) => changedValue = val),
           ),
         ),
       );

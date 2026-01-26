@@ -22,7 +22,7 @@ class HexPainter extends CustomPainter {
     required this.stroke,
     required this.strokeWidth,
     this.cornerRadius = 8.0,
-    this.scaleY = 1.0,
+    this.scaleY = 0.95,
     this.rotationDegrees = 0.0,
     this.onlyFill = false,
     this.onlyStroke = false,

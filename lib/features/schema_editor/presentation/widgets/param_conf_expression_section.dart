@@ -10,7 +10,7 @@ import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/features/schema_editor/presentation/widgets/cam_param_expression_input.dart';
 import 'package:laminode_app/features/schema_editor/presentation/widgets/param_conf_hierarchy_section.dart';
 
-enum RelationView { expressions, hierarchy }
+enum RelationView { expressions, hierarchy, conditional }
 
 class ParamConfExpressionSection extends ConsumerStatefulWidget {
   const ParamConfExpressionSection({super.key});
@@ -43,6 +43,9 @@ class _ParamConfExpressionSectionState
         break;
       case 'max':
         newParam = param.copyWith(maxThreshold: relation);
+        break;
+      case 'enabled':
+        newParam = param.copyWith(enabledCondition: relation);
         break;
       default:
         return;
@@ -80,6 +83,7 @@ class _ParamConfExpressionSectionState
                 options: const {
                   RelationView.expressions: 'Values',
                   RelationView.hierarchy: 'Hierarchy',
+                  RelationView.conditional: 'Conditional',
                 },
                 selected: _currentView,
                 onSelected: (val) => setState(() => _currentView = val),
@@ -94,7 +98,34 @@ class _ParamConfExpressionSectionState
             duration: const Duration(milliseconds: 200),
             child: _currentView == RelationView.expressions
                 ? _buildValuesView(param, state)
-                : ParamConfHierarchySection(param: param),
+                : _currentView == RelationView.hierarchy
+                ? ParamConfHierarchySection(param: param)
+                : _buildConditionalView(param),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConditionalView(CamParamEntry param) {
+    final state = ref.read(schemaEditorProvider);
+    return Column(
+      key: const ValueKey('conditional'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CamParamExpressionInput(
+          label: 'ENABLED CONDITION',
+          expression: param.enabledCondition.expression,
+          schema: state.schema,
+          isCondition: true,
+          onChanged: (val) => _updateRelation(param, 'enabled', val),
+        ),
+        const SizedBox(height: AppSpacing.s),
+        Text(
+          'Global expression that determines if this parameter is active in the profile.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.outline,
+            fontStyle: FontStyle.italic,
           ),
         ),
       ],
@@ -113,6 +144,7 @@ class _ParamConfExpressionSectionState
                 label: 'Default Value',
                 expression: param.defaultValue.expression,
                 schema: state.schema,
+                expectedQuantityType: param.quantity.quantityType,
                 onChanged: (val) => _updateRelation(param, 'default', val),
               ),
             ),
@@ -122,6 +154,7 @@ class _ParamConfExpressionSectionState
                 label: 'Suggested Value',
                 expression: param.suggestedValue.expression,
                 schema: state.schema,
+                expectedQuantityType: param.quantity.quantityType,
                 onChanged: (val) => _updateRelation(param, 'suggested', val),
               ),
             ),
@@ -136,6 +169,7 @@ class _ParamConfExpressionSectionState
                 label: 'Minimum Threshold',
                 expression: param.minThreshold.expression,
                 schema: state.schema,
+                expectedQuantityType: param.quantity.quantityType,
                 onChanged: (val) => _updateRelation(param, 'min', val),
               ),
             ),
@@ -145,6 +179,7 @@ class _ParamConfExpressionSectionState
                 label: 'Maximum Threshold',
                 expression: param.maxThreshold.expression,
                 schema: state.schema,
+                expectedQuantityType: param.quantity.quantityType,
                 onChanged: (val) => _updateRelation(param, 'max', val),
               ),
             ),

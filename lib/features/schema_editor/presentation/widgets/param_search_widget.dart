@@ -88,7 +88,8 @@ class ParamSearchWidgetState extends State<ParamSearchWidget> {
           Text(
             widget.label!,
             style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.outline,
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 4),

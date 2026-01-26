@@ -66,9 +66,11 @@ class SchemaShopRepositoryImpl implements SchemaShopRepository {
     }
 
     final schemaId = json['manifest']['schemaVersion'] ?? 'manual';
+    final appVersion = json['manifest']['targetAppVersion'] ?? '1.0';
 
     await _localDataSource.saveManualSchema(
       targetAppName,
+      appVersion,
       schemaId,
       json,
       null,
@@ -107,12 +109,14 @@ class SchemaShopRepositoryImpl implements SchemaShopRepository {
   @override
   Future<void> saveSchema(
     String appName,
+    String appVersion,
     String schemaId,
     Map<String, dynamic> schemaJson,
     String? adapterCode,
   ) async {
     await _localDataSource.saveManualSchema(
       appName,
+      appVersion,
       schemaId,
       schemaJson,
       adapterCode,
@@ -125,9 +129,12 @@ class SchemaShopRepositoryImpl implements SchemaShopRepository {
   }
 
   @override
-  Future<bool> schemaExists(String schemaId) async {
-    final schema = await _localDataSource.getInstalledSchema(schemaId);
-    return schema != null;
+  Future<bool> schemaExists(
+    String appName,
+    String appVersion,
+    String schemaId,
+  ) async {
+    return await _localDataSource.schemaExists(appName, appVersion, schemaId);
   }
 
   @override

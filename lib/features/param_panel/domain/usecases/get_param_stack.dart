@@ -22,7 +22,7 @@ class GetParamStackUseCase {
 
         contributions.add(
           ParamLayerContribution(
-            layerName: "Base Profile (Schema Default)",
+            layerName: "Base Layer",
             valueDisplay: defaultVal.toString(),
             isBase: true,
           ),

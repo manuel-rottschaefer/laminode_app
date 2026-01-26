@@ -29,7 +29,7 @@ void main() {
       // act
       final result = tParamModel.toJson();
       // assert
-      expect(result['paramName'], tParamModel.paramName);
+      expect(result['name'], tParamModel.paramName);
       expect(result['value'], tParamModel.value);
     });
   });

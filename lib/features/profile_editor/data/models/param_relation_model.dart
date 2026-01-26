@@ -26,13 +26,13 @@ class CamExpressionRelationModel {
 
   factory CamExpressionRelationModel.fromJson(Map<String, dynamic> json) {
     return CamExpressionRelationModel(
-      targetParamName: json['targetParamName'],
+      targetParamName: json['target'],
       expression: json['expression'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'targetParamName': targetParamName, 'expression': expression};
+    return {'target': targetParamName, 'expression': expression};
   }
 }
 
@@ -61,15 +61,12 @@ class CamHierarchyRelationModel {
 
   factory CamHierarchyRelationModel.fromJson(Map<String, dynamic> json) {
     return CamHierarchyRelationModel(
-      targetParamName: json['targetParamName'],
-      childParamName: json['childParamName'] ?? '',
+      targetParamName: json['parent'],
+      childParamName: json['child'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'targetParamName': targetParamName,
-      'childParamName': childParamName,
-    };
+    return {'parent': targetParamName, 'child': childParamName};
   }
 }

@@ -26,6 +26,7 @@ class _CreateProfileDialogState extends ConsumerState<CreateProfileDialog> {
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
   PluginManifest? _selectedApplication;
+  String? _selectedSchemaId;
 
   @override
   void dispose() {
@@ -46,11 +47,26 @@ class _CreateProfileDialogState extends ConsumerState<CreateProfileDialog> {
 
   void _submit() {
     if (_formKey.currentState!.validate() && _selectedApplication != null) {
+      ProfileSchemaManifest? schemaManifest;
+      if (_selectedSchemaId != null) {
+        final schemaRef = _selectedApplication!.schemas.firstWhere(
+          (s) => s.id == _selectedSchemaId,
+        );
+        schemaManifest = ProfileSchemaManifest(
+          id: schemaRef.id,
+          version: schemaRef.version,
+          updated: schemaRef.releaseDate,
+          targetAppName: _selectedApplication!.displayName,
+          type: _selectedApplication!.pluginType,
+        );
+      }
+
       final profile = ProfileEntity(
         name: _nameController.text,
         description: _descriptionController.text,
         application: ProfileApplication.fromManifest(_selectedApplication!),
         path: p.join(_locationController.text, "${_nameController.text}.lmdp"),
+        schema: schemaManifest,
       );
 
       ref.read(profileManagerProvider.notifier).createProfile(profile);
@@ -101,9 +117,32 @@ class _CreateProfileDialogState extends ConsumerState<CreateProfileDialog> {
             items: installedApps.map((app) {
               return DropdownMenuItem(value: app, child: Text(app.displayName));
             }).toList(),
-            onChanged: (val) => setState(() => _selectedApplication = val),
+            onChanged: (val) {
+              setState(() {
+                _selectedApplication = val;
+                _selectedSchemaId = (val != null && val.schemas.isNotEmpty)
+                    ? val.schemas.first.id
+                    : null;
+              });
+            },
             validator: (v) => v == null ? "Application is required" : null,
           ),
+          if (_selectedApplication != null &&
+              _selectedApplication!.schemas.isNotEmpty)
+            LamiDialogDropdown<String>(
+              label: "Schema",
+              value: _selectedSchemaId,
+              prefixIcon: const Icon(LucideIcons.binary, size: 18),
+              hintText: "Select a schema",
+              items: _selectedApplication!.schemas.map((schema) {
+                return DropdownMenuItem(
+                  value: schema.id,
+                  child: Text("${schema.id} (v${schema.version})"),
+                );
+              }).toList(),
+              onChanged: (val) => setState(() => _selectedSchemaId = val),
+              validator: (v) => v == null ? "Schema is required" : null,
+            ),
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.l),
             child: InkWell(

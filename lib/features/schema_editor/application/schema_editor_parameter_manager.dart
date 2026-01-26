@@ -47,29 +47,8 @@ mixin SchemaEditorParameterManager on Notifier<SchemaEditorState> {
     );
   }
 
-  void toggleParameterVisibility(String name) {
-    final updatedParams = state.schema.availableParameters.map((p) {
-      if (p.paramName == name) {
-        return p.copyWith(isVisible: !p.isVisible);
-      }
-      return p;
-    }).toList();
-
-    state = state.copyWith(
-      schema: CamSchemaEntry(
-        schemaName: state.schema.schemaName,
-        categories: state.schema.categories,
-        availableParameters: updatedParams,
-      ),
-    );
-  }
-
   void setParameterSearchQuery(String query) {
     state = state.copyWith(parameterSearchQuery: query);
-  }
-
-  void toggleShowHiddenParameters() {
-    state = state.copyWith(showHiddenParameters: !state.showHiddenParameters);
   }
 
   void selectParameter(CamParamEntry? parameter) {

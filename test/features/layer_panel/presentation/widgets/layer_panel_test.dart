@@ -8,6 +8,7 @@ import 'package:laminode_app/features/layer_panel/presentation/providers/layer_p
 import 'package:laminode_app/features/profile_manager/presentation/providers/profile_manager_provider.dart';
 import 'package:laminode_app/features/profile_manager/domain/entities/profile_entity.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
+import '../../../../helpers/test_models.dart';
 
 import '../../../../mocks/mocks.dart';
 
@@ -32,7 +33,11 @@ class FakeProfileManagerNotifier extends StateNotifier<ProfileManagerState>
   @override
   void updateProfileName(dynamic name) {}
   @override
+  void updateLayers(dynamic layers) {}
+  @override
   void setApplication(dynamic application) {}
+  @override
+  Future<void> saveCurrentProfile() async {}
 }
 
 void main() {
@@ -115,7 +120,8 @@ void main() {
         name: 'Test',
         layers: [],
         application: ProfileApplication.empty(),
-        schemaId: 'some_schema', // Must have schema to enable button
+        schema: TestModels
+            .tProfileSchemaManifest, // Must have schema to enable button
       ),
     );
 

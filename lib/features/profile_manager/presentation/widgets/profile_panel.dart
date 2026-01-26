@@ -28,7 +28,13 @@ class ProfilePanel extends ConsumerWidget {
           LamiPanelHeader(
             icon: LucideIcons.user,
             title: profile?.name ?? "No Profile Selected",
-            trailing: profile != null
+            trailing: state.isLoading
+                ? const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : profile != null
                 ? LamiIcon(
                     icon: LucideIcons.logOut,
                     size: 16,
@@ -40,6 +46,18 @@ class ProfilePanel extends ConsumerWidget {
                   )
                 : null,
           ),
+          if (state.error != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
+              child: Text(
+                state.error!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
           if (profile != null) ...[
             ApplicationInfoTile(application: profile.application),
             const SizedBox(height: AppSpacing.m),
@@ -50,7 +68,9 @@ class ProfilePanel extends ConsumerWidget {
                     icon: LucideIcons.save,
                     label: "Save Profile",
                     onPressed: () {
-                      // Save Profile logic
+                      ref
+                          .read(profileManagerProvider.notifier)
+                          .saveCurrentProfile();
                     },
                   ),
                 ),
@@ -150,7 +170,7 @@ class ProfilePanel extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text(
-                                "The profile requires the schema \"${e.schemaId}\", but it is not installed locally. Please install the required plugin first.",
+                                "The profile requires the schema \"${e.schema.id}\", but it is not installed locally. Please install the required plugin first.",
                                 style: theme.textTheme.bodyMedium,
                               ),
                               const SizedBox(height: AppSpacing.l),

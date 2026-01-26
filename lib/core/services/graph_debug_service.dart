@@ -3,8 +3,6 @@ import 'package:laminode_app/features/profile_graph/domain/entities/graph_data.d
 
 /// Centralized graph debugging helper backed by [talker].
 class GraphDebugService {
-  GraphDebugService._();
-
   static final Talker talker = Talker();
 
   static void logSyncSummary({

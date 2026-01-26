@@ -40,6 +40,7 @@ class FakeLayerPanelNotifier extends Notifier<LayerPanelState>
     return LayerPanelState();
   }
 
+  @override
   void setLayers(List<LamiLayerEntry> layers) {
     state = state.copyWith(layers: layers);
   }
@@ -68,8 +69,6 @@ class FakeLayerPanelNotifier extends Notifier<LayerPanelState>
   void toggleLayerLocked(int index) {}
   @override
   void updateLayer(int index, {String? name, String? description}) {}
-  @override
-  void updateLayerName(int index, String newName) {}
 
   @override
   void updateParamValue(int layerIndex, String paramName, dynamic value) {

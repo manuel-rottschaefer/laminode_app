@@ -52,19 +52,33 @@ mixin PluginLocalDataSourceMixin {
 
   Future<List<PluginManifestModel>> getInstalledPluginsImpl() async {
     final rootPath = await pluginsPath;
-    final pluginsDir = Directory(rootPath);
-    if (!await pluginsDir.exists()) return [];
+    final rootDir = Directory(rootPath);
+    if (!await rootDir.exists()) return [];
 
     final List<PluginManifestModel> plugins = [];
-    await for (final pluginDir in pluginsDir.list()) {
-      if (pluginDir is Directory) {
-        final manifestFile = File(p.join(pluginDir.path, 'manifest.json'));
-        if (await manifestFile.exists()) {
-          final manifestJson = jsonDecode(await manifestFile.readAsString());
-          plugins.add(PluginManifestModel.fromJson(manifestJson));
+
+    Future<void> findManifests(Directory dir) async {
+      await for (final entity in dir.list()) {
+        if (entity is Directory) {
+          final manifestFile = File(p.join(entity.path, 'manifest.json'));
+          if (await manifestFile.exists()) {
+            try {
+              final manifestJson = jsonDecode(
+                await manifestFile.readAsString(),
+              );
+              plugins.add(PluginManifestModel.fromJson(manifestJson));
+            } catch (e) {
+              // Skip invalid manifests
+            }
+          } else {
+            // Keep searching deeper if no manifest found yet in this branch
+            await findManifests(entity);
+          }
         }
       }
     }
+
+    await findManifests(rootDir);
     return plugins;
   }
 }

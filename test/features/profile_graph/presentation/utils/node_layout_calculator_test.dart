@@ -10,7 +10,7 @@ void main() {
 
       final result = NodeLayoutCalculator.computeHex(
         title: 'Speed Layer 0',
-        edgeLength: 140.0,
+        edgeLength: 126.0,
         level: 0,
         cornerRadiusFactor: 0.15,
         titleStyle: const TextStyle(fontSize: 18),
@@ -33,7 +33,7 @@ void main() {
 
       final result = NodeLayoutCalculator.computeOctagon(
         title: 'Speed Layer 0',
-        edgeLength: 140.0,
+        edgeLength: 126.0,
         level: 0,
         cornerRadiusFactor: 0.1,
         titleStyle: const TextStyle(fontSize: 18),

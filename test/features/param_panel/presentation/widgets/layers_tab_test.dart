@@ -49,7 +49,8 @@ void main() {
         const ParamLayerContribution(
           layerName: 'Category Override',
           valueDisplay: '3.0',
-          layerCategory: 'extrusion', // Category name, should fallback to param color (blue)
+          layerCategory:
+              'extrusion', // Category name, should fallback to param color (blue)
           isOverride: true,
         ),
       ],
@@ -61,9 +62,7 @@ void main() {
           paramStackProvider('test_param').overrideWithValue(stackInfo),
         ],
         child: MaterialApp(
-          home: Scaffold(
-            body: LayersTab(param: testParam),
-          ),
+          home: Scaffold(body: LayersTab(param: testParam)),
         ),
       ),
     );
@@ -74,7 +73,10 @@ void main() {
       matching: find.byType(Container),
     );
     final redContainer = tester.widget<Container>(redOverrideFinder.first);
-    expect((redContainer.decoration as BoxDecoration).color, LamiColor.red.value.withValues(alpha: 0.05));
+    expect(
+      (redContainer.decoration as BoxDecoration).color,
+      LamiColor.red.value.withValues(alpha: 0.05),
+    );
 
     // Verify 'extrusion' (category) override uses fallback param color (blue)
     final catOverrideFinder = find.ancestor(
@@ -82,6 +84,9 @@ void main() {
       matching: find.byType(Container),
     );
     final catContainer = tester.widget<Container>(catOverrideFinder.first);
-    expect((catContainer.decoration as BoxDecoration).color, LamiColor.blue.value.withValues(alpha: 0.1)); // isTop is true for last one in reversed list? reversed in build.
+    expect(
+      (catContainer.decoration as BoxDecoration).color,
+      LamiColor.blue.value.withValues(alpha: 0.1),
+    ); // isTop is true for last one in reversed list? reversed in build.
   });
 }

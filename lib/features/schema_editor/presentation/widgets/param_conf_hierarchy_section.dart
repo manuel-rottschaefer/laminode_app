@@ -87,8 +87,6 @@ class _ParamConfHierarchySectionState
           ),
         ],
         const SizedBox(height: AppSpacing.m),
-        const Divider(),
-        const SizedBox(height: AppSpacing.m),
         Text(
           "Create New Ancestor Relation",
           style: theme.textTheme.labelMedium?.copyWith(
@@ -138,7 +136,9 @@ class _ParamConfHierarchySectionState
         text,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           fontStyle: FontStyle.italic,
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.7),
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
           fontSize: 11,
         ),
       ),

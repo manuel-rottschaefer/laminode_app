@@ -68,6 +68,7 @@ class _ParamConfWidgetState extends ConsumerState<ParamConfWidget> {
         quantityUnit: _unitController.text,
         quantitySymbol: param.quantity.quantitySymbol,
         quantityType: param.quantity.quantityType,
+        options: param.quantity.options,
       ),
     );
     ref

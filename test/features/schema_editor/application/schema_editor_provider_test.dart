@@ -32,13 +32,14 @@ void main() {
         profileRepositoryProvider.overrideWithValue(mockProfileRepo),
       ],
     );
+    addTearDown(container.dispose);
 
     // Default stubs
     when(
       () => mockSchemaRepo.applicationExists(any()),
     ).thenAnswer((_) async => true);
     when(
-      () => mockSchemaRepo.schemaExists(any()),
+      () => mockSchemaRepo.schemaExists(any(), any(), any()),
     ).thenAnswer((_) async => false);
     when(
       () => mockSchemaRepo.getInstalledSchemaIds(),
@@ -46,6 +47,9 @@ void main() {
     when(
       () => mockSchemaRepo.getInstalledPlugins(),
     ).thenAnswer((_) async => []);
+    when(
+      () => mockSchemaRepo.saveSchema(any(), any(), any(), any(), any()),
+    ).thenAnswer((_) async => {});
     when(
       () => mockSchemaRepo.getAvailablePlugins(),
     ).thenAnswer((_) async => []);
@@ -82,7 +86,7 @@ void main() {
         () => mockSchemaRepo.applicationExists('Target App'),
       ).thenAnswer((_) async => true);
       when(
-        () => mockSchemaRepo.schemaExists('2.0.0'),
+        () => mockSchemaRepo.schemaExists('Target App', '2.0.0', any()),
       ).thenAnswer((_) async => false);
 
       container
@@ -115,7 +119,7 @@ void main() {
       await Future.delayed(Duration.zero);
 
       expect(container.read(schemaEditorProvider).appExists, false);
-      expect(container.read(schemaEditorProvider).canSave, false);
+      expect(container.read(schemaEditorProvider).canSave, true);
     });
 
     test('saveSchema calls repository and invalidates shop provider', () async {
@@ -131,10 +135,10 @@ void main() {
         () => mockSchemaRepo.applicationExists('Installed App'),
       ).thenAnswer((_) async => true);
       when(
-        () => mockSchemaRepo.schemaExists('1.2.3'),
+        () => mockSchemaRepo.schemaExists('Installed App', '1.2.3', any()),
       ).thenAnswer((_) async => false);
       when(
-        () => mockSchemaRepo.saveSchema(any(), any(), any(), any()),
+        () => mockSchemaRepo.saveSchema(any(), any(), any(), any(), any()),
       ).thenAnswer((_) async => {});
 
       // Wait for validation
@@ -143,7 +147,13 @@ void main() {
       await container.read(schemaEditorProvider.notifier).saveSchema();
 
       verify(
-        () => mockSchemaRepo.saveSchema('Installed App', '1.2.3', any(), any()),
+        () => mockSchemaRepo.saveSchema(
+          'Installed App',
+          '1.0', // App Version
+          '1.2.3', // Schema Id
+          any(),
+          any(),
+        ),
       ).called(1);
     });
 
@@ -172,10 +182,10 @@ void main() {
         () => mockSchemaRepo.applicationExists('Installed App'),
       ).thenAnswer((_) async => true);
       when(
-        () => mockSchemaRepo.schemaExists('1.2.3'),
+        () => mockSchemaRepo.schemaExists('Installed App', '1.2.3', any()),
       ).thenAnswer((_) async => false);
       when(
-        () => mockSchemaRepo.saveSchema(any(), any(), any(), any()),
+        () => mockSchemaRepo.saveSchema(any(), any(), any(), any(), any()),
       ).thenAnswer((_) async => {});
 
       // Wait for validation
@@ -184,22 +194,17 @@ void main() {
       await container.read(schemaEditorProvider.notifier).saveAndUseSchema();
 
       expect(
-        container.read(profileManagerProvider).currentProfile?.schemaId,
+        container.read(profileManagerProvider).currentProfile?.schema?.id,
         '1.2.3',
       );
     });
 
     test('saveSchema throws error if canSave is false', () async {
-      when(
-        () => mockSchemaRepo.applicationExists('NonExistent'),
-      ).thenAnswer((_) async => false);
-
       container
           .read(schemaEditorProvider.notifier)
-          .updateManifest(targetAppName: 'NonExistent');
-
-      // Wait for validation
-      await Future.delayed(Duration.zero);
+          .updateManifest(
+            targetAppName: '',
+          ); // Clear name to make canSave false
 
       expect(
         () => container.read(schemaEditorProvider.notifier).saveSchema(),
@@ -296,6 +301,39 @@ void main() {
         state.schema.availableParameters.first.category.categoryName,
         'default',
       );
+    });
+
+    test('setAllCategoriesVisibility updates all categories', () {
+      final cat1 = CamCategoryEntry(
+        categoryName: 'cat1',
+        categoryTitle: 'Cat 1',
+        categoryColorName: 'red',
+        isVisible: true,
+      );
+      final cat2 = CamCategoryEntry(
+        categoryName: 'cat2',
+        categoryTitle: 'Cat 2',
+        categoryColorName: 'blue',
+        isVisible: true,
+      );
+      container.read(schemaEditorProvider.notifier).addCategory(cat1);
+      container.read(schemaEditorProvider.notifier).addCategory(cat2);
+
+      container
+          .read(schemaEditorProvider.notifier)
+          .setAllCategoriesVisibility(false);
+
+      final categories = container.read(schemaEditorProvider).schema.categories;
+      expect(categories.every((c) => !c.isVisible), true);
+
+      container
+          .read(schemaEditorProvider.notifier)
+          .setAllCategoriesVisibility(true);
+      final categories2 = container
+          .read(schemaEditorProvider)
+          .schema
+          .categories;
+      expect(categories2.every((c) => c.isVisible), true);
     });
   });
 

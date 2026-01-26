@@ -57,7 +57,10 @@ void main() {
           'pluginAuthor': 'Author',
           'publishedDate': '2023-01-01',
           'sector': 'FDM',
-          'targetAppVersionRange': {'minVersion': '1.0.0', 'maxVersion': '2.0.0'},
+          'targetAppVersionRange': {
+            'minVersion': '1.0.0',
+            'maxVersion': '2.0.0',
+          },
           'fileTypes': {
             'profileImportBucket': 'import',
             'gcodeExportBucket': 'export',

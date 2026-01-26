@@ -13,11 +13,12 @@ abstract class SchemaShopRepository {
   Future<String?> getAdapterCodeForSchema(String schemaId);
   Future<void> saveSchema(
     String appName,
+    String appVersion,
     String schemaId,
     Map<String, dynamic> schemaJson,
     String? adapterCode,
   );
   Future<Map<String, dynamic>?> getRawSchema(String schemaId);
-  Future<bool> schemaExists(String schemaId);
+  Future<bool> schemaExists(String appName, String appVersion, String schemaId);
   Future<bool> applicationExists(String appName);
 }

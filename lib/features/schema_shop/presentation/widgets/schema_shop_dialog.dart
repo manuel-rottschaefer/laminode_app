@@ -111,7 +111,7 @@ class _SchemaShopDialogState extends ConsumerState<SchemaShopDialog> {
           ],
         ),
         Expanded(
-          child: state.isLoading && state.availablePlugins.isEmpty
+          child: state.isLoading && state.isEmpty
               ? const Center(
                   child: Padding(
                     padding: EdgeInsets.all(AppSpacing.xl),

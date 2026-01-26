@@ -8,32 +8,40 @@ class ParamQuantity {
   final String quantityUnit;
   final String quantitySymbol;
   final QuantityType quantityType;
+  final List<String> options;
 
   const ParamQuantity({
     required this.quantityName,
     required this.quantityUnit,
     required this.quantitySymbol,
     required this.quantityType,
+    this.options = const [],
   });
 
   factory ParamQuantity.fromJson(Map<String, dynamic> json) {
     return ParamQuantity(
-      quantityName: json['quantityName'],
-      quantityUnit: json['quantityUnit'],
-      quantitySymbol: json['quantitySymbol'],
+      quantityName: json['name'] ?? 'generic',
+      quantityUnit: json['unit'] ?? 'none',
+      quantitySymbol: json['symbol'] ?? '',
       quantityType: QuantityType.values.firstWhere(
-        (e) => e.name == json['quantityType'],
+        (e) => e.name == json['type'],
         orElse: () => QuantityType.numeric,
       ),
+      options:
+          (json['options'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'quantityName': quantityName,
-      'quantityUnit': quantityUnit,
-      'quantitySymbol': quantitySymbol,
-      'quantityType': quantityType.name,
+      'name': quantityName,
+      'unit': quantityUnit,
+      'symbol': quantitySymbol,
+      'type': quantityType.name,
+      'options': options,
     };
   }
 
@@ -43,7 +51,19 @@ class ParamQuantity {
       case QuantityType.numeric:
         return 0;
       case QuantityType.choice:
-        return '';
+        return options.isNotEmpty ? options.first : '';
+      case QuantityType.boolean:
+        return false;
+    }
+  }
+
+  /// Returns the default value for expression validation (1 for numeric, first option for choice, false for booleans)
+  dynamic get validationDefaultValue {
+    switch (quantityType) {
+      case QuantityType.numeric:
+        return 1;
+      case QuantityType.choice:
+        return options.isNotEmpty ? options.first : '';
       case QuantityType.boolean:
         return false;
     }
@@ -55,12 +75,14 @@ abstract class CamParamCategory {
   final String categoryName;
   final String categoryTitle;
   final String categoryColorName;
+  final String? parentCategoryName;
   final bool isVisible;
 
   const CamParamCategory({
     required this.categoryName,
     required this.categoryTitle,
     required this.categoryColorName,
+    this.parentCategoryName,
     this.isVisible = true,
   });
 }

@@ -33,6 +33,7 @@ class LamiDialogHeader extends StatelessWidget {
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
+              letterSpacing: 1.2,
             ),
           ),
           if (dismissible)
@@ -40,50 +41,13 @@ class LamiDialogHeader extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close, size: 20),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+                icon: const Icon(Icons.close, size: 24),
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
               ),
             ),
         ],
       ),
-    );
-  }
-}
-
-class LamiDialogForm extends StatelessWidget {
-  final List<Widget> children;
-
-  const LamiDialogForm({super.key, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: AppSpacing.m,
-      children: children,
-    );
-  }
-}
-
-class LamiDialogActions extends StatelessWidget {
-  final List<Widget> actions;
-
-  const LamiDialogActions({super.key, required this.actions});
-
-  @override
-  Widget build(BuildContext context) {
-    if (actions.isEmpty) return const SizedBox.shrink();
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      spacing: AppSpacing.m,
-      children: [
-        actions.first,
-        const Spacer(),
-        if (actions.length > 1) ...actions.sublist(1),
-      ],
     );
   }
 }

@@ -28,7 +28,27 @@ class MockParamPanelNotifier extends Notifier<ParamPanelState>
   void goBack() {}
 
   @override
+  void updateFocusedParamValue(dynamic value) {}
+
+  @override
   void toggleExpansion(String paramName) {}
+
+  @override
+  void toggleBranching(String paramName) {}
+
+  @override
+  void setBranchedParamNames(Set<String> names) {}
+
+  @override
+  void toggleLock(String paramName) {
+    lastToggledParam = paramName;
+  }
+
+  @override
+  void updateParamValue(String paramName, dynamic value) {
+    lastUpdatedParam = paramName;
+    lastUpdatedValue = value;
+  }
 
   @override
   void setSelectedLayerIndex(String paramName, int layerIndex) {}
@@ -39,19 +59,15 @@ class MockParamPanelNotifier extends Notifier<ParamPanelState>
   @override
   void resetParamValue(String paramName) {}
 
-  String? lastToggledParam;
   @override
-  void toggleLock(String paramName) {
-    lastToggledParam = paramName;
+  void clearFocus() {
+    state = state.copyWith(clearExpansion: true, clearFocus: true, history: []);
   }
+
+  String? lastToggledParam;
 
   String? lastUpdatedParam;
   dynamic lastUpdatedValue;
-  @override
-  void updateParamValue(String paramName, dynamic value) {
-    lastUpdatedParam = paramName;
-    lastUpdatedValue = value;
-  }
 }
 
 void main() {

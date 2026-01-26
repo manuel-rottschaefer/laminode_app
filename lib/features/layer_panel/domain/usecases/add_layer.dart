@@ -13,10 +13,10 @@ class AddLayerUseCase {
   }) {
     final newLayer = LamiLayerEntry(
       layerName: name,
-      parameters: [],
-      layerAuthor: 'Me', // Placeholder
       layerDescription: description,
       layerCategory: category,
+      layerAuthor: 'User', // Default author for now
+      parameters: [],
     );
     repository.addLayer(newLayer);
   }

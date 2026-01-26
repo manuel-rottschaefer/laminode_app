@@ -1,81 +1,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:laminode_app/features/layer_panel/data/repositories/layer_panel_repository_impl.dart';
-import 'package:laminode_app/features/layer_panel/domain/repositories/layer_panel_repository.dart';
 import 'package:laminode_app/features/layer_management/presentation/providers/layer_management_provider.dart';
-import 'package:laminode_app/features/layer_panel/domain/usecases/add_layer.dart';
-import 'package:laminode_app/features/layer_panel/domain/usecases/get_layers.dart';
-import 'package:laminode_app/features/layer_panel/domain/usecases/remove_layer.dart';
-import 'package:laminode_app/features/layer_panel/domain/usecases/update_layer_name.dart';
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 import 'package:laminode_app/features/profile_manager/presentation/providers/profile_manager_provider.dart';
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 
-// Repository Provider
-final layerPanelRepositoryProvider = Provider<LayerPanelRepository>((ref) {
-  return LayerPanelRepositoryImpl();
-});
+import 'layer_panel_state.dart';
+import 'layer_panel_use_cases.dart';
 
-// UseCase Providers
-final getLayersUseCaseProvider = Provider((ref) {
-  return GetLayersUseCase(ref.watch(layerPanelRepositoryProvider));
-});
-
-final addLayerUseCaseProvider = Provider((ref) {
-  return AddLayerUseCase(ref.watch(layerPanelRepositoryProvider));
-});
-
-final removeLayerUseCaseProvider = Provider((ref) {
-  return RemoveLayerUseCase(ref.watch(layerPanelRepositoryProvider));
-});
-
-final updateLayerNameUseCaseProvider = Provider((ref) {
-  return UpdateLayerNameUseCase(ref.watch(layerPanelRepositoryProvider));
-});
-
-// Notifier State
-class LayerPanelState {
-  final List<LamiLayerEntry> layers;
-  final int? expandedIndex;
-  final String searchQuery;
-
-  LayerPanelState({
-    this.layers = const [],
-    this.expandedIndex,
-    this.searchQuery = '',
-  });
-
-  LayerPanelState copyWith({
-    List<LamiLayerEntry>? layers,
-    int? expandedIndex,
-    bool clearExpanded = false,
-    String? searchQuery,
-  }) {
-    return LayerPanelState(
-      layers: layers ?? this.layers,
-      expandedIndex: clearExpanded
-          ? null
-          : (expandedIndex ?? this.expandedIndex),
-      searchQuery: searchQuery ?? this.searchQuery,
-    );
-  }
-}
+export 'layer_panel_state.dart';
+export 'layer_panel_use_cases.dart';
 
 // Notifier
 class LayerPanelNotifier extends Notifier<LayerPanelState> {
   @override
   LayerPanelState build() {
-    // Watch for profile changes to sync layers
-    final profile = ref.watch(
-      profileManagerProvider.select((s) => s.currentProfile),
-    );
-
-    if (profile != null) {
-      final repo = ref.read(layerPanelRepositoryProvider);
-      repo.setLayers(profile.layers);
-    }
-
     return LayerPanelState(layers: ref.read(getLayersUseCaseProvider)());
+  }
+
+  void setLayers(List<LamiLayerEntry> layers) {
+    ref.read(layerPanelRepositoryProvider).setLayers(layers);
+    state = state.copyWith(layers: layers);
   }
 
   void _refresh() {
@@ -83,12 +28,7 @@ class LayerPanelNotifier extends Notifier<LayerPanelState> {
     state = state.copyWith(layers: newLayers);
 
     // Save to profile
-    final profile = ref.read(profileManagerProvider).currentProfile;
-    if (profile != null) {
-      ref
-          .read(profileManagerProvider.notifier)
-          .setProfile(profile.copyWith(layers: newLayers));
-    }
+    ref.read(profileManagerProvider.notifier).updateLayers(newLayers);
   }
 
   void setExpandedIndex(int? index) {
@@ -159,11 +99,6 @@ class LayerPanelNotifier extends Notifier<LayerPanelState> {
     } else if (state.expandedIndex != null && state.expandedIndex! > index) {
       state = state.copyWith(expandedIndex: state.expandedIndex! - 1);
     }
-    _refresh();
-  }
-
-  void updateLayerName(int index, String newName) {
-    ref.read(updateLayerNameUseCaseProvider)(index, newName);
     _refresh();
   }
 

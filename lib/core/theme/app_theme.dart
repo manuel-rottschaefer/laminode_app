@@ -20,6 +20,23 @@ class LamiTheme {
     ),
   );
 
+  static ThemeData get lightTheme => ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: LamiColors.lightScaffoldBackground,
+    textTheme: _buildTextTheme(Brightness.light),
+    colorScheme: const ColorScheme.light(
+      primary: LamiColors.lightPrimary,
+      secondary: LamiColors.lightSecondary,
+      surface: LamiColors.lightSurface,
+      surfaceContainer: LamiColors.lightSurfaceContainer,
+      surfaceContainerHighest: LamiColors.lightSurfaceContainerHighest,
+      onSurface: LamiColors.lightOnSurface,
+      outline: LamiColors.lightOutline,
+      primaryContainer: LamiColors.lightPrimaryContainer,
+    ),
+  );
+
   static TextTheme _buildTextTheme(Brightness brightness) {
     final baseTheme = brightness == Brightness.dark
         ? GoogleFonts.interTextTheme(
@@ -30,7 +47,22 @@ class LamiTheme {
               labelSmall: TextStyle(color: Color(0xFF787878)),
             ),
           )
-        : GoogleFonts.interTextTheme();
+        : GoogleFonts.interTextTheme(
+            const TextTheme(
+              displayLarge: TextStyle(color: Color(0xFF073642)),
+              displayMedium: TextStyle(color: Color(0xFF073642)),
+              displaySmall: TextStyle(color: Color(0xFF073642)),
+              titleLarge: TextStyle(color: Color(0xFF073642)),
+              titleMedium: TextStyle(color: Color(0xFF586E75)),
+              titleSmall: TextStyle(color: Color(0xFF657B83)),
+              bodyLarge: TextStyle(color: Color(0xFF073642)),
+              bodyMedium: TextStyle(color: Color(0xFF586E75)),
+              bodySmall: TextStyle(color: Color(0xFF657B83)),
+              labelLarge: TextStyle(color: Color(0xFF073642)),
+              labelMedium: TextStyle(color: Color(0xFF586E75)),
+              labelSmall: TextStyle(color: Color(0xFF657B83)),
+            ),
+          );
 
     return baseTheme.copyWith(
       displaySmall: baseTheme.displaySmall?.copyWith(

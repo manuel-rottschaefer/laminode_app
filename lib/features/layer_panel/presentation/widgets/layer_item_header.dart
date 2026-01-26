@@ -79,28 +79,35 @@ class LayerItemHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      entry.layerName,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: entry.isActive
-                            ? colorScheme.onSurface
-                            : theme.disabledColor,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            entry.layerName,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: entry.isActive
+                                  ? colorScheme.onSurface
+                                  : theme.disabledColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isExpanded && category != null) ...[
+                          const SizedBox(width: AppSpacing.s),
+                          LamiColoredBadge(
+                            label: category!.categoryName,
+                            color: categoryColor ?? colorScheme.primary,
+                          ),
+                        ],
+                      ],
                     ),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
-                      child: isExpanded && category != null
-                          ? Align(
-                              alignment: Alignment.centerLeft,
-                              key: const ValueKey('badge'),
-                              child: LamiColoredBadge(
-                                label: category!.categoryName,
-                                color: categoryColor ?? colorScheme.primary,
-                              ),
-                            )
+                      child: isExpanded
+                          ? const SizedBox.shrink(key: ValueKey('empty'))
                           : Text(
                               "${entry.parameters?.length ?? 0} effective parameters",
                               key: const ValueKey('text'),
@@ -117,23 +124,25 @@ class LayerItemHeader extends StatelessWidget {
             ),
 
             // Toggle Active
-            Transform.scale(
-              scale: 0.85,
-              child: Checkbox(
-                value: entry.isActive,
-                onChanged: onToggleActive,
-                activeColor: categoryColor ?? colorScheme.primary,
-                checkColor: categoryColor != null
-                    ? Colors.white
-                    : colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
+            if (!isExpanded) ...[
+              Transform.scale(
+                scale: 0.85,
+                child: Checkbox(
+                  value: entry.isActive,
+                  onChanged: onToggleActive,
+                  activeColor: categoryColor ?? colorScheme.primary,
+                  checkColor: categoryColor != null
+                      ? Colors.white
+                      : colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-            ),
-            const SizedBox(width: AppSpacing.m),
+              const SizedBox(width: AppSpacing.m),
+            ],
 
             // Expand Icon
             AnimatedContainer(

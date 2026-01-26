@@ -4,6 +4,7 @@ class SchemaManifest {
   final List<String> schemaAuthors;
   final String lastUpdated;
   final String? targetAppName;
+  final String? targetAppVersion;
   final String? targetAppSector;
 
   SchemaManifest({
@@ -12,6 +13,7 @@ class SchemaManifest {
     required this.schemaAuthors,
     required this.lastUpdated,
     this.targetAppName,
+    this.targetAppVersion,
     this.targetAppSector,
   });
 }

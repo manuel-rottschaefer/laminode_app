@@ -1,20 +1,85 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_force_directed_graph/flutter_force_directed_graph.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:laminode_app/core/services/graph_debug_service.dart';
+import 'package:laminode_app/features/param_panel/presentation/providers/param_panel_provider.dart';
+import 'package:laminode_app/features/profile_graph/application/providers/graph_providers.dart';
+import 'package:laminode_app/features/profile_graph/application/providers/graph_snapshot_providers.dart';
+import 'package:laminode_app/features/profile_graph/domain/entities/graph_data.dart';
 import 'package:vector_math/vector_math_64.dart';
+import 'package:laminode_app/features/profile_graph/domain/entities/graph_snapshot.dart';
 import 'dart:math' as math;
-import '../../domain/entities/graph_data.dart';
-import '../providers/graph_providers.dart';
-import '../../../../core/services/graph_debug_service.dart';
 
 /// Manages the visual state and synchronization of the profile graph.
 class ProfileGraphController extends ChangeNotifier {
   final ForceDirectedGraphController<String> visualController;
-  final Ref _ref;
+  Ref? _ref;
 
-  ProfileGraphController(this._ref)
+  ProfileGraphController([this._ref])
     : visualController = _createVisualController() {
-    _init();
+    if (_ref != null) {
+      _init();
+    }
+  }
+
+  void setRef(Ref ref) {
+    if (_ref == null) {
+      _ref = ref;
+      _init();
+    }
+  }
+
+  Future<void> saveCurrentSnapshot() async {
+    final snapshot = getSnapshot();
+    if (snapshot != null && _ref != null) {
+      await _ref!.read(saveGraphSnapshotUseCaseProvider).execute(snapshot);
+    }
+  }
+
+  Future<void> loadSnapshot() async {
+    if (_ref == null) return;
+    final snapshot = await _ref!
+        .read(loadGraphSnapshotUseCaseProvider)
+        .execute();
+    if (snapshot != null) {
+      applySnapshot(snapshot);
+    }
+  }
+
+  GraphSnapshot? getSnapshot() {
+    if (_ref == null) return null;
+
+    final positions = <String, Vector2>{};
+    for (final node in visualController.graph.nodes) {
+      positions[node.data] = node.position;
+    }
+
+    final branchedNames = _ref!.read(paramPanelProvider).branchedParamNames;
+
+    return GraphSnapshot(
+      nodePositions: positions,
+      branchedParamNames: branchedNames,
+    );
+  }
+
+  void applySnapshot(GraphSnapshot snapshot) {
+    if (_ref == null) return;
+
+    // 1. Restore branching state first (this will trigger graph sync)
+    _ref!
+        .read(paramPanelProvider.notifier)
+        .setBranchedParamNames(snapshot.branchedParamNames);
+
+    // 2. Wait for the graph to sync (nodes to be created)
+    Future.delayed(const Duration(milliseconds: 100), () {
+      for (final node in visualController.graph.nodes) {
+        final savedPos = snapshot.nodePositions[node.data];
+        if (savedPos != null) {
+          node.position = savedPos;
+        }
+      }
+      visualController.needUpdate();
+    });
   }
 
   static ForceDirectedGraphController<String> _createVisualController() {
@@ -29,7 +94,7 @@ class ProfileGraphController extends ChangeNotifier {
   }
 
   void _init() {
-    _ref.listen<GraphData>(graphDataProvider, (previous, next) {
+    _ref?.listen<GraphData>(graphDataProvider, (previous, next) {
       _syncGraph(previous, next);
     }, fireImmediately: true);
   }
@@ -98,6 +163,10 @@ class ProfileGraphController extends ChangeNotifier {
         edgesToRemove.isNotEmpty) {
       visualController.needUpdate();
     }
+  }
+
+  void center() {
+    visualController.center();
   }
 
   void _positionNewNodes(Set<String> newIds, GraphData data) {

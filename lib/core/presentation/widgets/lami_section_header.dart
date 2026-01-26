@@ -9,24 +9,12 @@ class LamiSectionHeader extends StatelessWidget {
   final Widget? trailing;
   final LamiSectionHeaderSize size;
 
-  const LamiSectionHeader({
-    super.key,
-    required this.title,
-    this.icon,
-    this.trailing,
-    this.size = LamiSectionHeaderSize.small,
-  });
-
   const LamiSectionHeader.small({
     super.key,
     required this.title,
     required this.icon,
     this.trailing,
   }) : size = LamiSectionHeaderSize.small;
-
-  const LamiSectionHeader.large({super.key, required this.title, this.trailing})
-    : icon = null,
-      size = LamiSectionHeaderSize.large;
 
   @override
   Widget build(BuildContext context) {

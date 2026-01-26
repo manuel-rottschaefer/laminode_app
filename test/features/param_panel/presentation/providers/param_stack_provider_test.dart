@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/features/param_panel/presentation/providers/param_stack_provider.dart';
 import 'package:laminode_app/features/profile_manager/presentation/providers/profile_manager_provider.dart';
@@ -11,6 +12,7 @@ import 'package:laminode_app/features/schema_editor/domain/entities/cam_schema_e
 import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 import 'package:laminode_app/features/profile_manager/domain/repositories/profile_repository.dart';
 import 'package:laminode_app/features/schema_shop/domain/repositories/schema_shop_repository.dart';
+import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
 
 // Helper to create basic param
 CamParamEntry _createParam(String name, dynamic value, {bool edited = false}) {
@@ -37,15 +39,9 @@ CamParamEntry _createParam(String name, dynamic value, {bool edited = false}) {
 // Mocks
 // -----------------------------------------------------------------------------
 
-class MockProfileRepository implements ProfileRepository {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
+class MockProfileRepository extends Mock implements ProfileRepository {}
 
-class MockSchemaShopRepository implements SchemaShopRepository {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
+class MockSchemaShopRepository extends Mock implements SchemaShopRepository {}
 
 class ProfileManagerNotifierMock extends ProfileManagerNotifier {
   ProfileManagerNotifierMock(Ref ref) : super(MockProfileRepository(), ref) {
@@ -99,6 +95,17 @@ class SchemaShopNotifierMock extends SchemaShopNotifier {
   }
 }
 
+class LayerPanelNotifierMock extends LayerPanelNotifier {
+  final List<LamiLayerEntry> initialLayers;
+  LayerPanelNotifierMock(this.initialLayers);
+
+  @override
+  LayerPanelState build() => LayerPanelState(layers: initialLayers);
+
+  @override
+  void setLayers(List<LamiLayerEntry> layers) {}
+}
+
 // -----------------------------------------------------------------------------
 // Tests
 // -----------------------------------------------------------------------------
@@ -106,12 +113,34 @@ class SchemaShopNotifierMock extends SchemaShopNotifier {
 void main() {
   group('ParamStackProvider', () {
     test('Correctly aggregates Schema (Base) + Profile Layers (Overrides)', () {
+      final layers = [
+        LamiLayerEntry(
+          layerName: 'Layer 1',
+          layerAuthor: 'A',
+          layerDescription: 'D',
+          parameters: [_createParam('speed', 20, edited: true)],
+        ),
+        LamiLayerEntry(
+          layerName: 'Layer 2', // No override
+          layerAuthor: 'A',
+          layerDescription: 'D',
+          parameters: [_createParam('speed', 20, edited: false)],
+        ),
+        LamiLayerEntry(
+          layerName: 'Layer 3',
+          layerAuthor: 'A',
+          layerDescription: 'D',
+          parameters: [_createParam('speed', 30, edited: true)],
+        ),
+      ];
+
       final container = ProviderContainer(
         overrides: [
           profileManagerProvider.overrideWith(
             (ref) => ProfileManagerNotifierMock(ref),
           ),
           schemaShopProvider.overrideWith((ref) => SchemaShopNotifierMock()),
+          layerPanelProvider.overrideWith(() => LayerPanelNotifierMock(layers)),
         ],
       );
 
@@ -138,7 +167,7 @@ void main() {
       expect(base.isBase, true);
       expect(
         base.layerName,
-        'Base Profile (Schema Default)',
+        'Base Layer',
       ); // Base layer used fixed name in implementation
       expect(
         base.valueDisplay,
@@ -161,6 +190,21 @@ void main() {
     });
 
     test('Handling missing Active Schema', () {
+      final layers = [
+        LamiLayerEntry(
+          layerName: 'Layer 1',
+          layerAuthor: 'A',
+          layerDescription: 'D',
+          parameters: [_createParam('speed', 20, edited: true)],
+        ),
+        LamiLayerEntry(
+          layerName: 'Layer 2',
+          layerAuthor: 'A',
+          layerDescription: 'D',
+          parameters: [_createParam('speed', 30, edited: true)],
+        ),
+      ];
+
       final container = ProviderContainer(
         overrides: [
           profileManagerProvider.overrideWith(
@@ -171,6 +215,7 @@ void main() {
                 SchemaShopNotifierMock()
                   ..state = SchemaShopState(activeSchema: null),
           ),
+          layerPanelProvider.overrideWith(() => LayerPanelNotifierMock(layers)),
         ],
       );
 

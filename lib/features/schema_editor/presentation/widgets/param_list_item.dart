@@ -8,7 +8,7 @@ import 'package:laminode_app/core/domain/entities/cam_param.dart';
 import 'package:laminode_app/core/theme/app_colors.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class ParamListItem extends ConsumerWidget {
+class ParamListItem extends ConsumerStatefulWidget {
   final CamParamEntry param;
   final bool isSelected;
 
@@ -19,72 +19,90 @@ class ParamListItem extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return InkWell(
-      onTap: () {
-        ref.read(schemaEditorProvider.notifier).selectParameter(param);
-      },
-      child: LamiBox(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.m,
-          vertical: AppSpacing.s,
-        ),
-        borderColor: isSelected ? Theme.of(context).colorScheme.primary : null,
-        backgroundColor: isSelected
-            ? Theme.of(
-                context,
-              ).colorScheme.primaryContainer.withValues(alpha: 0.1)
-            : null,
-        child: Row(
-          children: [
-            Icon(
-              _getIconForType(param.quantity.quantityType),
-              size: 16,
-              color: param.isVisible
-                  ? LamiColor.fromString(param.category.categoryColorName).value
-                  : Theme.of(context).disabledColor,
-            ),
-            const SizedBox(width: AppSpacing.m),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+  ConsumerState<ParamListItem> createState() => _ParamListItemState();
+}
+
+class _ParamListItemState extends ConsumerState<ParamListItem> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final param = widget.param;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          InkWell(
+            onTap: () {
+              ref.read(schemaEditorProvider.notifier).selectParameter(param);
+            },
+            child: LamiBox(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.m,
+                vertical: AppSpacing.s,
+              ),
+              borderColor: widget.isSelected ? theme.colorScheme.primary : null,
+              backgroundColor: widget.isSelected
+                  ? theme.colorScheme.primaryContainer.withValues(alpha: 0.1)
+                  : null,
+              child: Row(
                 children: [
-                  Text(
-                    param.paramTitle,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: param.isVisible
-                          ? null
-                          : Theme.of(context).disabledColor,
-                    ),
+                  Icon(
+                    _getIconForType(param.quantity.quantityType),
+                    size: 16,
+                    color: LamiColor.fromString(
+                      param.category.categoryColorName,
+                    ).value,
                   ),
-                  Text(
-                    param.paramName,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: param.isVisible
-                          ? Theme.of(context).colorScheme.onSurfaceVariant
-                          : Theme.of(context).disabledColor,
+                  const SizedBox(width: AppSpacing.m),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          param.paramTitle,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: param.isVisible ? null : theme.disabledColor,
+                          ),
+                        ),
+                        Text(
+                          param.paramName,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: param.isVisible
+                                ? theme.colorScheme.onSurfaceVariant
+                                : theme.disabledColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            IconButton(
-              icon: Icon(
-                param.isVisible ? LucideIcons.eye : LucideIcons.eyeOff,
-                size: 14,
+          ),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            right: _isHovered ? 8 : -32,
+            top: 0,
+            bottom: 0,
+            child: IgnorePointer(
+              child: Center(
+                child: Opacity(
+                  opacity: _isHovered ? 1.0 : 0.0,
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(LucideIcons.pencil, size: 14),
+                  ),
+                ),
               ),
-              onPressed: () {
-                ref
-                    .read(schemaEditorProvider.notifier)
-                    .toggleParameterVisibility(param.paramName);
-              },
-              constraints: const BoxConstraints(),
-              padding: EdgeInsets.zero,
-              splashRadius: 16,
-              color: param.isVisible ? null : Theme.of(context).disabledColor,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,7 +1,3 @@
-import 'dart:io';
-import 'dart:convert';
-import 'package:archive/archive.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/features/schema_editor/application/schema_editor_state.dart';
 import 'package:laminode_app/features/schema_editor/domain/entities/cam_schema_entry.dart';
@@ -10,11 +6,12 @@ import 'package:laminode_app/features/schema_shop/domain/entities/schema_manifes
 import 'package:laminode_app/features/schema_editor/application/schema_editor_category_manager.dart';
 import 'package:laminode_app/features/schema_editor/application/schema_editor_parameter_manager.dart';
 import 'package:laminode_app/core/services/graph_debug_service.dart';
-import 'package:laminode_app/features/schema_editor/data/models/cam_schema_entry_model.dart';
-import 'package:laminode_app/features/schema_shop/data/models/schema_manifest_model.dart';
+import 'package:laminode_app/features/profile_manager/domain/entities/profile_entity.dart';
 
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 import 'package:laminode_app/features/profile_manager/presentation/providers/profile_manager_provider.dart';
+
+import 'package:laminode_app/features/schema_editor/application/schema_export_service.dart';
 
 class SchemaEditorNotifier extends Notifier<SchemaEditorState>
     with SchemaEditorCategoryManager, SchemaEditorParameterManager {
@@ -38,6 +35,7 @@ class SchemaEditorNotifier extends Notifier<SchemaEditorState>
         schemaAuthors: [],
         lastUpdated: DateTime.now().toIso8601String(),
         targetAppName: 'New Schema',
+        targetAppVersion: '1.0',
         targetAppSector: 'FDM',
       ),
       adapterCode:
@@ -46,30 +44,27 @@ class SchemaEditorNotifier extends Notifier<SchemaEditorState>
   }
 
   Future<void> validate() async {
+    final repo = ref.read(schemaShopRepositoryProvider);
     final appName = state.manifest.targetAppName;
-    final version = state.manifest.schemaVersion;
+    final appVersion = state.manifest.targetAppVersion;
+    final schemaId = state.manifest.schemaVersion;
 
-    if (appName == null || appName.isEmpty) {
-      state = state.copyWith(appExists: false, isChecking: false);
-      return;
+    bool appExists = false;
+    bool versionExists = false;
+
+    if (appName != null && appName.isNotEmpty) {
+      appExists = await repo.applicationExists(appName);
+
+      if (appVersion != null && appVersion.isNotEmpty && schemaId.isNotEmpty) {
+        versionExists = await repo.schemaExists(appName, appVersion, schemaId);
+      }
     }
 
-    state = state.copyWith(isChecking: true);
-
-    try {
-      final repo = ref.read(schemaShopRepositoryProvider);
-      final appExists = await repo.applicationExists(appName);
-      final versionExists = await repo.schemaExists(version);
-
-      state = state.copyWith(
-        appExists: appExists,
-        versionExists: versionExists,
-        isChecking: false,
-      );
-    } catch (e) {
-      GraphDebugService.talker.error('Validation error: $e');
-      state = state.copyWith(isChecking: false);
-    }
+    state = state.copyWith(
+      isChecking: false,
+      appExists: appExists,
+      versionExists: versionExists,
+    );
   }
 
   void loadSchema(
@@ -93,6 +88,7 @@ class SchemaEditorNotifier extends Notifier<SchemaEditorState>
     String? schemaVersion,
     List<String>? schemaAuthors,
     String? targetAppName,
+    String? targetAppVersion,
     String? targetAppSector,
   }) {
     final current = state.manifest;
@@ -104,6 +100,7 @@ class SchemaEditorNotifier extends Notifier<SchemaEditorState>
         schemaAuthors: schemaAuthors ?? current.schemaAuthors,
         lastUpdated: DateTime.now().toIso8601String(),
         targetAppName: targetAppName ?? current.targetAppName,
+        targetAppVersion: targetAppVersion ?? current.targetAppVersion,
         targetAppSector: targetAppSector ?? current.targetAppSector,
       ),
     );
@@ -128,6 +125,10 @@ class SchemaEditorNotifier extends Notifier<SchemaEditorState>
     state = state.copyWith(viewMode: mode);
   }
 
+  void toggleCategoryFilter() {
+    state = state.copyWith(filterByCategories: !state.filterByCategories);
+  }
+
   void updateAdapterCode(String code) {
     GraphDebugService.talker.debug(
       'Updating adapter code (${code.length} chars)',
@@ -141,132 +142,50 @@ class SchemaEditorNotifier extends Notifier<SchemaEditorState>
     }
 
     final repo = ref.read(schemaShopRepositoryProvider);
-    final schemaJson = _schemaToRawJson(state);
+    final schemaJson = SchemaExportService.schemaToRawJson(state);
     final appName = state.manifest.targetAppName!;
+    final appVersion = state.manifest.targetAppVersion ?? "1.0";
     final schemaId = state.manifest.schemaVersion;
 
-    await repo.saveSchema(appName, schemaId, schemaJson, state.adapterCode);
+    await repo.saveSchema(
+      appName,
+      appVersion,
+      schemaId,
+      schemaJson,
+      state.adapterCode,
+    );
     ref.invalidate(schemaShopProvider);
     validate(); // Refresh version check
   }
 
   Future<void> saveAndUseSchema() async {
     await saveSchema();
-    final schemaId = state.manifest.schemaVersion;
-    ref.read(profileManagerProvider.notifier).setSchema(schemaId);
-  }
 
-  Map<String, dynamic> _schemaToRawJson(SchemaEditorState state) {
-    final manifestModel = SchemaManifestModel(
-      schemaType: state.manifest.schemaType,
-      schemaVersion: state.manifest.schemaVersion,
-      schemaAuthors: state.manifest.schemaAuthors,
-      lastUpdated: DateTime.now().toIso8601String(),
-      targetAppName: state.manifest.targetAppName,
-      targetAppSector: state.manifest.targetAppSector,
+    final appName = state.manifest.targetAppName ?? "Unknown App";
+    final appVersion = state.manifest.targetAppVersion ?? "1.0";
+
+    final application = ProfileApplication(
+      id: appName.replaceAll(' ', '_').toLowerCase(),
+      name: appName,
+      vendor: "Local User",
+      version: appVersion,
     );
 
-    return {
-      'manifest': manifestModel.toJson(),
-      'categories': state.schema.categories
-          .map(
-            (c) => {
-              'categoryName': c.categoryName,
-              'categoryTitle': c.categoryTitle,
-              'categoryColorName': c.categoryColorName,
-            },
-          )
-          .toList(),
-      'availableParameters': state.schema.availableParameters
-          .map(
-            (p) => {
-              'paramName': p.paramName,
-              'paramTitle': p.paramTitle,
-              'paramDescription': p.paramDescription,
-              'isVisible': p.isVisible,
-              'quantity': {
-                'quantityName': p.quantity.quantityName,
-                'quantityUnit': p.quantity.quantityUnit,
-                'quantitySymbol': p.quantity.quantitySymbol,
-                'quantityType': p.quantity.quantityType.name,
-              },
-              'category': {'categoryName': p.category.categoryName},
-              'children': p.children
-                  .map(
-                    (r) => {
-                      'targetParamName': r.targetParamName,
-                      'childParamName': r.childParamName,
-                    },
-                  )
-                  .toList(),
-            },
-          )
-          .toList(),
-    };
+    final manifest = ProfileSchemaManifest(
+      id: state.manifest.schemaVersion,
+      version: state.manifest.schemaVersion,
+      updated: DateTime.now().toIso8601String(),
+      targetAppName: appName,
+      type: state.manifest.schemaType,
+    );
+
+    final profileNotifier = ref.read(profileManagerProvider.notifier);
+    profileNotifier.setApplication(application);
+    profileNotifier.setSchema(manifest);
   }
 
   Future<void> exportSchema() async {
-    GraphDebugService.talker.info('Starting schema export bundle...');
-
-    try {
-      final result = await FilePicker.platform.saveFile(
-        dialogTitle: 'Export Schema Bundle',
-        fileName: '${state.schema.schemaName.replaceAll(' ', '_')}.zip',
-        type: FileType.custom,
-        allowedExtensions: ['zip'],
-      );
-
-      if (result == null) {
-        GraphDebugService.talker.info('Schema export cancelled by user.');
-        return;
-      }
-
-      final archive = Archive();
-
-      // Create schema JSON using model
-      final schemaModel = CamSchemaEntryModel.fromEntity(state.schema);
-      final schemaJson = jsonEncode(schemaModel.toJson());
-      final schemaBytes = utf8.encode(schemaJson);
-      archive.addFile(
-        ArchiveFile('schema.json', schemaBytes.length, schemaBytes),
-      );
-
-      // Create manifest JSON using model
-      final manifestModel = SchemaManifestModel(
-        schemaType: state.manifest.schemaType,
-        schemaVersion: state.manifest.schemaVersion,
-        schemaAuthors: state.manifest.schemaAuthors,
-        lastUpdated: state.manifest.lastUpdated,
-        targetAppName: state.manifest.targetAppName,
-        targetAppSector: state.manifest.targetAppSector,
-      );
-      final manifestJson = jsonEncode(manifestModel.toJson());
-      final manifestBytes = utf8.encode(manifestJson);
-      archive.addFile(
-        ArchiveFile('manifest.json', manifestBytes.length, manifestBytes),
-      );
-
-      // Create adapter code
-      final adapterBytes = utf8.encode(state.adapterCode);
-      archive.addFile(
-        ArchiveFile('adapter.js', adapterBytes.length, adapterBytes),
-      );
-
-      GraphDebugService.talker.debug(
-        'Archive created with ${archive.length} files. Encoding to ZIP...',
-      );
-
-      final zipData = ZipEncoder().encode(archive);
-
-      final file = File(result);
-      await file.writeAsBytes(zipData, flush: true);
-
-      GraphDebugService.talker.info(
-        'Schema bundle exported successfully to $result (${zipData.length} bytes)',
-      );
-    } catch (e, st) {
-      GraphDebugService.talker.handle(e, st, 'Error exporting schema bundle');
-    }
+    await SchemaExportService.exportSchemaBundle(state);
   }
 }
 

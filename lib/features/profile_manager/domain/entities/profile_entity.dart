@@ -1,5 +1,6 @@
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 import 'package:laminode_app/features/schema_shop/domain/entities/plugin_manifest.dart';
+import 'package:laminode_app/features/profile_graph/domain/entities/graph_snapshot.dart';
 
 class ProfileApplication {
   final String id;
@@ -34,6 +35,90 @@ class ProfileApplication {
       version: '1.0.0',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'vendor': vendor,
+      'version': version,
+      if (logoUrl != null) 'logoUrl': logoUrl,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProfileApplication &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name &&
+          vendor == other.vendor &&
+          version == other.version &&
+          logoUrl == other.logoUrl;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      name.hashCode ^
+      vendor.hashCode ^
+      version.hashCode ^
+      logoUrl.hashCode;
+}
+
+class ProfileSchemaManifest {
+  final String id;
+  final String version;
+  final String updated;
+  final String targetAppName;
+  final String type; // 'application' or 'sector'
+
+  const ProfileSchemaManifest({
+    required this.id,
+    required this.version,
+    required this.updated,
+    required this.targetAppName,
+    required this.type,
+  });
+
+  factory ProfileSchemaManifest.fromJson(Map<String, dynamic> json) {
+    return ProfileSchemaManifest(
+      id: json['id'],
+      version: json['version'],
+      updated: json['updated'],
+      targetAppName: json['targetAppName'],
+      type: json['type'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'version': version,
+      'updated': updated,
+      'targetAppName': targetAppName,
+      'type': type,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProfileSchemaManifest &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          version == other.version &&
+          updated == other.updated &&
+          targetAppName == other.targetAppName &&
+          type == other.type;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      version.hashCode ^
+      updated.hashCode ^
+      targetAppName.hashCode ^
+      type.hashCode;
 }
 
 class ProfileEntity {
@@ -41,16 +126,18 @@ class ProfileEntity {
   final String? description;
   final ProfileApplication application;
   final String? path;
-  final String? schemaId;
+  final ProfileSchemaManifest? schema;
   final List<LamiLayerEntry> layers;
+  final GraphSnapshot? graphSnapshot;
 
   const ProfileEntity({
     required this.name,
     this.description,
     required this.application,
     this.path,
-    this.schemaId,
+    this.schema,
     this.layers = const [],
+    this.graphSnapshot,
   });
 
   ProfileEntity copyWith({
@@ -58,25 +145,28 @@ class ProfileEntity {
     String? description,
     ProfileApplication? application,
     String? path,
-    String? schemaId,
+    ProfileSchemaManifest? schema,
     bool clearSchema = false,
     List<LamiLayerEntry>? layers,
+    GraphSnapshot? graphSnapshot,
   }) {
     return ProfileEntity(
       name: name ?? this.name,
       description: description ?? this.description,
       application: application ?? this.application,
       path: path ?? this.path,
-      schemaId: clearSchema ? null : (schemaId ?? this.schemaId),
+      schema: clearSchema ? null : (schema ?? this.schema),
       layers: layers ?? this.layers,
+      graphSnapshot: graphSnapshot ?? this.graphSnapshot,
     );
   }
 }
 
 class SchemaNotFoundException implements Exception {
-  final String schemaId;
-  SchemaNotFoundException(this.schemaId);
+  final ProfileSchemaManifest schema;
+  SchemaNotFoundException(this.schema);
 
   @override
-  String toString() => 'Schema "$schemaId" not found in local installations.';
+  String toString() =>
+      'Schema "${schema.id}" (v${schema.version}) for ${schema.targetAppName} not found in local installations.';
 }

@@ -3,6 +3,10 @@ import 'package:laminode_app/features/profile_manager/data/repositories/profile_
 import 'package:laminode_app/features/profile_manager/domain/entities/profile_entity.dart';
 import 'package:laminode_app/features/profile_manager/domain/repositories/profile_repository.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
+import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
+
+import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
+import 'package:laminode_app/features/profile_graph/application/providers/graph_providers.dart';
 
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
   return ProfileRepositoryImpl();
@@ -46,7 +50,8 @@ class ProfileManagerNotifier extends StateNotifier<ProfileManagerState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       await _repository.saveProfile(profile);
-      state = state.copyWith(currentProfile: profile, isLoading: false);
+      setProfile(profile);
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -57,14 +62,32 @@ class ProfileManagerNotifier extends StateNotifier<ProfileManagerState> {
     try {
       final profile = await _repository.loadProfile(path);
 
-      if (profile.schemaId != null) {
-        final installedIds = _ref.read(schemaShopProvider).installedSchemaIds;
-        if (!installedIds.contains(profile.schemaId)) {
-          throw SchemaNotFoundException(profile.schemaId!);
+      if (profile.schema != null) {
+        final repo = _ref.read(schemaShopRepositoryProvider);
+        final installedPlugins = await repo.getInstalledPlugins();
+
+        bool found = false;
+        for (final plugin in installedPlugins) {
+          for (final schemaRef in plugin.schemas) {
+            if (schemaRef.id == profile.schema!.id &&
+                schemaRef.version == profile.schema!.version &&
+                schemaRef.releaseDate == profile.schema!.updated &&
+                plugin.displayName == profile.schema!.targetAppName &&
+                plugin.pluginType == profile.schema!.type) {
+              found = true;
+              break;
+            }
+          }
+          if (found) break;
+        }
+
+        if (!found) {
+          throw SchemaNotFoundException(profile.schema!);
         }
       }
 
-      state = state.copyWith(currentProfile: profile, isLoading: false);
+      setProfile(profile);
+      state = state.copyWith(isLoading: false);
     } on SchemaNotFoundException catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       rethrow;
@@ -77,18 +100,71 @@ class ProfileManagerNotifier extends StateNotifier<ProfileManagerState> {
   void setProfile(ProfileEntity? profile) {
     if (profile == null) {
       state = state.copyWith(clearProfile: true);
+      _ref.read(schemaShopProvider.notifier).clearActiveSchema();
+      _ref.read(layerPanelProvider.notifier).setLayers([]);
     } else {
       state = state.copyWith(currentProfile: profile);
+      // Ensure schema is loaded when profile is set
+      if (profile.schema != null) {
+        _ref.read(schemaShopProvider.notifier).loadSchema(profile.schema!.id);
+      } else {
+        _ref.read(schemaShopProvider.notifier).clearActiveSchema();
+      }
+
+      // Explicitly push layers to the layer panel
+      _ref.read(layerPanelProvider.notifier).setLayers(profile.layers);
+
+      // Apply graph snapshot if available
+      if (profile.graphSnapshot != null) {
+        _ref
+            .read(profileGraphControllerProvider)
+            .applySnapshot(profile.graphSnapshot!);
+      }
     }
   }
 
-  void setSchema(String? schemaId) {
+  Future<void> saveCurrentProfile() async {
+    if (state.currentProfile != null) {
+      state = state.copyWith(isLoading: true, error: null);
+      try {
+        // Capture graph snapshot before saving
+        final snapshot = _ref
+            .read(profileGraphControllerProvider)
+            .getSnapshot();
+        final profileToSave = state.currentProfile!.copyWith(
+          graphSnapshot: snapshot,
+        );
+
+        await _repository.saveProfile(profileToSave);
+        state = state.copyWith(currentProfile: profileToSave, isLoading: false);
+      } catch (e) {
+        state = state.copyWith(isLoading: false, error: e.toString());
+      }
+    }
+  }
+
+  void setSchema(ProfileSchemaManifest? schema) {
     if (state.currentProfile != null) {
       state = state.copyWith(
         currentProfile: state.currentProfile!.copyWith(
-          schemaId: schemaId,
-          clearSchema: schemaId == null,
+          schema: schema,
+          clearSchema: schema == null,
         ),
+      );
+
+      // Automatic assignment of the schema as the session active schema
+      if (schema != null) {
+        _ref.read(schemaShopProvider.notifier).loadSchema(schema.id);
+      } else {
+        _ref.read(schemaShopProvider.notifier).clearActiveSchema();
+      }
+    }
+  }
+
+  void updateLayers(List<LamiLayerEntry> layers) {
+    if (state.currentProfile != null) {
+      state = state.copyWith(
+        currentProfile: state.currentProfile!.copyWith(layers: layers),
       );
     }
   }

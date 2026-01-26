@@ -40,7 +40,9 @@ class ItemBody extends ConsumerWidget {
                 constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                 splashRadius: 18,
                 tooltip: 'Back',
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               const SizedBox(width: AppSpacing.s),
             ],

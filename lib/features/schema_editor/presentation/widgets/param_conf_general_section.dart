@@ -39,6 +39,7 @@ class ParamConfGeneralSection extends ConsumerWidget {
                 child: LamiDialogInput(
                   label: 'Internal Name',
                   controller: nameController,
+                  isDense: true,
                   onChanged: (_) => onUpdate(),
                 ),
               ),
@@ -47,6 +48,7 @@ class ParamConfGeneralSection extends ConsumerWidget {
                 child: LamiDialogInput(
                   label: 'Display Title',
                   controller: titleController,
+                  isDense: true,
                   onChanged: (_) => onUpdate(),
                 ),
               ),
@@ -57,6 +59,7 @@ class ParamConfGeneralSection extends ConsumerWidget {
             label: 'Description',
             controller: descController,
             maxLines: 2,
+            isDense: true,
             onChanged: (_) => onUpdate(),
           ),
           const SizedBox(height: AppSpacing.m),
@@ -108,6 +111,7 @@ class ParamConfGeneralSection extends ConsumerWidget {
                           quantityUnit: param.quantity.quantityUnit,
                           quantitySymbol: param.quantity.quantitySymbol,
                           quantityType: val,
+                          options: param.quantity.options,
                         ),
                         value: _getDefaultValueForType(val),
                       );
@@ -124,6 +128,7 @@ class ParamConfGeneralSection extends ConsumerWidget {
                 child: LamiDialogInput(
                   label: 'Unit (e.g. mm, %)',
                   controller: unitController,
+                  isDense: true,
                   onChanged: (_) => onUpdate(),
                 ),
               ),

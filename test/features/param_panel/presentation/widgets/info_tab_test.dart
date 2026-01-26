@@ -33,22 +33,22 @@ void main() {
   testWidgets('InfoTab should use grey badge for type', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: InfoTab(param: createParam('test')),
-        ),
+        home: Scaffold(body: InfoTab(param: createParam('test'))),
       ),
     );
 
-    final badge = tester.widget<LamiColoredBadge>(find.byType(LamiColoredBadge));
+    final badge = tester.widget<LamiColoredBadge>(
+      find.byType(LamiColoredBadge),
+    );
     expect(badge.color, Colors.grey.withValues(alpha: 0.5));
   });
 
-  testWidgets('InfoTab should have larger font for short names', (tester) async {
+  testWidgets('InfoTab should have larger font for short names', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: InfoTab(param: createParam('short_name')),
-        ),
+        home: Scaffold(body: InfoTab(param: createParam('short_name'))),
       ),
     );
 
@@ -56,13 +56,13 @@ void main() {
     expect(text.style?.fontSize, 12);
   });
 
-  testWidgets('InfoTab should have smaller font for long names', (tester) async {
+  testWidgets('InfoTab should have smaller font for long names', (
+    tester,
+  ) async {
     const longName = 'this_is_a_very_long_parameter_name_indeed';
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: InfoTab(param: createParam(longName)),
-        ),
+        home: Scaffold(body: InfoTab(param: createParam(longName))),
       ),
     );
 

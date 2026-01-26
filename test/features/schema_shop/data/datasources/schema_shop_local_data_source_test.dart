@@ -54,7 +54,11 @@ void main() {
         sector: 'FDM',
       ),
       schemas: [
-        SchemaRefModel(id: 'schema_1', version: '1.0', releaseDate: '2023-01-01'),
+        SchemaRefModel(
+          id: 'schema_1',
+          version: '1.0',
+          releaseDate: '2023-01-01',
+        ),
       ],
     );
 
@@ -82,14 +86,17 @@ void main() {
       );
     });
 
-    test('getInstalledPlugins should return list of installed plugins', () async {
-      await dataSource.savePlugin(tPlugin, null, 'schema_1', tSchemaJson);
+    test(
+      'getInstalledPlugins should return list of installed plugins',
+      () async {
+        await dataSource.savePlugin(tPlugin, null, 'schema_1', tSchemaJson);
 
-      final plugins = await dataSource.getInstalledPlugins();
+        final plugins = await dataSource.getInstalledPlugins();
 
-      expect(plugins.length, 1);
-      expect(plugins.first.plugin.pluginID, 'test_app_plugin');
-    });
+        expect(plugins.length, 1);
+        expect(plugins.first.plugin.pluginID, 'test_app_plugin');
+      },
+    );
 
     test('removePlugin should delete the plugin directory', () async {
       await dataSource.savePlugin(tPlugin, null, 'schema_1', tSchemaJson);
@@ -113,18 +120,16 @@ void main() {
     test('saveManualSchema should create manual plugin', () async {
       await dataSource.saveManualSchema(
         'Manual App',
+        '1.0',
         'v1',
         tSchemaJson,
         '// adapter',
       );
 
-      final pluginId = 'manual_manual_app';
-      final pluginPath = p.join(tempDir.path, 'plugins', pluginId);
+      final appDir = p.join(tempDir.path, 'plugins', 'Manual_App');
+      final pluginPath = p.join(appDir, '1.0', 'v1');
       expect(await Directory(pluginPath).exists(), true);
-      expect(
-        await File(p.join(pluginPath, 'schemas', 'v1.json')).exists(),
-        true,
-      );
+      expect(await File(p.join(pluginPath, 'schema.json')).exists(), true);
     });
   });
 }

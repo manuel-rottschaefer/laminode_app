@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:laminode_app/features/profile_manager/data/repositories/profile_repository_impl.dart';
 import 'package:laminode_app/features/profile_manager/domain/entities/profile_entity.dart';
+import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
+import '../../../../helpers/test_models.dart';
 
 void main() {
   late ProfileRepositoryImpl repository;
@@ -26,12 +28,21 @@ void main() {
 
     test('should save and load profile correctly', () async {
       final path = '${tempDir.path}/test.lmdp';
+      final layers = [
+        const LamiLayerEntry(
+          layerName: 'Test Layer',
+          layerAuthor: 'Author',
+          layerDescription: 'Description',
+          parameters: [],
+        ),
+      ];
       final profile = ProfileEntity(
         name: 'Test Profile',
         description: 'Test Description',
         application: application,
         path: path,
-        schemaId: 'test-schema',
+        schema: TestModels.tProfileSchemaManifest,
+        layers: layers,
       );
 
       // Save
@@ -45,9 +56,11 @@ void main() {
 
       expect(loadedProfile.name, profile.name);
       expect(loadedProfile.description, profile.description);
-      expect(loadedProfile.schemaId, 'test-schema');
+      expect(loadedProfile.schema, TestModels.tProfileSchemaManifest);
       expect(loadedProfile.application.id, profile.application.id);
       expect(loadedProfile.path, path);
+      expect(loadedProfile.layers.length, 1);
+      expect(loadedProfile.layers[0].layerName, 'Test Layer');
     });
 
     test('should throw exception when loading non-existent file', () async {

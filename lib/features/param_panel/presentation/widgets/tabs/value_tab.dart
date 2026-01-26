@@ -62,24 +62,39 @@ class _ValueTabState extends ConsumerState<ValueTab> {
     final paramCategory = widget.item.param.category.categoryName;
     final paramName = widget.item.param.paramName;
 
-    final matchingLayers = <_LayerOption>[];
-    for (int i = 0; i < layers.length; i++) {
-      if (layers[i].layerCategory == paramCategory) {
-        matchingLayers.add(_LayerOption(index: i, name: layers[i].layerName));
-      }
-    }
-
     final selectedLayerIndex = ref.watch(
       paramPanelProvider.select((s) => s.selectedLayerIndices[paramName]),
     );
 
-    // Auto-select first matching layer if none selected
-    if (selectedLayerIndex == null && matchingLayers.isNotEmpty) {
+    // Filter matching layers and identify the highest active one
+    final matchingLayers = <_LayerOption>[];
+    int? highestActiveIndex;
+
+    for (int i = 0; i < layers.length; i++) {
+      if (layers[i].layerCategory == paramCategory) {
+        matchingLayers.add(_LayerOption(index: i, name: layers[i].layerName));
+        if (layers[i].isActive) {
+          highestActiveIndex = i;
+        }
+      }
+    }
+
+    // Comfy selection logic:
+    // If current selection is invalid or null, use the highest active matching layer
+    final bool selectionIsValid =
+        selectedLayerIndex != null &&
+        matchingLayers.any((opt) => opt.index == selectedLayerIndex);
+
+    if (!selectionIsValid && matchingLayers.isNotEmpty) {
+      final fallbackIndex = highestActiveIndex ?? matchingLayers.first.index;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref
             .read(paramPanelProvider.notifier)
-            .setSelectedLayerIndex(paramName, matchingLayers.first.index);
+            .setSelectedLayerIndex(paramName, fallbackIndex);
       });
+
+      // Prevent dropdown crash by using fallback value for this build cycle
+      return const SizedBox.shrink();
     }
 
     return LamiBox(
@@ -118,10 +133,7 @@ class _ValueTabState extends ConsumerState<ValueTab> {
       items: options.map((opt) {
         return DropdownMenuItem<int>(
           value: opt.index,
-          child: Text(
-            opt.name,
-            overflow: TextOverflow.ellipsis,
-          ),
+          child: Text(opt.name, overflow: TextOverflow.ellipsis),
         );
       }).toList(),
       onChanged: (val) {
@@ -147,11 +159,11 @@ class _ValueTabState extends ConsumerState<ValueTab> {
                   child: Text(
                     opt.name.toUpperCase(),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: categoryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          letterSpacing: 0.2,
-                        ),
+                      color: categoryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                      letterSpacing: 0.2,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

@@ -33,9 +33,6 @@ class LamiDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -49,11 +46,17 @@ class LamiDialog extends StatelessWidget {
         ),
         child: FogEffect(
           padding: AppSpacing.xl,
-          color: colorScheme.surfaceContainer,
+          color: Colors.black.withValues(alpha: 0.6),
+          showSolidBase: false,
           child: LamiPanel(
             baseRadius: 24,
             borderWidth: 5,
-            internalPadding: const EdgeInsets.all(AppSpacing.xl),
+            internalPadding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.l,
+              AppSpacing.xl,
+              AppSpacing.xl,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -99,13 +102,13 @@ class LamiDialog extends StatelessWidget {
 Future<T?> showLamiDialog<T>({
   required BuildContext context,
   required LamiDialogModel model,
-  bool useRootNavigator = true,
+  bool useRootNavigator = false,
 }) {
   return showDialog<T>(
     context: context,
     useRootNavigator: useRootNavigator,
     barrierDismissible: model.dismissible,
-    barrierColor: Colors.black.withValues(alpha: 0.4),
+    barrierColor: Colors.black.withValues(alpha: 0.6),
     builder: (context) => LamiDialog(model: model),
   );
 }

@@ -1,4 +1,6 @@
 import 'package:mocktail/mocktail.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 import 'package:laminode_app/features/profile_manager/domain/repositories/profile_repository.dart';
 import 'package:laminode_app/features/layer_management/data/datasources/layer_local_data_source.dart';
 import 'package:laminode_app/features/layer_management/domain/repositories/layer_management_repository.dart';
@@ -31,3 +33,9 @@ class MockUpdateLayerNameUseCase extends Mock
     implements UpdateLayerNameUseCase {}
 
 class MockSchemaShopRepository extends Mock implements SchemaShopRepository {}
+
+class MockSchemaShopNotifier extends StateNotifier<SchemaShopState>
+    with Mock
+    implements SchemaShopNotifier {
+  MockSchemaShopNotifier() : super(SchemaShopState());
+}

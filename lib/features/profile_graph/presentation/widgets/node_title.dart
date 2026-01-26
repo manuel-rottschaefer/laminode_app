@@ -10,10 +10,8 @@ class NodeTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     if (lines.isEmpty) return const SizedBox.shrink();
 
-    // Determine the font size and line height based on typical node constraints.
-    // Legacy used displayMedium (size 18) with some tweaks.
     const TextStyle textStyle = TextStyle(
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: FontWeight.bold,
       color: Colors.white,
       height: 1.1,

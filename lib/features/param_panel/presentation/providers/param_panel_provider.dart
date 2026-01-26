@@ -1,121 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
-import 'package:laminode_app/features/param_panel/domain/entities/param_panel_item.dart';
 import 'package:laminode_app/features/param_panel/domain/entities/param_tab.dart';
 import 'package:laminode_app/features/schema_shop/presentation/providers/schema_shop_provider.dart';
 import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
-import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 
-final paramPanelItemsProvider = Provider<List<ParamPanelItem>>((ref) {
-  final state = ref.watch(paramPanelProvider);
-  final activeSchema = ref.watch(
-    schemaShopProvider.select((s) => s.activeSchema),
-  );
-  final layers = ref.watch(layerPanelProvider.select((s) => s.layers));
-
-  if (activeSchema == null) return const [];
-
-  final normalizedQuery = state.searchQuery.toLowerCase();
-  final List<ParamPanelItem> filteredItems = [];
-
-  for (final paramDef in activeSchema.availableParameters) {
-    final matchesSearch =
-        normalizedQuery.isNotEmpty &&
-        (paramDef.paramName.toLowerCase().contains(normalizedQuery) ||
-            paramDef.paramTitle.toLowerCase().contains(normalizedQuery));
-
-    if (normalizedQuery.isNotEmpty &&
-        !matchesSearch &&
-        state.focusedParamName == null) {
-      continue;
-    }
-
-    if (state.focusedParamName != null &&
-        paramDef.paramName != state.focusedParamName) {
-      continue;
-    }
-
-    // Merge layer value
-    CamParamEntry param = paramDef;
-    final selectedIndex = state.selectedLayerIndices[paramDef.paramName];
-
-    if (selectedIndex != null &&
-        selectedIndex >= 0 &&
-        selectedIndex < layers.length) {
-      final layer = layers[selectedIndex];
-      try {
-        final layerParam = layer.parameters?.firstWhere(
-          (p) => p.paramName == paramDef.paramName,
-        );
-        if (layerParam != null) {
-          param = layerParam;
-        }
-      } catch (_) {
-        // Param not edited in this layer yet, use schema def as base
-      }
-    }
-
-    // Apply lock from state
-    if (state.lockedParams[param.paramName] ?? false) {
-      param = param.copyWith(isLocked: true);
-    }
-
-    final itemState = state.focusedParamName != null
-        ? ParamItemState.reference
-        : (normalizedQuery.isNotEmpty
-              ? ParamItemState.search
-              : ParamItemState.schema);
-
-    filteredItems.add(ParamPanelItem(param: param, state: itemState));
-  }
-  return filteredItems;
-});
-
-class ParamPanelState {
-  final String searchQuery;
-  final String? expandedParamName;
-  final List<String> history;
-  final String? focusedParamName;
-  final Map<String, int> selectedLayerIndices;
-  final Map<String, bool> lockedParams;
-  final Map<String, ParamTab> selectedTabs;
-
-  ParamPanelState({
-    this.searchQuery = '',
-    this.expandedParamName,
-    this.history = const [],
-    this.focusedParamName,
-    this.selectedLayerIndices = const {},
-    this.lockedParams = const {},
-    this.selectedTabs = const {},
-  });
-
-  ParamPanelState copyWith({
-    String? searchQuery,
-    String? expandedParamName,
-    List<String>? history,
-    String? focusedParamName,
-    Map<String, int>? selectedLayerIndices,
-    Map<String, bool>? lockedParams,
-    Map<String, ParamTab>? selectedTabs,
-    bool clearExpansion = false,
-    bool clearFocus = false,
-  }) {
-    return ParamPanelState(
-      searchQuery: searchQuery ?? this.searchQuery,
-      expandedParamName: clearExpansion
-          ? null
-          : (expandedParamName ?? this.expandedParamName),
-      history: history ?? this.history,
-      focusedParamName: clearFocus
-          ? null
-          : (focusedParamName ?? this.focusedParamName),
-      selectedLayerIndices: selectedLayerIndices ?? this.selectedLayerIndices,
-      lockedParams: lockedParams ?? this.lockedParams,
-      selectedTabs: selectedTabs ?? this.selectedTabs,
-    );
-  }
-}
+import 'param_panel_state.dart';
+export 'param_panel_state.dart';
+export 'param_panel_items_provider.dart';
 
 class ParamPanelNotifier extends Notifier<ParamPanelState> {
   @override
@@ -127,6 +18,7 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
     final selectedIndices = _getSelectedLayerIndices();
     final lockedParams = _getLockedParams();
     final selectedTabs = _getSelectedTabs();
+    final branchedParamNames = _getBranchedParamNames();
 
     return ParamPanelState(
       searchQuery: currentQuery,
@@ -136,7 +28,16 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
       selectedLayerIndices: selectedIndices,
       lockedParams: lockedParams,
       selectedTabs: selectedTabs,
+      branchedParamNames: branchedParamNames,
     );
+  }
+
+  Set<String> _getBranchedParamNames() {
+    try {
+      return state.branchedParamNames;
+    } catch (_) {
+      return const {};
+    }
   }
 
   Map<String, ParamTab> _getSelectedTabs() {
@@ -269,6 +170,21 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
     state = state.copyWith(lockedParams: updatedLocked);
   }
 
+  void toggleBranching(String paramName) {
+    final updatedBranched = Set<String>.from(state.branchedParamNames);
+    if (updatedBranched.contains(paramName)) {
+      updatedBranched.remove(paramName);
+    } else {
+      updatedBranched.add(paramName);
+    }
+
+    state = state.copyWith(branchedParamNames: updatedBranched);
+  }
+
+  void setBranchedParamNames(Set<String> names) {
+    state = state.copyWith(branchedParamNames: names);
+  }
+
   void updateParamValue(String paramName, dynamic value) {
     final selectedIndex = state.selectedLayerIndices[paramName];
     if (selectedIndex != null) {
@@ -301,6 +217,16 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
       ref
           .read(layerPanelProvider.notifier)
           .resetParamValue(selectedIndex, paramName);
+    }
+  }
+
+  void clearFocus() {
+    state = state.copyWith(clearExpansion: true, clearFocus: true, history: []);
+  }
+
+  void updateFocusedParamValue(dynamic value) {
+    if (state.focusedParamName != null) {
+      updateParamValue(state.focusedParamName!, value);
     }
   }
 }

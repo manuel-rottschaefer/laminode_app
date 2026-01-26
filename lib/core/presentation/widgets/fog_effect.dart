@@ -8,6 +8,7 @@ class FogEffect extends StatelessWidget {
   final bool showBottom;
   final bool showLeft;
   final bool showRight;
+  final bool showSolidBase;
 
   static const double overlap = 0.1;
   static const double halfOverlap = overlap / 2;
@@ -21,6 +22,7 @@ class FogEffect extends StatelessWidget {
     this.showBottom = true,
     this.showLeft = true,
     this.showRight = true,
+    this.showSolidBase = true,
   });
 
   @override
@@ -42,17 +44,18 @@ class FogEffect extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         // 1. Solid Background Base
-        Positioned.fill(
-          child: Container(
-            margin: EdgeInsets.fromLTRB(
-              showLeft ? fogRange : 0,
-              showTop ? fogRange : 0,
-              showRight ? fogRange : 0,
-              showBottom ? fogRange : 0,
+        if (showSolidBase)
+          Positioned.fill(
+            child: Container(
+              margin: EdgeInsets.fromLTRB(
+                showLeft ? fogRange : 0,
+                showTop ? fogRange : 0,
+                showRight ? fogRange : 0,
+                showBottom ? fogRange : 0,
+              ),
+              color: color,
             ),
-            color: color,
           ),
-        ),
 
         // 2. Gradients
         if (showLeft)

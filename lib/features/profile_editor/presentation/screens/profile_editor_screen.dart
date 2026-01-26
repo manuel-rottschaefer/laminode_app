@@ -22,11 +22,8 @@ class ProfileEditorScreen extends ConsumerStatefulWidget {
 class _ProfileEditorScreenState extends ConsumerState<ProfileEditorScreen> {
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final fogColor = colorScheme.surfaceContainer;
-
     return Scaffold(
-      backgroundColor: fogColor,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       body: Column(
         children: [
           if (Theme.of(context).platform == TargetPlatform.linux ||
@@ -49,71 +46,62 @@ class _ProfileEditorScreenState extends ConsumerState<ProfileEditorScreen> {
 
                     return Stack(
                       children: [
-                        // Background (Graph View)
+                        // Background (Graph View) - Stays full screen
                         const Positioned.fill(child: ProfileGraphView()),
 
-                        // Sidebars
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Left Sidebar
-                            _Sidebar(
-                              width: 320,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  FogEffect(
-                                    padding: AppSpacing.m,
-                                    color: fogColor,
-                                    showLeft: false,
-                                    showTop: false,
-                                    child: const ProfilePanel(),
-                                  ),
-                                  if (hasProfile) ...[
-                                    const SizedBox(height: 300),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Flexible(
-                                            child: FogEffect(
-                                              padding: AppSpacing.m,
-                                              color: fogColor,
-                                              showLeft: false,
-                                              showBottom: false,
-                                              child: const LamiPanel(
-                                                baseRadius: 12,
-                                                borderWidth: 3,
-                                                child: LayerPanel(),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-
-                            // Right Sidebar
-                            if (hasLayers)
+                        // Sidebars - These move inward
+                        Padding(
+                          padding: const EdgeInsets.all(AppSpacing.l),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Left Sidebar
                               _Sidebar(
-                                width: 360,
+                                width: 320,
                                 child: FogEffect(
                                   padding: AppSpacing.m,
-                                  color: fogColor,
-                                  showRight: false,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainer,
+                                  showLeft: false,
                                   showTop: false,
-                                  child: const LamiPanel(
-                                    baseRadius: 12,
-                                    borderWidth: 3,
-                                    child: ParamPanel(),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      const ProfilePanel(),
+                                      if (hasProfile) ...[
+                                        const SizedBox(height: AppSpacing.xl),
+                                        const LamiPanel(
+                                          baseRadius: 12,
+                                          borderWidth: 3,
+                                          child: LayerPanel(),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
                               ),
-                          ],
+
+                              // Right Sidebar
+                              if (hasLayers)
+                                _Sidebar(
+                                  width: 360,
+                                  child: FogEffect(
+                                    padding: AppSpacing.m,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainer,
+                                    showRight: false,
+                                    showTop: false,
+                                    child: const LamiPanel(
+                                      baseRadius: 12,
+                                      borderWidth: 3,
+                                      child: ParamPanel(),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ],
                     );

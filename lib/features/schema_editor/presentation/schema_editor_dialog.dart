@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
-import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_segmented_control.dart';
 import 'package:laminode_app/features/schema_editor/application/schema_editor_provider.dart';
 import 'package:laminode_app/features/schema_editor/application/schema_editor_state.dart';
-import 'package:laminode_app/features/schema_editor/presentation/widgets/schema_properties_widget.dart';
-import 'package:laminode_app/features/schema_editor/presentation/widgets/categories_editor_widget.dart';
-import 'package:laminode_app/features/schema_editor/presentation/widgets/adapter_editor_widget.dart';
-import 'package:laminode_app/features/schema_editor/presentation/widgets/param_list_widget.dart';
-import 'package:laminode_app/features/schema_editor/presentation/widgets/param_conf_widget.dart';
+import 'package:laminode_app/features/schema_editor/presentation/widgets/schema_editor_body.dart';
+import 'package:laminode_app/features/schema_editor/presentation/widgets/schema_editor_footer.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class SchemaEditorDialog extends ConsumerWidget {
@@ -49,14 +45,6 @@ class SchemaEditorDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewMode = ref.watch(schemaEditorProvider.select((s) => s.viewMode));
-    final canSave = ref.watch(schemaEditorProvider.select((s) => s.canSave));
-    final appExists = ref.watch(schemaEditorProvider.select((s) => s.appExists));
-    final versionExists = ref.watch(
-      schemaEditorProvider.select((s) => s.versionExists),
-    );
-    final isChecking = ref.watch(
-      schemaEditorProvider.select((s) => s.isChecking),
-    );
 
     return SizedBox(
       height: 700,
@@ -65,162 +53,11 @@ class SchemaEditorDialog extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: AppSpacing.xl),
-          Expanded(child: _buildBody(context, viewMode)),
+          Expanded(child: SchemaEditorBody(viewMode: viewMode)),
           const SizedBox(height: AppSpacing.l),
-          Row(
-            children: [
-              LamiButton(
-                label: "Discard & Close",
-                icon: LucideIcons.trash2,
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              const Spacer(),
-              if (isChecking)
-                const Padding(
-                  padding: EdgeInsets.only(right: AppSpacing.m),
-                  child: SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-              if (!appExists && !isChecking)
-                const Padding(
-                  padding: EdgeInsets.only(right: AppSpacing.m),
-                  child: Text(
-                    "Application not installed",
-                    style: TextStyle(color: Colors.orange, fontSize: 12),
-                  ),
-                ),
-              if (versionExists && !isChecking)
-                const Padding(
-                  padding: EdgeInsets.only(right: AppSpacing.m),
-                  child: Text(
-                    "Version already exists",
-                    style: TextStyle(color: Colors.red, fontSize: 12),
-                  ),
-                ),
-              LamiButton(
-                label: "Export Bundle",
-                icon: LucideIcons.upload,
-                onPressed: () {
-                  ref.read(schemaEditorProvider.notifier).exportSchema();
-                },
-              ),
-              const SizedBox(width: AppSpacing.m),
-              LamiButton(
-                label: "Save Schema",
-                icon: LucideIcons.save,
-                inactive: !canSave,
-                onPressed: () async {
-                  try {
-                    await ref.read(schemaEditorProvider.notifier).saveSchema();
-                    if (context.mounted) Navigator.of(context).pop();
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Failed to save: $e")),
-                      );
-                    }
-                  }
-                },
-              ),
-              const SizedBox(width: AppSpacing.m),
-              LamiButton(
-                label: "Save & Use Schema",
-                icon: LucideIcons.play,
-                inactive: !canSave,
-                onPressed: () async {
-                  try {
-                    await ref
-                        .read(schemaEditorProvider.notifier)
-                        .saveAndUseSchema();
-                    if (context.mounted) Navigator.of(context).pop();
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Failed to save & use: $e")),
-                      );
-                    }
-                  }
-                },
-              ),
-            ],
-          ),
+          const SchemaEditorFooter(),
         ],
       ),
     );
-  }
-
-  Widget _buildBody(BuildContext ctx, SchemaEditorViewMode viewMode) {
-    switch (viewMode) {
-      case SchemaEditorViewMode.schema:
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Left side: Properties (Top) + Categories (Bottom)
-            Expanded(
-              flex: 4,
-              child: Column(
-                children: const [
-                  SchemaPropertiesWidget(),
-                  SizedBox(height: AppSpacing.xl),
-                  Expanded(child: CategoriesEditorWidget()),
-                ],
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xl),
-            // Right side: Adapter Code
-            const Expanded(flex: 6, child: AdapterEditorWidget()),
-          ],
-        );
-      case SchemaEditorViewMode.parameters:
-        final theme = Theme.of(ctx);
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    height: 32,
-                    child: Row(
-                      children: [
-                        Text(
-                          "SCHEMA PARAMETERS",
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.m),
-                  const Expanded(child: ParamListWidget()),
-                ],
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xl),
-            Expanded(
-              flex: 6,
-              child: Consumer(
-                builder: (context, ref, _) {
-                  final selectedParam = ref.watch(
-                    schemaEditorProvider.select(
-                      (s) => s.selectedParameter?.paramName,
-                    ),
-                  );
-                  return ParamConfWidget(key: ValueKey(selectedParam));
-                },
-              ),
-            ),
-          ],
-        );
-    }
   }
 }

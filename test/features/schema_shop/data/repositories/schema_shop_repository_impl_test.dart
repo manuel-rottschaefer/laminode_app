@@ -27,6 +27,7 @@ void main() {
       mockRemoteDataSource,
       mockLocalDataSource,
     );
+    when(() => mockLocalDataSource.pluginsPath).thenAnswer((_) async => '/tmp');
   });
 
   final tPluginManifestModel = PluginManifestModel(
@@ -123,23 +124,26 @@ void main() {
   });
 
   group('schemaExists', () {
-    test('should return true when local data source returns a schema', () async {
-      when(
-        () => mockLocalDataSource.getInstalledSchema(any()),
-      ).thenAnswer((_) async => {'id': 'v1'});
+    test(
+      'should return true when local data source returns a schema',
+      () async {
+        when(
+          () => mockLocalDataSource.schemaExists(any(), any(), any()),
+        ).thenAnswer((_) async => true);
 
-      final result = await repository.schemaExists('v1');
+        final result = await repository.schemaExists('App', '1.0', 'v1');
 
-      expect(result, true);
-      verify(() => mockLocalDataSource.getInstalledSchema('v1'));
-    });
+        expect(result, true);
+        verify(() => mockLocalDataSource.schemaExists('App', '1.0', 'v1'));
+      },
+    );
 
     test('should return false when local data source returns null', () async {
       when(
-        () => mockLocalDataSource.getInstalledSchema(any()),
-      ).thenAnswer((_) async => null);
+        () => mockLocalDataSource.schemaExists(any(), any(), any()),
+      ).thenAnswer((_) async => false);
 
-      final result = await repository.schemaExists('v1');
+      final result = await repository.schemaExists('App', '1.0', 'v1');
 
       expect(result, false);
     });
