@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_force_directed_graph/flutter_force_directed_graph.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/presentation/widgets/fog_effect.dart';
+import 'package:laminode_app/features/evaluation/application/profile_evaluation_provider.dart';
 import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
+import 'package:laminode_app/features/param_panel/domain/entities/param_panel_item.dart';
 import 'package:laminode_app/features/param_panel/presentation/providers/param_panel_provider.dart';
 import 'package:laminode_app/features/profile_graph/application/providers/graph_providers.dart';
 import 'package:laminode_app/features/profile_graph/domain/entities/graph_node.dart';
@@ -20,16 +22,65 @@ class ProfileGraphView extends ConsumerStatefulWidget {
 class _ProfileGraphViewState extends ConsumerState<ProfileGraphView> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
+  Rect? _focusedInputRect;
+  ForceDirectedGraphController<String>? _visualController;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
     _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final controller = ref
+          .read(profileGraphControllerProvider)
+          .visualController;
+      _visualController = controller;
+      controller.addListener(_onTransformChange);
+    });
+  }
+
+  void _onFocusChange() {
+    if (!_focusNode.hasFocus && mounted) {
+      setState(() {
+        _focusedInputRect = null;
+      });
+    }
+  }
+
+  void _syncControllerWithParam(String? paramName) {
+    if (paramName == null) {
+      _controller.text = "";
+      return;
+    }
+
+    if (_focusNode.hasFocus) {
+      return;
+    }
+
+    final items = ref.read(paramPanelItemsProvider);
+    final item = items.cast<ParamPanelItem?>().firstWhere(
+      (it) => it?.param.paramName == paramName,
+      orElse: () => null,
+    );
+
+    final value = item?.param.value?.toString() ?? "";
+    if (_controller.text != value) {
+      _controller.text = value;
+    }
+  }
+
+  void _onTransformChange() {
+    if (_focusNode.hasFocus && mounted) {
+      _updateInputPosition();
+    }
   }
 
   @override
   void dispose() {
+    _visualController?.removeListener(_onTransformChange);
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -37,18 +88,9 @@ class _ProfileGraphViewState extends ConsumerState<ProfileGraphView> {
 
   void _onNodeTap(ParamGraphNode node) {
     final layers = ref.read(layerPanelProvider).layers;
-    final items = ref.read(paramPanelItemsProvider);
-
-    // Find the item to get its category and name
-    final item = items.firstWhere(
-      (it) => it.param.paramName == node.id,
-      orElse: () => items.first,
-    );
-
-    final paramCategory = item.param.category.categoryName;
+    final paramCategory = node.parameter.category.categoryName;
     int? highestActiveIndex;
 
-    // Find highest active layer for this category
     for (int i = 0; i < layers.length; i++) {
       if (layers[i].layerCategory == paramCategory && layers[i].isActive) {
         highestActiveIndex = i;
@@ -63,15 +105,35 @@ class _ProfileGraphViewState extends ConsumerState<ProfileGraphView> {
 
     ref.read(paramPanelProvider.notifier).navigateToParam(node.id);
 
-    // Sync controller with current value after selection
     final updatedItems = ref.read(paramPanelItemsProvider);
-    final updatedItem = updatedItems.firstWhere(
-      (it) => it.param.paramName == node.id,
-      orElse: () => updatedItems.first,
+    final updatedItem = updatedItems.cast<ParamPanelItem?>().firstWhere(
+      (it) => it?.param.paramName == node.id,
+      orElse: () => null,
     );
 
-    _controller.text = (updatedItem.param.value ?? "").toString();
-    _focusNode.requestFocus();
+    if (updatedItem != null) {
+      _controller.text = (updatedItem.param.value ?? "").toString();
+    } else {
+      _controller.text = "";
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _updateInputPosition();
+      _focusNode.requestFocus();
+    });
+  }
+
+  void _updateInputPosition() {
+    final key = ref.read(focusedInputKeyProvider);
+    final RenderBox? box = key.currentContext?.findRenderObject() as RenderBox?;
+    if (box != null) {
+      final viewport = context.findRenderObject() as RenderBox;
+      final offset = box.localToGlobal(Offset.zero, ancestor: viewport);
+      setState(() {
+        _focusedInputRect = offset & box.size;
+      });
+    }
   }
 
   @override
@@ -80,22 +142,46 @@ class _ProfileGraphViewState extends ConsumerState<ProfileGraphView> {
     final visualController = ref
         .watch(profileGraphControllerProvider)
         .visualController;
+    final evalResults = ref.watch(profileEvaluationProvider);
+
+    final focusedParamName = ref.watch(
+      paramPanelProvider.select((s) => s.focusedParamName),
+    );
+
+    ref.listen(paramPanelItemsProvider, (prev, next) {
+      if (focusedParamName != null) {
+        _syncControllerWithParam(focusedParamName);
+      }
+    });
+
+    ref.listen(paramPanelProvider.select((s) => s.focusedParamName), (
+      prev,
+      next,
+    ) {
+      if (next != null) {
+        _syncControllerWithParam(next);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _updateInputPosition();
+        });
+      }
+    });
+
+    final effectiveValue = focusedParamName != null
+        ? evalResults[focusedParamName]
+        : null;
+    final hintText = effectiveValue?.toString() ?? '';
+    final isLocked =
+        focusedParamName != null &&
+        (ref.watch(
+              paramPanelProvider.select(
+                (s) => s.lockedParams[focusedParamName],
+              ),
+            ) ??
+            false);
 
     return Stack(
       children: [
-        // Hidden input for the whole graph
-        Opacity(
-          opacity: 0,
-          child: TextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            onChanged: (val) {
-              ref
-                  .read(paramPanelProvider.notifier)
-                  .updateFocusedParamValue(val);
-            },
-          ),
-        ),
         GestureDetector(
           onTap: () {
             ref.read(paramPanelProvider.notifier).clearFocus();
@@ -135,10 +221,58 @@ class _ProfileGraphViewState extends ConsumerState<ProfileGraphView> {
             ),
           ),
         ),
-        // Floating Action Buttons
+
+        if (_focusedInputRect != null)
+          Positioned.fromRect(
+            rect: _focusedInputRect!,
+            child: Material(
+              color: Colors.transparent,
+              child: SizedBox(
+                height: 32,
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  readOnly: isLocked,
+                  textAlign: TextAlign.center,
+                  textAlignVertical: TextAlignVertical.center,
+                  style: TextStyle(
+                    color: isLocked ? Colors.white38 : Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'monospace',
+                    letterSpacing: 0.4,
+                  ),
+                  cursorColor: Colors.white54,
+                  cursorWidth: 1,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    border: InputBorder.none,
+                    counterText: '',
+                    hintText: hintText,
+                    hintStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'monospace',
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  onChanged: (val) {
+                    ref
+                        .read(paramPanelProvider.notifier)
+                        .updateFocusedParamValue(val);
+                  },
+                  onSubmitted: (_) => _focusNode.unfocus(),
+                  onTapOutside: (_) => _focusNode.unfocus(),
+                ),
+              ),
+            ),
+          ),
+
         Positioned(
           bottom: 16,
-          left: 340, // Offset from the left sidebar
+          left: 340,
           child: FogEffect(
             padding: 4,
             color: colorScheme.surfaceContainer.withValues(alpha: 0.4),

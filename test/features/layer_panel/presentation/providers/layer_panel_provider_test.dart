@@ -17,7 +17,7 @@ class FakeProfileManagerNotifier extends StateNotifier<ProfileManagerState>
   @override
   Future<void> loadProfile(any) async {}
   @override
-  void setProfile(any) {
+  Future<void> setProfile(any) async {
     state = state.copyWith(currentProfile: any, clearProfile: any == null);
   }
 

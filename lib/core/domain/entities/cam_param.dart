@@ -101,7 +101,6 @@ abstract class CamParameter {
   final CamExpressionRelation minThreshold;
   final CamExpressionRelation maxThreshold;
   final CamExpressionRelation defaultValue;
-  final CamExpressionRelation suggestedValue;
 
   // Conditional enablement
   final CamExpressionRelation enabledCondition;
@@ -123,7 +122,6 @@ abstract class CamParameter {
     CamExpressionRelation? minThreshold,
     CamExpressionRelation? maxThreshold,
     CamExpressionRelation? defaultValue,
-    CamExpressionRelation? suggestedValue,
     CamExpressionRelation? enabledCondition,
     this.children = const [],
     this.dependentParamNames = const [],
@@ -135,9 +133,6 @@ abstract class CamParameter {
            CamExpressionRelation(targetParamName: paramName, expression: ''),
        defaultValue =
            defaultValue ??
-           CamExpressionRelation(targetParamName: paramName, expression: ''),
-       suggestedValue =
-           suggestedValue ??
            CamExpressionRelation(targetParamName: paramName, expression: ''),
        enabledCondition =
            enabledCondition ??

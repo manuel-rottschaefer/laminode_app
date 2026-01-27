@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laminode_app/core/presentation/dialog/lami_dialog.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_action_widgets.dart';
+import 'package:laminode_app/core/presentation/widgets/lami_colored_badge.dart';
+import 'package:laminode_app/core/theme/app_colors.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
+import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 import 'package:laminode_app/features/layer_panel/presentation/dialogs/edit_layer_dialog.dart';
 import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
@@ -12,6 +15,7 @@ class LayerItemActions extends ConsumerWidget {
   final int index;
   final bool canMoveUp;
   final bool canMoveDown;
+  final CamCategoryEntry? category;
 
   const LayerItemActions({
     super.key,
@@ -19,11 +23,16 @@ class LayerItemActions extends ConsumerWidget {
     required this.index,
     required this.canMoveUp,
     required this.canMoveDown,
+    this.category,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final categoryColor = category != null
+        ? LamiColor.fromString(category!.categoryColorName).value
+        : null;
 
     return Container(
       decoration: BoxDecoration(
@@ -86,16 +95,22 @@ class LayerItemActions extends ConsumerWidget {
                 },
                 size: 16,
               ),
+              const SizedBox(width: AppSpacing.m),
+              LamiIconButton(
+                icon: Icons.delete_outline_rounded,
+                onPressed: () {
+                  ref.read(layerPanelProvider.notifier).removeLayer(index);
+                },
+                color: colorScheme.error,
+                size: 16,
+              ),
             ],
           ),
-          LamiIconButton(
-            icon: Icons.delete_outline_rounded,
-            onPressed: () {
-              ref.read(layerPanelProvider.notifier).removeLayer(index);
-            },
-            color: colorScheme.error,
-            size: 16,
-          ),
+          if (category != null)
+            LamiColoredBadge(
+              label: category!.categoryName,
+              color: categoryColor ?? colorScheme.primary,
+            ),
         ],
       ),
     );

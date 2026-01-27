@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../shape_utils.dart';
+import 'package:laminode_app/core/presentation/widgets/graph/shape_utils.dart';
 
 class OctagonPainter extends CustomPainter {
   final Path? path;

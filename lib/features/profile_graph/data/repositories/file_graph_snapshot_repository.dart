@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:laminode_app/features/profile_graph/data/models/graph_snapshot_model.dart';
 import 'package:laminode_app/features/profile_graph/domain/entities/graph_snapshot.dart';
 import 'package:laminode_app/features/profile_graph/domain/repositories/graph_snapshot_repository.dart';
 
@@ -16,7 +17,8 @@ class FileGraphSnapshotRepository implements GraphSnapshotRepository {
 
     if (outputFile != null) {
       final file = File(outputFile);
-      final jsonString = jsonEncode(snapshot.toJson());
+      final model = GraphSnapshotModel.fromEntity(snapshot);
+      final jsonString = jsonEncode(model.toJson());
       await file.writeAsString(jsonString);
     }
   }
@@ -32,7 +34,7 @@ class FileGraphSnapshotRepository implements GraphSnapshotRepository {
       final file = File(result.files.single.path!);
       final jsonString = await file.readAsString();
       final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
-      return GraphSnapshot.fromJson(jsonMap);
+      return GraphSnapshotModel.fromJson(jsonMap);
     }
     return null;
   }

@@ -50,7 +50,7 @@ class ProfileManagerNotifier extends StateNotifier<ProfileManagerState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       await _repository.saveProfile(profile);
-      setProfile(profile);
+      await setProfile(profile);
       state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -86,7 +86,7 @@ class ProfileManagerNotifier extends StateNotifier<ProfileManagerState> {
         }
       }
 
-      setProfile(profile);
+      await setProfile(profile);
       state = state.copyWith(isLoading: false);
     } on SchemaNotFoundException catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -97,7 +97,7 @@ class ProfileManagerNotifier extends StateNotifier<ProfileManagerState> {
     }
   }
 
-  void setProfile(ProfileEntity? profile) {
+  Future<void> setProfile(ProfileEntity? profile) async {
     if (profile == null) {
       state = state.copyWith(clearProfile: true);
       _ref.read(schemaShopProvider.notifier).clearActiveSchema();
@@ -106,7 +106,9 @@ class ProfileManagerNotifier extends StateNotifier<ProfileManagerState> {
       state = state.copyWith(currentProfile: profile);
       // Ensure schema is loaded when profile is set
       if (profile.schema != null) {
-        _ref.read(schemaShopProvider.notifier).loadSchema(profile.schema!.id);
+        await _ref
+            .read(schemaShopProvider.notifier)
+            .loadSchema(profile.schema!.id);
       } else {
         _ref.read(schemaShopProvider.notifier).clearActiveSchema();
       }

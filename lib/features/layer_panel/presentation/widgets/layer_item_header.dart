@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:laminode_app/core/theme/app_spacing.dart';
 import 'package:laminode_app/core/theme/app_colors.dart';
-import 'package:laminode_app/core/presentation/widgets/lami_colored_badge.dart';
 import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dart';
 import 'package:laminode_app/features/layer_panel/domain/entities/layer_entry.dart';
 
@@ -85,23 +84,16 @@ class LayerItemHeader extends StatelessWidget {
                         Flexible(
                           child: Text(
                             entry.layerName,
-                            style: theme.textTheme.titleMedium?.copyWith(
+                            style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: entry.isActive
                                   ? colorScheme.onSurface
                                   : theme.disabledColor,
                             ),
-                            maxLines: 1,
+                            maxLines: isExpanded ? 2 : 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (isExpanded && category != null) ...[
-                          const SizedBox(width: AppSpacing.s),
-                          LamiColoredBadge(
-                            label: category!.categoryName,
-                            color: categoryColor ?? colorScheme.primary,
-                          ),
-                        ],
                       ],
                     ),
                     AnimatedSwitcher(

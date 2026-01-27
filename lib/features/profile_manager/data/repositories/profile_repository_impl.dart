@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:laminode_app/features/layer_panel/data/models/layer_entry_model.dart';
 import 'package:laminode_app/features/profile_manager/domain/entities/profile_entity.dart';
 import 'package:laminode_app/features/profile_manager/domain/repositories/profile_repository.dart';
-import 'package:laminode_app/features/profile_graph/domain/entities/graph_snapshot.dart';
+import 'package:laminode_app/features/profile_graph/data/models/graph_snapshot_model.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   @override
@@ -18,7 +18,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
       'layers': profile.layers
           .map((l) => LayerEntryModel.fromEntity(l).toJson())
           .toList(),
-      'graphSnapshot': profile.graphSnapshot?.toJson(),
+      'graphSnapshot': profile.graphSnapshot != null
+          ? GraphSnapshotModel.fromEntity(profile.graphSnapshot!).toJson()
+          : null,
       'application': {
         'id': profile.application.id,
         'name': profile.application.name,
@@ -52,7 +54,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
               ?.map((l) => LayerEntryModel.fromJson(l).toEntity())
               .toList() ??
           [],
-      graphSnapshot: GraphSnapshot.fromJsonNullable(
+      graphSnapshot: GraphSnapshotModel.fromJsonNullable(
         data['graphSnapshot'] as Map<String, dynamic>?,
       ),
       application: ProfileApplication(

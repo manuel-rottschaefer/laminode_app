@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:laminode_app/core/presentation/widgets/graph/hex/hex_layout.dart';
 import 'package:laminode_app/features/profile_graph/domain/entities/graph_node.dart';
 import 'package:laminode_app/features/profile_graph/presentation/utils/node_layout_calculator.dart';
+import 'package:laminode_app/features/profile_graph/presentation/utils/profile_graph_config.dart';
 import 'graph_node_input_container.dart';
 import 'node_title.dart';
 import 'hex_icon_button.dart';
@@ -11,6 +12,7 @@ class HexNodeBody extends StatelessWidget {
   final ParamGraphNode node;
   final VoidCallback? onToggleLock;
   final VoidCallback? onToggleBranching;
+  final GlobalKey? focusedInputKey;
 
   const HexNodeBody({
     super.key,
@@ -18,6 +20,7 @@ class HexNodeBody extends StatelessWidget {
     required this.node,
     this.onToggleLock,
     this.onToggleBranching,
+    this.focusedInputKey,
   });
 
   @override
@@ -26,7 +29,7 @@ class HexNodeBody extends StatelessWidget {
       children: [
         HexLayout(
           circumradius: data.circumradius,
-          scaleY: 1.0,
+          scaleY: ProfileGraphConfig.hexScaleY,
           children: [
             HexChild(
               anchor: HexAnchor.leftVertex,
@@ -52,7 +55,7 @@ class HexNodeBody extends StatelessWidget {
         ),
         HexLayout(
           circumradius: data.circumradius,
-          scaleY: 1.0,
+          scaleY: ProfileGraphConfig.hexScaleY,
           children: [
             HexChild(
               anchor: HexAnchor.topEdge,
@@ -66,6 +69,8 @@ class HexNodeBody extends StatelessWidget {
                 parameter: node.parameter,
                 borderColor: data.borderColor,
                 width: data.hexSize.width * 0.38,
+                isFocused: node.isFocused,
+                focusedInputKey: focusedInputKey,
               ),
             ),
           ],
@@ -79,11 +84,15 @@ class _InputContainer extends StatelessWidget {
   final dynamic parameter;
   final Color borderColor;
   final double width;
+  final bool isFocused;
+  final GlobalKey? focusedInputKey;
 
   const _InputContainer({
     required this.parameter,
     required this.borderColor,
     required this.width,
+    required this.isFocused,
+    this.focusedInputKey,
   });
 
   @override
@@ -93,6 +102,8 @@ class _InputContainer extends StatelessWidget {
       child: GraphNodeInputContainer(
         parameter: parameter,
         borderColor: borderColor,
+        isFocused: isFocused,
+        focusedKey: focusedInputKey,
       ),
     );
   }

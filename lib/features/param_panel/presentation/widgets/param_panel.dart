@@ -109,16 +109,15 @@ class _ParamPanelState extends ConsumerState<ParamPanel> {
                       ),
                     ),
                   )
-                : ListView.builder(
-                    itemCount: items.length,
-                    padding: EdgeInsets.zero,
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      return ParamListItem(
-                        key: ValueKey(item.param.paramName),
-                        item: item,
-                      );
-                    },
+                : SingleChildScrollView(
+                    child: Column(
+                      children: items.map((item) {
+                        return ParamListItem(
+                          key: ValueKey(item.param.paramName),
+                          item: item,
+                        );
+                      }).toList(),
+                    ),
                   ),
           ),
         ),

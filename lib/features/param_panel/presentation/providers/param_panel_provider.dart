@@ -115,11 +115,16 @@ class ParamPanelNotifier extends Notifier<ParamPanelState> {
       currentHistory.add(state.expandedParamName!);
     }
 
+    // Ensure the edit tab is selected
+    final updatedTabs = Map<String, ParamTab>.from(state.selectedTabs);
+    updatedTabs[paramName] = ParamTab.edit;
+
     state = state.copyWith(
       searchQuery: '',
       expandedParamName: paramName,
       history: currentHistory,
       focusedParamName: paramName,
+      selectedTabs: updatedTabs,
     );
   }
 

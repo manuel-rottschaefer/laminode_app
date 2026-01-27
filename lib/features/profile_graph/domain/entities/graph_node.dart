@@ -1,4 +1,5 @@
 import 'package:laminode_app/core/domain/entities/cam_param.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 enum GraphNodeShape { none, hex, octagon }
 
@@ -12,6 +13,7 @@ abstract class GraphNode {
   final bool isLocked;
   final bool isBranching;
   final bool hasChildren;
+  final Vector2? position;
 
   const GraphNode({
     required this.id,
@@ -23,6 +25,7 @@ abstract class GraphNode {
     this.isLocked = false,
     this.isBranching = false,
     this.hasChildren = false,
+    this.position,
   });
 
   GraphNode copyWith({
@@ -35,6 +38,7 @@ abstract class GraphNode {
     bool? isLocked,
     bool? isBranching,
     bool? hasChildren,
+    Vector2? position,
   });
 }
 
@@ -48,6 +52,7 @@ class RootGraphNode extends GraphNode {
     super.isLocked,
     super.isBranching = true,
     super.hasChildren = true,
+    super.position,
   }) : super(shape: GraphNodeShape.none);
 
   @override
@@ -61,6 +66,7 @@ class RootGraphNode extends GraphNode {
     bool? isLocked,
     bool? isBranching,
     bool? hasChildren,
+    Vector2? position,
   }) {
     return RootGraphNode(
       id: id ?? this.id,
@@ -71,6 +77,7 @@ class RootGraphNode extends GraphNode {
       isLocked: isLocked ?? this.isLocked,
       isBranching: isBranching ?? this.isBranching,
       hasChildren: hasChildren ?? this.hasChildren,
+      position: position ?? this.position,
     );
   }
 }
@@ -88,6 +95,7 @@ class HubGraphNode extends GraphNode {
     super.isLocked,
     super.isBranching = true,
     super.hasChildren = true,
+    super.position,
   }) : super(shape: GraphNodeShape.octagon);
 
   @override
@@ -102,6 +110,7 @@ class HubGraphNode extends GraphNode {
     bool? isLocked,
     bool? isBranching,
     bool? hasChildren,
+    Vector2? position,
   }) {
     return HubGraphNode(
       id: id ?? this.id,
@@ -113,6 +122,7 @@ class HubGraphNode extends GraphNode {
       isLocked: isLocked ?? this.isLocked,
       isBranching: isBranching ?? this.isBranching,
       hasChildren: hasChildren ?? this.hasChildren,
+      position: position ?? this.position,
     );
   }
 }
@@ -130,6 +140,7 @@ class ParamGraphNode extends GraphNode {
     super.isLocked,
     super.isBranching = false,
     super.hasChildren = false,
+    super.position,
   }) : super(shape: GraphNodeShape.hex);
 
   @override
@@ -144,6 +155,7 @@ class ParamGraphNode extends GraphNode {
     bool? isLocked,
     bool? isBranching,
     bool? hasChildren,
+    Vector2? position,
   }) {
     return ParamGraphNode(
       id: id ?? this.id,
@@ -155,6 +167,7 @@ class ParamGraphNode extends GraphNode {
       isLocked: isLocked ?? this.isLocked,
       isBranching: isBranching ?? this.isBranching,
       hasChildren: hasChildren ?? this.hasChildren,
+      position: position ?? this.position,
     );
   }
 }

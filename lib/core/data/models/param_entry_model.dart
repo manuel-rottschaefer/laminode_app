@@ -17,7 +17,6 @@ class CamParamEntryModel {
   final CamExpressionRelationModel minThreshold;
   final CamExpressionRelationModel maxThreshold;
   final CamExpressionRelationModel defaultValue;
-  final CamExpressionRelationModel suggestedValue;
   final CamExpressionRelationModel enabledCondition;
   final List<CamHierarchyRelationModel> children;
 
@@ -34,7 +33,6 @@ class CamParamEntryModel {
     CamExpressionRelationModel? minThreshold,
     CamExpressionRelationModel? maxThreshold,
     CamExpressionRelationModel? defaultValue,
-    CamExpressionRelationModel? suggestedValue,
     CamExpressionRelationModel? enabledCondition,
     this.children = const [],
   }) : minThreshold =
@@ -51,12 +49,6 @@ class CamParamEntryModel {
            ),
        defaultValue =
            defaultValue ??
-           CamExpressionRelationModel(
-             targetParamName: paramName,
-             expression: '',
-           ),
-       suggestedValue =
-           suggestedValue ??
            CamExpressionRelationModel(
              targetParamName: paramName,
              expression: '',
@@ -82,9 +74,6 @@ class CamParamEntryModel {
       minThreshold: CamExpressionRelationModel.fromEntity(entity.minThreshold),
       maxThreshold: CamExpressionRelationModel.fromEntity(entity.maxThreshold),
       defaultValue: CamExpressionRelationModel.fromEntity(entity.defaultValue),
-      suggestedValue: CamExpressionRelationModel.fromEntity(
-        entity.suggestedValue,
-      ),
       enabledCondition: CamExpressionRelationModel.fromEntity(
         entity.enabledCondition,
       ),
@@ -108,7 +97,6 @@ class CamParamEntryModel {
       minThreshold: minThreshold.toEntity(),
       maxThreshold: maxThreshold.toEntity(),
       defaultValue: defaultValue.toEntity(),
-      suggestedValue: suggestedValue.toEntity(),
       enabledCondition: enabledCondition.toEntity(),
       children: children.map((e) => e.toEntity()).toList(),
       dependentParamNames: const [],
@@ -147,9 +135,6 @@ class CamParamEntryModel {
       defaultValue: CamExpressionRelationModel.fromJson(
         json['defaultValue'] ?? {'target': json['name']},
       ),
-      suggestedValue: CamExpressionRelationModel.fromJson(
-        json['suggestedValue'] ?? {'target': json['name']},
-      ),
       enabledCondition: CamExpressionRelationModel.fromJson(
         json['enabledCondition'] ?? {'target': json['name']},
       ),
@@ -179,7 +164,6 @@ class CamParamEntryModel {
       'minThreshold': minThreshold.toJson(),
       'maxThreshold': maxThreshold.toJson(),
       'defaultValue': defaultValue.toJson(),
-      'suggestedValue': suggestedValue.toJson(),
       'enabledCondition': enabledCondition.toJson(),
       'children': children.map((e) => e.toJson()).toList(),
     };

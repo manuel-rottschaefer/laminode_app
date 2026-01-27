@@ -9,6 +9,7 @@ import 'package:laminode_app/features/param_panel/presentation/widgets/component
 import 'package:laminode_app/features/layer_panel/presentation/providers/layer_panel_provider.dart';
 import 'package:laminode_app/core/presentation/widgets/lami_dropdown.dart';
 import 'package:laminode_app/features/param_panel/presentation/providers/param_panel_provider.dart';
+import 'package:laminode_app/features/evaluation/application/profile_evaluation_provider.dart';
 
 class ValueTab extends ConsumerStatefulWidget {
   final ParamPanelItem item;
@@ -29,16 +30,30 @@ class _ValueTabState extends ConsumerState<ValueTab> {
   }
 
   void _initController() {
-    final initialValue =
-        (widget.item.param.value ?? widget.item.param.evalSuggest()).toString();
-    _controller = TextEditingController(text: initialValue);
+    final evalResults = ref.read(profileEvaluationProvider);
+    final effectiveValue =
+        evalResults[widget.item.param.paramName] ??
+        widget.item.param.quantity.fallbackValue;
+
+    final valueToShow = widget.item.param.isEdited
+        ? widget.item.param.value
+        : effectiveValue;
+    _controller = TextEditingController(text: valueToShow.toString());
   }
 
   @override
   void didUpdateWidget(ValueTab oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final newValue =
-        (widget.item.param.value ?? widget.item.param.evalSuggest()).toString();
+    final evalResults = ref.read(profileEvaluationProvider);
+    final effectiveValue =
+        evalResults[widget.item.param.paramName] ??
+        widget.item.param.quantity.fallbackValue;
+
+    final valueToShow = widget.item.param.isEdited
+        ? widget.item.param.value
+        : effectiveValue;
+    final newValue = valueToShow.toString();
+
     if (newValue != _controller.text) {
       _controller.text = newValue;
     }

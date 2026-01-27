@@ -19,6 +19,25 @@ class ParamListItem extends ConsumerWidget {
       ),
     );
 
+    // Auto-scroll when expanded
+    ref.listen(
+      paramPanelProvider.select(
+        (s) => s.expandedParamName == item.param.paramName,
+      ),
+      (prev, next) {
+        if (next == true) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Scrollable.ensureVisible(
+              context,
+              duration: const Duration(milliseconds: 300),
+              alignment: 0.1,
+              curve: Curves.easeInOut,
+            );
+          });
+        }
+      },
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

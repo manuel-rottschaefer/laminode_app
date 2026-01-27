@@ -35,9 +35,6 @@ class _ParamConfExpressionSectionState
       case 'default':
         newParam = param.copyWith(defaultValue: relation);
         break;
-      case 'suggested':
-        newParam = param.copyWith(suggestedValue: relation);
-        break;
       case 'min':
         newParam = param.copyWith(minThreshold: relation);
         break;
@@ -146,16 +143,6 @@ class _ParamConfExpressionSectionState
                 schema: state.schema,
                 expectedQuantityType: param.quantity.quantityType,
                 onChanged: (val) => _updateRelation(param, 'default', val),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.l),
-            Expanded(
-              child: CamParamExpressionInput(
-                label: 'Suggested Value',
-                expression: param.suggestedValue.expression,
-                schema: state.schema,
-                expectedQuantityType: param.quantity.quantityType,
-                onChanged: (val) => _updateRelation(param, 'suggested', val),
               ),
             ),
           ],

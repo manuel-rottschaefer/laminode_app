@@ -18,7 +18,6 @@ class CamParamEntry extends CamParameter {
     super.minThreshold,
     super.maxThreshold,
     super.defaultValue,
-    super.suggestedValue,
     super.enabledCondition,
     super.children,
     super.dependentParamNames,
@@ -38,14 +37,6 @@ class CamParamEntry extends CamParameter {
     return quantity.fallbackValue;
   }
 
-  /// Evaluates the suggested value of this parameter.
-  dynamic evalSuggest([Map<String, dynamic>? context]) {
-    if (suggestedValue.isEmpty) {
-      return quantity.fallbackValue;
-    }
-    return quantity.fallbackValue;
-  }
-
   CamParamEntry copyWith({
     String? paramName,
     String? paramTitle,
@@ -57,7 +48,6 @@ class CamParamEntry extends CamParameter {
     CamExpressionRelation? minThreshold,
     CamExpressionRelation? maxThreshold,
     CamExpressionRelation? defaultValue,
-    CamExpressionRelation? suggestedValue,
     CamExpressionRelation? enabledCondition,
     List<CamHierarchyRelation>? children,
     List<String>? dependentParamNames,
@@ -76,7 +66,6 @@ class CamParamEntry extends CamParameter {
       minThreshold: minThreshold ?? this.minThreshold,
       maxThreshold: maxThreshold ?? this.maxThreshold,
       defaultValue: defaultValue ?? this.defaultValue,
-      suggestedValue: suggestedValue ?? this.suggestedValue,
       enabledCondition: enabledCondition ?? this.enabledCondition,
       children: children ?? this.children,
       dependentParamNames: dependentParamNames ?? this.dependentParamNames,

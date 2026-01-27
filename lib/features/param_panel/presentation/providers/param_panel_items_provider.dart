@@ -17,21 +17,30 @@ final paramPanelItemsProvider = Provider<List<ParamPanelItem>>((ref) {
   final normalizedQuery = state.searchQuery.toLowerCase();
   final List<ParamPanelItem> filteredItems = [];
 
-  for (final paramDef in activeSchema.availableParameters) {
-    final matchesSearch =
-        normalizedQuery.isNotEmpty &&
-        (paramDef.paramName.toLowerCase().contains(normalizedQuery) ||
-            paramDef.paramTitle.toLowerCase().contains(normalizedQuery));
+  final activeCategories = layers
+      .where((l) => l.isActive)
+      .map((l) => l.layerCategory)
+      .whereType<String>()
+      .toSet();
 
-    if (normalizedQuery.isNotEmpty &&
-        !matchesSearch &&
-        state.focusedParamName == null) {
+  for (final paramDef in activeSchema.availableParameters) {
+    if (filteredItems.length >= 128 &&
+        state.focusedParamName != paramDef.paramName) {
       continue;
     }
 
-    if (state.focusedParamName != null &&
-        paramDef.paramName != state.focusedParamName) {
-      continue;
+    final isFocused = state.focusedParamName == paramDef.paramName;
+
+    if (normalizedQuery.isNotEmpty) {
+      final matchesSearch =
+          paramDef.paramName.toLowerCase().contains(normalizedQuery) ||
+          paramDef.paramTitle.toLowerCase().contains(normalizedQuery);
+      if (!matchesSearch && !isFocused) continue;
+    } else {
+      final inActiveCategory = activeCategories.contains(
+        paramDef.category.categoryName,
+      );
+      if (!inActiveCategory && !isFocused) continue;
     }
 
     // Merge layer value

@@ -98,7 +98,6 @@ class SchemaShopLocalDataSourceImpl
             await findSchemas(entity);
           }
         } else if (entity is File && p.basename(entity.path) == 'schema.json') {
-          // New structure: .../[schema_version]/schema.json
           // Schema ID is the name of the parent folder
           schemaIds.add(p.basename(dir.path));
         }
@@ -124,7 +123,6 @@ class SchemaShopLocalDataSourceImpl
         if (result != null) return;
 
         if (entity is Directory) {
-          // Check old structure: schemas/[schemaId].json
           if (p.basename(entity.path) == 'schemas') {
             final file = File(p.join(entity.path, '$schemaId.json'));
             if (await file.exists()) {
@@ -132,7 +130,6 @@ class SchemaShopLocalDataSourceImpl
               return;
             }
           } else if (p.basename(entity.path) == schemaId) {
-            // Check new structure: .../[schemaId]/schema.json
             final file = File(p.join(entity.path, 'schema.json'));
             if (await file.exists()) {
               result = jsonDecode(await file.readAsString());
@@ -197,7 +194,6 @@ class SchemaShopLocalDataSourceImpl
             }
           }
 
-          // New structure: .../[schemaId]/adapter.js
           if (p.basename(entity.path) == schemaId) {
             final adapterFile = File(p.join(entity.path, 'adapter.js'));
             if (await adapterFile.exists()) {

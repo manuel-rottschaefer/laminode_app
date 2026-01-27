@@ -17,9 +17,11 @@ class GetProcessedGraphData {
     required CamSchemaEntry? activeSchema,
     required List<LamiLayerEntry> layers,
     required String? expandedParamName,
+    String? focusedParamName,
     required Map<String, bool> lockedParams,
     required Set<String> branchedParamNames,
     required EvaluationEngine engine,
+    Map<String, dynamic>? evaluationContext,
   }) {
     final activeLayers = layers.where((l) => l.isActive).toList();
 
@@ -61,7 +63,9 @@ class GetProcessedGraphData {
     final schemaParamsMap = <String, CamParamEntry>{};
     if (activeSchema != null) {
       for (final p in activeSchema.availableParameters) {
-        schemaParamsMap[p.paramName] = p;
+        if (activeCategoryNames.contains(p.category.categoryName)) {
+          schemaParamsMap[p.paramName] = p;
+        }
       }
     }
 
@@ -80,10 +84,23 @@ class GetProcessedGraphData {
       }
     }
 
+    // Load full schema structure for parent lookups, even if not active
+    final fullSchemaParams = <String, CamParamEntry>{};
+    if (activeSchema != null) {
+      for (final p in activeSchema.availableParameters) {
+        fullSchemaParams[p.paramName] = p;
+      }
+    }
+
     final globalChildToParent = <String, String>{};
     final globalParentToChildren = <String, List<String>>{};
 
-    for (final param in effectiveParamsMap.values) {
+    // Use full schema for structural relationships
+    final relationshipSource = activeSchema != null
+        ? activeSchema.availableParameters
+        : effectiveParamsMap.values;
+
+    for (final param in relationshipSource) {
       if (param.baseParam != null && param.baseParam!.isNotEmpty) {
         globalChildToParent[param.paramName] = param.baseParam!;
         globalParentToChildren
@@ -98,12 +115,8 @@ class GetProcessedGraphData {
       }
     }
 
-    final activeParams = <String, CamParamEntry>{};
-    for (final param in effectiveParamsMap.values) {
-      if (activeCategoryNames.contains(param.category.categoryName)) {
-        activeParams[param.paramName] = param;
-      }
-    }
+    // Start with parameters in active categories
+    final activeParams = Map<String, CamParamEntry>.from(effectiveParamsMap);
 
     bool added;
     do {
@@ -115,7 +128,9 @@ class GetProcessedGraphData {
 
         if (parentId != null && parentId.isNotEmpty) {
           if (!activeParams.containsKey(parentId)) {
-            final parent = effectiveParamsMap[parentId];
+            // Check overrides first, then full schema
+            final parent =
+                effectiveParamsMap[parentId] ?? fullSchemaParams[parentId];
             if (parent != null) {
               activeParams[parentId] = parent;
               added = true;
@@ -135,7 +150,9 @@ class GetProcessedGraphData {
           if (children != null) {
             for (final childId in children) {
               if (!activeParams.containsKey(childId)) {
-                final child = effectiveParamsMap[childId];
+                // Check overrides first, then full schema
+                final child =
+                    effectiveParamsMap[childId] ?? fullSchemaParams[childId];
                 if (child != null) {
                   activeParams[childId] = child;
                   branchedAdded = true;
@@ -154,9 +171,11 @@ class GetProcessedGraphData {
       return const GraphData.empty();
     }
 
-    final context = <String, dynamic>{};
-    for (final p in effectiveParamsMap.values) {
-      context[p.paramName] = p.value ?? p.quantity.fallbackValue;
+    final context = evaluationContext ?? <String, dynamic>{};
+    if (evaluationContext == null) {
+      for (final p in effectiveParamsMap.values) {
+        context[p.paramName] = p.value ?? p.quantity.fallbackValue;
+      }
     }
 
     final enabledParams = <CamParamEntry>[];
@@ -194,17 +213,22 @@ class GetProcessedGraphData {
       branchedParamNames: branchedParamNames,
     );
 
-    if (expandedParamName != null || lockedParams.isNotEmpty) {
+    if (expandedParamName != null ||
+        lockedParams.isNotEmpty ||
+        focusedParamName != null) {
       final nodes = Map<String, GraphNode>.from(data.nodes);
       bool changed = false;
 
       for (final id in nodes.keys) {
-        final isFocused = id == expandedParamName;
+        final isSelected = id == expandedParamName;
+        final isFocused = id == (focusedParamName ?? expandedParamName);
         final isLocked = lockedParams[id] ?? false;
 
-        if (nodes[id]!.isFocused != isFocused ||
+        if (nodes[id]!.isSelected != isSelected ||
+            nodes[id]!.isFocused != isFocused ||
             nodes[id]!.isLocked != isLocked) {
           nodes[id] = nodes[id]!.copyWith(
+            isSelected: isSelected,
             isFocused: isFocused,
             isLocked: isLocked,
           );

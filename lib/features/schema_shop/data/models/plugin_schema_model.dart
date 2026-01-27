@@ -78,9 +78,6 @@ class PluginSchemaModel {
       defaultValue: p['defaultValue'] != null
           ? CamExpressionRelationModel.fromJson(p['defaultValue']).toEntity()
           : null,
-      suggestedValue: p['suggestedValue'] != null
-          ? CamExpressionRelationModel.fromJson(p['suggestedValue']).toEntity()
-          : null,
       enabledCondition: p['enabledCondition'] != null
           ? CamExpressionRelationModel.fromJson(
               p['enabledCondition'],

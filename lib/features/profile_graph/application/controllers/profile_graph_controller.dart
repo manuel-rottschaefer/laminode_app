@@ -6,6 +6,8 @@ import 'package:laminode_app/features/param_panel/presentation/providers/param_p
 import 'package:laminode_app/features/profile_graph/application/providers/graph_providers.dart';
 import 'package:laminode_app/features/profile_graph/application/providers/graph_snapshot_providers.dart';
 import 'package:laminode_app/features/profile_graph/domain/entities/graph_data.dart';
+import 'package:laminode_app/features/profile_graph/domain/entities/graph_node.dart';
+import 'package:laminode_app/features/profile_graph/data/models/graph_node_model.dart';
 import 'package:vector_math/vector_math_64.dart';
 import 'package:laminode_app/features/profile_graph/domain/entities/graph_snapshot.dart';
 import 'dart:math' as math;
@@ -14,6 +16,7 @@ import 'dart:math' as math;
 class ProfileGraphController extends ChangeNotifier {
   final ForceDirectedGraphController<String> visualController;
   Ref? _ref;
+  Map<String, Vector2>? _pendingPositions;
 
   ProfileGraphController([this._ref])
     : visualController = _createVisualController() {
@@ -49,37 +52,78 @@ class ProfileGraphController extends ChangeNotifier {
   GraphSnapshot? getSnapshot() {
     if (_ref == null) return null;
 
-    final positions = <String, Vector2>{};
-    for (final node in visualController.graph.nodes) {
-      positions[node.data] = node.position;
-    }
-
     final branchedNames = _ref!.read(paramPanelProvider).branchedParamNames;
 
-    return GraphSnapshot(
-      nodePositions: positions,
-      branchedParamNames: branchedNames,
-    );
+    final nodes = visualController.graph.nodes.map((n) {
+      return GraphNodeModel(
+        id: n.data,
+        label: n.data,
+        shape: GraphNodeShape.none,
+        position: n.position,
+        isBranching: branchedNames.contains(n.data),
+      );
+    }).toList();
+
+    return GraphSnapshot(nodes: nodes);
   }
 
   void applySnapshot(GraphSnapshot snapshot) {
     if (_ref == null) return;
 
-    // 1. Restore branching state first (this will trigger graph sync)
+    // 1. Store positions for immediate application during sync
+    _pendingPositions = {
+      for (var n in snapshot.nodes)
+        if (n.position != null) n.id: n.position!,
+    };
+
+    // Force edge recreation to prevent stale visual cache
+    visualController.graph.edges.clear();
+    visualController.needUpdate();
+
+    // 2. Restore branching state first (this will trigger graph sync)
+    final branchedNames = snapshot.nodes
+        .where((n) => n.isBranching)
+        .map((n) => n.id)
+        .toSet();
+
     _ref!
         .read(paramPanelProvider.notifier)
-        .setBranchedParamNames(snapshot.branchedParamNames);
+        .setBranchedParamNames(branchedNames);
 
-    // 2. Wait for the graph to sync (nodes to be created)
+    // 3. Optional: fallback if sync didn't happen or didn't use all positions
     Future.delayed(const Duration(milliseconds: 100), () {
-      for (final node in visualController.graph.nodes) {
-        final savedPos = snapshot.nodePositions[node.data];
-        if (savedPos != null) {
-          node.position = savedPos;
-        }
+      if (_pendingPositions != null) {
+        _applyPendingPositions();
       }
-      visualController.needUpdate();
     });
+  }
+
+  void _applyPendingPositions() {
+    if (_pendingPositions == null) return;
+
+    bool changed = false;
+    final keysToRemove = <String>[];
+
+    for (final node in visualController.graph.nodes) {
+      final savedPos = _pendingPositions![node.data];
+      if (savedPos != null) {
+        node.position = savedPos;
+        changed = true;
+        keysToRemove.add(node.data);
+      }
+    }
+
+    if (changed) {
+      visualController.needUpdate();
+    }
+
+    for (final key in keysToRemove) {
+      _pendingPositions!.remove(key);
+    }
+
+    if (_pendingPositions!.isEmpty) {
+      _pendingPositions = null;
+    }
   }
 
   static ForceDirectedGraphController<String> _createVisualController() {
@@ -121,13 +165,22 @@ class ProfileGraphController extends ChangeNotifier {
 
     // 2. Add new nodes
     final toAdd = desiredNodes.difference(currentNodes);
+    final nodesWithPendingPositions = <String>{};
+
     for (final id in toAdd) {
-      visualController.addNode(id);
+      final initialPos = _pendingPositions?[id];
+      visualController.addNode(id, initialPosition: initialPos);
+
+      if (initialPos != null) {
+        nodesWithPendingPositions.add(id);
+        _pendingPositions!.remove(id);
+      }
     }
 
-    // 3. Position new nodes
-    if (toAdd.isNotEmpty) {
-      _positionNewNodes(toAdd, next);
+    // 3. Position new nodes (only those explicitly added without a fixed position)
+    final nodesToAutoPosition = toAdd.difference(nodesWithPendingPositions);
+    if (nodesToAutoPosition.isNotEmpty) {
+      _positionNewNodes(nodesToAutoPosition, next);
     }
 
     // 4. Sync Edges
@@ -161,6 +214,9 @@ class ProfileGraphController extends ChangeNotifier {
         toAdd.isNotEmpty ||
         edgesToAdd.isNotEmpty ||
         edgesToRemove.isNotEmpty) {
+      if (_pendingPositions != null) {
+        _applyPendingPositions();
+      }
       visualController.needUpdate();
     }
   }

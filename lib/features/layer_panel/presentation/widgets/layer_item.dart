@@ -78,6 +78,7 @@ class _LayerItemState extends ConsumerState<LayerItem> {
                   index: widget.index,
                   canMoveUp: canMoveUp,
                   canMoveDown: canMoveDown,
+                  category: category,
                 ),
               ],
             ],

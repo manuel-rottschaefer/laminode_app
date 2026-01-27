@@ -6,6 +6,7 @@ import 'package:laminode_app/features/param_panel/presentation/providers/param_p
 import 'package:laminode_app/features/profile_graph/domain/entities/graph_node.dart';
 import 'package:laminode_app/features/profile_graph/presentation/utils/node_layout_calculator.dart';
 import 'package:laminode_app/features/profile_graph/presentation/utils/profile_graph_config.dart';
+import 'package:laminode_app/features/profile_graph/application/providers/graph_providers.dart';
 import 'param_node_layout_helper.dart';
 import 'param_node_builders.dart';
 
@@ -105,6 +106,9 @@ class _ParamNodeWidgetState extends ConsumerState<ParamNodeWidget> {
       child: HexNodeBody(
         data: data,
         node: widget.node,
+        focusedInputKey: widget.node.isFocused
+            ? ref.watch(focusedInputKeyProvider)
+            : null,
         onToggleLock: () {
           ref.read(paramPanelProvider.notifier).toggleLock(widget.node.id);
         },

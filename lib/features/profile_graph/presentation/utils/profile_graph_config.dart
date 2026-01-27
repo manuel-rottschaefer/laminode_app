@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class ProfileGraphConfig {
-  static const double baseEdgeLength = 126.0;
+  static const double baseEdgeLength = 140.0; // Restored from legacy GraphNode.edgeLength
   static const double cornerRadiusFactorHex = 0.15;
 
-  // Stretching factors (setting to 1.0 for regular shapes)
+  // Regular regular shapes
   static const double hexHeightFactor = 1.0;
-  static const double hexScaleY = 0.95;
+  static const double hexScaleY = 1.0;
   static const double hexSpanFactor = 1.0;
   static const double octagonSpanFactor = 1.0;
 

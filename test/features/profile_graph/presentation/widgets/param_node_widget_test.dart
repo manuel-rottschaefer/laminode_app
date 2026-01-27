@@ -6,8 +6,17 @@ import 'package:laminode_app/core/domain/entities/entries/cam_category_entry.dar
 import 'package:laminode_app/core/domain/entities/entries/param_entry.dart';
 import 'package:laminode_app/features/profile_graph/domain/entities/graph_node.dart';
 import 'package:laminode_app/features/profile_graph/presentation/widgets/param_node_widget.dart';
+import 'package:laminode_app/features/evaluation/application/providers.dart';
+import 'package:laminode_app/features/evaluation/application/profile_evaluation_provider.dart';
+import '../../../../helpers/mocks.dart';
 
 void main() {
+  late MockEvaluationEngine mockEngine;
+
+  setUp(() {
+    mockEngine = MockEvaluationEngine();
+  });
+
   final category = CamCategoryEntry(
     categoryName: 'Speed',
     categoryTitle: 'Speed Settings',
@@ -40,6 +49,10 @@ void main() {
   testWidgets('ParamNodeWidget builds correctly', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          evaluationEngineProvider.overrideWithValue(mockEngine),
+          profileEvaluationProvider.overrideWithValue({'speed_print': '60'}),
+        ],
         child: MaterialApp(
           home: Scaffold(body: ParamNodeWidget(node: node)),
         ),
@@ -52,11 +65,7 @@ void main() {
     expect(find.byType(CustomPaint), findsWidgets);
 
     // Verify Text is present (from NodeTitle)
-    expect(
-      find.text('Print Speed'),
-      findsNothing,
-    ); // It's split into lines by logic, might not match full text exactly if broken up
-    expect(find.text('Print'), findsOneWidget); // Likely split
+    expect(find.text('Print'), findsOneWidget);
     expect(find.text('Speed'), findsOneWidget);
   });
 
@@ -64,6 +73,10 @@ void main() {
     bool tapped = false;
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          evaluationEngineProvider.overrideWithValue(mockEngine),
+          profileEvaluationProvider.overrideWithValue({'speed_print': '60'}),
+        ],
         child: MaterialApp(
           home: Scaffold(
             body: ParamNodeWidget(node: node, onTap: () => tapped = true),
@@ -81,6 +94,10 @@ void main() {
   ) async {
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          evaluationEngineProvider.overrideWithValue(mockEngine),
+          profileEvaluationProvider.overrideWithValue({'speed_print': '60'}),
+        ],
         child: MaterialApp(
           home: Scaffold(
             body: Center(
